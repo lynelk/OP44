@@ -6,8 +6,14 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 // Add page imports here
+import Dashboard from './pages/Dashboard';
+import Loans from './pages/Loans';
+import Savings from './pages/Savings';
+import Budget from './pages/Budget';
+import Profile from './pages/Profile';
 import GitHubDashboard from './pages/GitHubDashboard';
 import DriveReview from './pages/DriveReview';
+import BottomNav from './components/BottomNav';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -36,7 +42,12 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       {/* Add your page Route elements here */}
-      <Route path="/" element={<GitHubDashboard />} />
+      <Route path="/" element={<><Dashboard /><BottomNav /></>} />
+      <Route path="/loans" element={<><Loans /><BottomNav /></>} />
+      <Route path="/loans/apply" element={<><Loans /><BottomNav /></>} />
+      <Route path="/savings" element={<><Savings /><BottomNav /></>} />
+      <Route path="/budget" element={<><Budget /><BottomNav /></>} />
+      <Route path="/profile" element={<><Profile /><BottomNav /></>} />
       <Route path="/github" element={<GitHubDashboard />} />
       <Route path="/drive-review" element={<DriveReview />} />
       <Route path="*" element={<PageNotFound />} />
