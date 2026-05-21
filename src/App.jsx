@@ -36,6 +36,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       {/* Add your page Route elements here */}
+      <Route path="/" element={<GitHubDashboard />} />
       <Route path="/github" element={<GitHubDashboard />} />
       <Route path="/drive-review" element={<DriveReview />} />
       <Route path="*" element={<PageNotFound />} />
