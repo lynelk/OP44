@@ -1,0 +1,47 @@
+{
+  "name": "GamificationBadge",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "badge_type": {
+      "type": "string",
+      "enum": [
+        "kyc_complete",
+        "first_savings",
+        "savings_goal_reached",
+        "first_loan_repaid",
+        "on_time_streak_3",
+        "on_time_streak_6",
+        "on_time_streak_12",
+        "rosca_joined",
+        "rosca_completed",
+        "referral_1",
+        "referral_5",
+        "budget_master",
+        "no_emergency_loan_3months",
+        "platinum_level"
+      ]
+    },
+    "badge_name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "points_awarded": {
+      "type": "number"
+    },
+    "earned_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "badge_type",
+    "badge_name",
+    "points_awarded"
+  ]
+}

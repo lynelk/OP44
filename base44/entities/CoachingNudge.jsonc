@@ -1,0 +1,48 @@
+{
+  "name": "CoachingNudge",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "nudge_type": {
+      "type": "string",
+      "enum": [
+        "spending_alert",
+        "savings_tip",
+        "repayment_reminder",
+        "credit_score_tip",
+        "budget_advice",
+        "goal_encouragement",
+        "rosca_reminder",
+        "milestone_celebration"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "message": {
+      "type": "string"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false
+    },
+    "action_label": {
+      "type": "string"
+    },
+    "action_url": {
+      "type": "string"
+    },
+    "ai_generated": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "user_id",
+    "nudge_type",
+    "title",
+    "message"
+  ]
+}

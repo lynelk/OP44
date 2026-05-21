@@ -1,0 +1,47 @@
+{
+  "name": "InvestorPool",
+  "type": "object",
+  "properties": {
+    "investor_id": {
+      "type": "string"
+    },
+    "amount_invested": {
+      "type": "number"
+    },
+    "current_value": {
+      "type": "number"
+    },
+    "total_returns": {
+      "type": "number",
+      "default": 0
+    },
+    "return_rate": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "pending_withdrawal",
+        "withdrawn"
+      ],
+      "default": "active"
+    },
+    "invested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "maturity_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "withdrawal_requested_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "investor_id",
+    "amount_invested"
+  ]
+}

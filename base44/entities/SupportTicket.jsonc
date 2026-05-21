@@ -1,0 +1,67 @@
+{
+  "name": "SupportTicket",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "loan_dispute",
+        "payment_issue",
+        "kyc_issue",
+        "account_access",
+        "rosca_dispute",
+        "general_inquiry",
+        "complaint"
+      ]
+    },
+    "subject": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved",
+        "closed",
+        "escalated"
+      ],
+      "default": "open"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium"
+    },
+    "assigned_to": {
+      "type": "string"
+    },
+    "resolution_notes": {
+      "type": "string"
+    },
+    "loan_id": {
+      "type": "string"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "category",
+    "subject",
+    "description"
+  ]
+}
