@@ -1,0 +1,86 @@
+{
+  "name": "LoanApplication",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "amount_requested": {
+      "type": "number"
+    },
+    "amount_approved": {
+      "type": "number"
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "tenure_months": {
+      "type": "number"
+    },
+    "interest_rate": {
+      "type": "number"
+    },
+    "risk_band": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "default": "C"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "under_review",
+        "approved",
+        "rejected",
+        "disbursed",
+        "active",
+        "closed",
+        "defaulted"
+      ],
+      "default": "draft"
+    },
+    "monthly_installment": {
+      "type": "number"
+    },
+    "total_repayable": {
+      "type": "number"
+    },
+    "disbursed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "next_repayment_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "outstanding_balance": {
+      "type": "number"
+    },
+    "restructured": {
+      "type": "boolean",
+      "default": false
+    },
+    "early_repayment_requested": {
+      "type": "boolean",
+      "default": false
+    },
+    "admin_notes": {
+      "type": "string"
+    },
+    "submitted_by_agent": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "user_id",
+    "amount_requested",
+    "tenure_months"
+  ]
+}

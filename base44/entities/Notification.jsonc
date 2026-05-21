@@ -1,0 +1,54 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "body": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "repayment_due",
+        "loan_approved",
+        "loan_rejected",
+        "kyc_update",
+        "savings_goal",
+        "rosca_contribution",
+        "rosca_payout",
+        "gamification",
+        "nudge",
+        "dispute_update",
+        "system"
+      ]
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false
+    },
+    "action_url": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium"
+    }
+  },
+  "required": [
+    "user_id",
+    "title",
+    "body",
+    "type"
+  ]
+}

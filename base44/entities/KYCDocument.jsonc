@@ -1,0 +1,46 @@
+{
+  "name": "KYCDocument",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "national_id",
+        "selfie",
+        "employment_letter",
+        "bank_statement",
+        "utility_bill"
+      ]
+    },
+    "file_url": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "reviewer_notes": {
+      "type": "string"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "document_type",
+    "file_url"
+  ]
+}

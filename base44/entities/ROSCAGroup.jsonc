@@ -1,0 +1,68 @@
+{
+  "name": "ROSCAGroup",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "contribution_amount": {
+      "type": "number"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "biweekly",
+        "monthly"
+      ],
+      "default": "monthly"
+    },
+    "max_members": {
+      "type": "number",
+      "default": 12
+    },
+    "current_members": {
+      "type": "number",
+      "default": 0
+    },
+    "total_pool": {
+      "type": "number",
+      "default": 0
+    },
+    "current_round": {
+      "type": "number",
+      "default": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "active",
+        "completed",
+        "suspended"
+      ],
+      "default": "open"
+    },
+    "next_payout_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "current_beneficiary_id": {
+      "type": "string"
+    },
+    "invite_code": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "contribution_amount",
+    "frequency"
+  ]
+}

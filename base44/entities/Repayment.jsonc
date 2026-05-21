@@ -1,0 +1,55 @@
+{
+  "name": "Repayment",
+  "type": "object",
+  "properties": {
+    "loan_id": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "paid_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "paid",
+        "overdue",
+        "waived"
+      ],
+      "default": "scheduled"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "mobile_money",
+        "bank_transfer",
+        "cash",
+        "wallet"
+      ]
+    },
+    "transaction_ref": {
+      "type": "string"
+    },
+    "paid_by_agent": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "loan_id",
+    "user_id",
+    "amount",
+    "due_date"
+  ]
+}

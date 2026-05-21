@@ -1,0 +1,53 @@
+{
+  "name": "Expense",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "food",
+        "transport",
+        "housing",
+        "health",
+        "education",
+        "entertainment",
+        "utilities",
+        "clothing",
+        "savings",
+        "loan_repayment",
+        "other"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "mobile_money",
+        "bank",
+        "card"
+      ]
+    },
+    "receipt_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "amount",
+    "category",
+    "date"
+  ]
+}

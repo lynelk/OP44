@@ -1,0 +1,115 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "borrower",
+        "investor",
+        "admin",
+        "agent",
+        "employer"
+      ],
+      "default": "borrower"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "nin": {
+      "type": "string"
+    },
+    "income_type": {
+      "type": "string",
+      "enum": [
+        "salaried",
+        "msme",
+        "student",
+        "other"
+      ]
+    },
+    "disability_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "visual",
+        "motor",
+        "cognitive",
+        "hearing",
+        "other"
+      ],
+      "default": "none"
+    },
+    "accessibility_mode": {
+      "type": "string",
+      "enum": [
+        "standard",
+        "high_contrast",
+        "large_text",
+        "audio",
+        "simple_language"
+      ],
+      "default": "standard"
+    },
+    "kyc_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "none"
+    },
+    "financial_health_score": {
+      "type": "number",
+      "default": 0
+    },
+    "health_level": {
+      "type": "string",
+      "enum": [
+        "Bronze",
+        "Silver",
+        "Gold",
+        "Platinum"
+      ],
+      "default": "Bronze"
+    },
+    "gamification_points": {
+      "type": "number",
+      "default": 0
+    },
+    "referral_code": {
+      "type": "string"
+    },
+    "referred_by": {
+      "type": "string"
+    },
+    "employer_name": {
+      "type": "string"
+    },
+    "monthly_income": {
+      "type": "number"
+    },
+    "agent_for": {
+      "type": "string",
+      "description": "user_id of the PWD this agent manages"
+    },
+    "profile_photo_url": {
+      "type": "string"
+    },
+    "notifications_enabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "language": {
+      "type": "string",
+      "enum": [
+        "en",
+        "lg",
+        "sw"
+      ],
+      "default": "en"
+    }
+  }
+}
