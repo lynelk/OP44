@@ -6,6 +6,8 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 // Add page imports here
+import GitHubDashboard from './pages/GitHubDashboard';
+import DriveReview from './pages/DriveReview';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -34,6 +36,8 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       {/* Add your page Route elements here */}
+      <Route path="/github" element={<GitHubDashboard />} />
+      <Route path="/drive-review" element={<DriveReview />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
