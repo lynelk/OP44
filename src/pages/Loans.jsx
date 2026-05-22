@@ -3,7 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CreditCard, Plus, Calculator, FileText, ArrowUpCircle, TrendingDown, Zap, ChevronRight, X } from 'lucide-react';
+import { CreditCard, Plus, Calculator, FileText, ArrowUpCircle, TrendingDown, Zap, ChevronRight, X, Download } from 'lucide-react';
+import ExportReportsPanel from '@/components/reports/ExportReportsPanel';
 import { Link } from 'react-router-dom';
 import LoanCostBreakdown, { calcLoanCosts } from '@/components/loans/LoanCostBreakdown';
 
@@ -149,6 +150,9 @@ export default function Loans() {
             </div>
           </div>
         )}
+
+        {/* Export Reports */}
+        <ExportReportsPanel compact={false} />
 
         {/* Loan List */}
         {loans.length === 0 ? (

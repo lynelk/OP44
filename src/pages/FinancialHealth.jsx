@@ -8,6 +8,7 @@ import PillarBar from '@/components/health/PillarBar';
 import AIAdviceCard from '@/components/health/AIAdviceCard';
 import HealthMetricsGrid from '@/components/health/HealthMetricsGrid';
 import RuleFlags from '@/components/health/RuleFlags';
+import ExportReportsPanel from '@/components/reports/ExportReportsPanel';
 
 export default function FinancialHealth() {
   const [report, setReport] = useState(null);
@@ -116,6 +117,9 @@ export default function FinancialHealth() {
             {(report.ai_summary || report.ai_tips?.length > 0) && (
               <AIAdviceCard summary={report.ai_summary} tips={report.ai_tips || []} />
             )}
+
+            {/* Export Reports */}
+            <ExportReportsPanel />
           </>
         )}
       </div>
