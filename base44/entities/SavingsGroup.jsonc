@@ -1,0 +1,56 @@
+{
+  "name": "SavingsGroup",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "target_amount": {
+      "type": "number"
+    },
+    "current_amount_saved": {
+      "type": "number",
+      "default": 0
+    },
+    "created_by": {
+      "type": "string",
+      "description": "user_id of creator"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "archived"
+      ],
+      "default": "active"
+    },
+    "invite_code": {
+      "type": "string"
+    },
+    "members_count": {
+      "type": "number",
+      "default": 1
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "icon": {
+      "type": "string",
+      "default": "\ud83c\udfe6"
+    }
+  },
+  "required": [
+    "name",
+    "target_amount",
+    "created_by"
+  ]
+}

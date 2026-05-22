@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, PiggyBank, CreditCard, Shield, Bell, ChevronRight, Target, ArrowUpRight, ArrowDownRight, Wallet, TrendingDown } from 'lucide-react';
+import { TrendingUp, PiggyBank, CreditCard, Shield, Bell, ChevronRight, Target, ArrowUpRight, ArrowDownRight, Wallet, TrendingDown, Users } from 'lucide-react';
 import MilestoneProgress from '@/components/milestones/MilestoneProgress';
 import ChallengesBoard from '@/components/dashboard/ChallengesBoard';
 
@@ -122,6 +122,7 @@ export default function Dashboard() {
             { icon: Wallet, label: 'Budget', path: '/budget', color: 'bg-yellow-100 text-yellow-600' },
             { icon: Shield, label: 'Insure', path: '/insurance', color: 'bg-orange-100 text-orange-600' },
             { icon: TrendingDown, label: 'Debt Plan', path: '/debt-payoff', color: 'bg-red-100 text-red-600' },
+            { icon: Users, label: 'Groups', path: '/savings-groups', color: 'bg-purple-100 text-purple-600' },
           ].map(({ icon: Icon, label, path, color }) => (
             <Link key={label} to={path} className="flex flex-col items-center gap-1">
               <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center`}>

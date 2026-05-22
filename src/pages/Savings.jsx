@@ -4,7 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PiggyBank, Plus, Target, Zap, History } from 'lucide-react';
+import { PiggyBank, Plus, Target, Zap, History, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import AutoSaveManager from '@/components/savings/AutoSaveManager';
 import AutoSaveHistory from '@/components/savings/AutoSaveHistory';
 
@@ -81,9 +82,16 @@ export default function Savings() {
           </div>
         )}
 
-        <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={() => setShowCreate(!showCreate)}>
-          <Plus className="w-4 h-4 mr-2" /> Create New Pocket
-        </Button>
+        <div className="grid grid-cols-2 gap-2">
+          <Button className="bg-green-600 hover:bg-green-700 text-white" onClick={() => setShowCreate(!showCreate)}>
+            <Plus className="w-4 h-4" /> New Pocket
+          </Button>
+          <Link to="/savings-groups">
+            <Button variant="outline" className="w-full border-purple-500 text-purple-700">
+              <Users className="w-4 h-4" /> Group Savings
+            </Button>
+          </Link>
+        </div>
 
         {showCreate && (
           <Card>

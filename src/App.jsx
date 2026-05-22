@@ -29,6 +29,8 @@ import FutureHealthProjection from './pages/FutureHealthProjection';
 import SavingsChallenges from './pages/SavingsChallenges';
 import DebtPayoff from './pages/DebtPayoff';
 import Notifications from './pages/Notifications';
+import SavingsGroups from './pages/SavingsGroups';
+import SavingsGroupDetail from './pages/SavingsGroupDetail';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -76,6 +78,8 @@ const AuthenticatedApp = () => {
       <Route path="/savings-challenges" element={<><SavingsChallenges /><BottomNav /></>} />
       <Route path="/debt-payoff" element={<><DebtPayoff /><BottomNav /></>} />
       <Route path="/notifications" element={<><Notifications /><BottomNav /></>} />
+      <Route path="/savings-groups" element={<><SavingsGroups /><BottomNav /></>} />
+      <Route path="/savings-groups/:groupId" element={<><SavingsGroupDetail /><BottomNav /></>} />
       <Route path="/financial-health" element={<><FinancialHealth /><BottomNav /></>} />
       <Route path="/invest" element={<><Invest /><BottomNav /></>} />
       <Route path="/github" element={<GitHubDashboard />} />
