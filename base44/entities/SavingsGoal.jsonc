@@ -1,0 +1,102 @@
+{
+  "name": "SavingsGoal",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "description": "Goal name (e.g. Emergency Fund, Laptop Fund)"
+    },
+    "emoji": {
+      "type": "string",
+      "default": "\ud83c\udfaf"
+    },
+    "target_amount": {
+      "type": "number"
+    },
+    "current_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "paused",
+        "abandoned"
+      ],
+      "default": "active"
+    },
+    "linked_expense_categories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "food",
+          "transport",
+          "housing",
+          "health",
+          "education",
+          "entertainment",
+          "utilities",
+          "clothing",
+          "savings",
+          "loan_repayment",
+          "other"
+        ]
+      }
+    },
+    "automation_type": {
+      "type": "string",
+      "enum": [
+        "none",
+        "round_up",
+        "fixed_transfer"
+      ],
+      "default": "none"
+    },
+    "round_up_strategy": {
+      "type": "string",
+      "enum": [
+        "nearest_1000",
+        "nearest_5000"
+      ],
+      "default": "nearest_1000"
+    },
+    "fixed_transfer_amount": {
+      "type": "number"
+    },
+    "fixed_transfer_frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly"
+      ]
+    },
+    "deadline": {
+      "type": "string",
+      "format": "date"
+    },
+    "completion_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "total_contributions": {
+      "type": "number",
+      "default": 0
+    },
+    "linked_pocket_id": {
+      "type": "string",
+      "description": "Optionally link to an existing SavingsPocket"
+    }
+  },
+  "required": [
+    "user_id",
+    "name",
+    "target_amount"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "name": "GoalContribution",
+  "type": "object",
+  "properties": {
+    "goal_id": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "round_up",
+        "fixed_transfer"
+      ],
+      "default": "manual"
+    },
+    "expense_id": {
+      "type": "string",
+      "description": "Linked expense if source is round_up"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "contributed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "goal_id",
+    "user_id",
+    "amount",
+    "source"
+  ]
+}

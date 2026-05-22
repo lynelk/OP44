@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CreditCard, Plus, Calculator, FileText, ArrowUpCircle, TrendingDown } from 'lucide-react';
+import { CreditCard, Plus, Calculator, FileText, ArrowUpCircle, TrendingDown, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import LoanCostBreakdown, { calcLoanCosts } from '@/components/loans/LoanCostBreakdown';
 
@@ -93,6 +93,11 @@ export default function Loans() {
         <Link to="/loans/planner">
           <Button variant="outline" className="w-full border-purple-500 text-purple-700 text-sm">
             <TrendingDown className="w-4 h-4" /> Repayment Planner
+          </Button>
+        </Link>
+        <Link to="/loans/pre-qualify">
+          <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white text-sm">
+            <Zap className="w-4 h-4" /> Check Pre-Qualification
           </Button>
         </Link>
 

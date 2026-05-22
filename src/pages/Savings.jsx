@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PiggyBank, Plus, Target, Zap, History, Users } from 'lucide-react';
+
 import { Link } from 'react-router-dom';
 import AutoSaveManager from '@/components/savings/AutoSaveManager';
 import AutoSaveHistory from '@/components/savings/AutoSaveHistory';
@@ -92,6 +93,11 @@ export default function Savings() {
             </Button>
           </Link>
         </div>
+        <Link to="/savings-goals">
+          <Button variant="outline" className="w-full border-orange-500 text-orange-600">
+            <Target className="w-4 h-4" /> Savings Goals (Smart Targets)
+          </Button>
+        </Link>
 
         {showCreate && (
           <Card>

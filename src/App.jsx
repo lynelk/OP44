@@ -11,8 +11,8 @@ import Loans from './pages/Loans';
 import Savings from './pages/Savings';
 import Budget from './pages/Budget';
 import Profile from './pages/Profile';
-import GitHubDashboard from './pages/GitHubDashboard';
-import DriveReview from './pages/DriveReview';
+import SavingsGoals from './pages/SavingsGoals';
+import LoanPreQualify from './pages/LoanPreQualify';
 import BottomNav from './components/BottomNav';
 import CreditScore from './pages/CreditScore';
 import Invest from './pages/Invest';
@@ -98,8 +98,8 @@ const AuthenticatedApp = () => {
       <Route path="/admin/crb" element={<AdminCRB />} />
       <Route path="/admin/submissions" element={<AdminSubmissions />} />
       <Route path="/admin/loans" element={<AdminLoans />} />
-      <Route path="/github" element={<GitHubDashboard />} />
-      <Route path="/drive-review" element={<DriveReview />} />
+      <Route path="/savings-goals" element={<><SavingsGoals /><BottomNav /></>} />
+      <Route path="/loans/pre-qualify" element={<><LoanPreQualify /><BottomNav /></>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

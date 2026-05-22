@@ -1,0 +1,70 @@
+{
+  "name": "LoanProduct",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "min_amount": {
+      "type": "number"
+    },
+    "max_amount": {
+      "type": "number"
+    },
+    "min_credit_score": {
+      "type": "number"
+    },
+    "interest_rate_min": {
+      "type": "number",
+      "description": "Monthly interest rate %"
+    },
+    "interest_rate_max": {
+      "type": "number"
+    },
+    "max_tenure_months": {
+      "type": "number"
+    },
+    "eligibility_criteria": {
+      "type": "string"
+    },
+    "icon": {
+      "type": "string",
+      "default": "\ud83d\udcb0"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    },
+    "popular": {
+      "type": "boolean",
+      "default": false
+    },
+    "risk_bands_allowed": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "description": "Which risk bands qualify for this product"
+    }
+  },
+  "required": [
+    "name",
+    "min_amount",
+    "max_amount",
+    "min_credit_score",
+    "interest_rate_min"
+  ]
+}
