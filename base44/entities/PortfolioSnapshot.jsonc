@@ -21,6 +21,10 @@
     "return_rate": {
       "type": "number"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "allocation_breakdown": {
       "type": "object"
     }

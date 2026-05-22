@@ -25,6 +25,10 @@
     "color": {
       "type": "string"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "auto_save_amount": {
       "type": "number"
     },

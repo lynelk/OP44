@@ -82,6 +82,10 @@
       "type": "boolean",
       "default": false
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "admin_notes": {
       "type": "string"
     },

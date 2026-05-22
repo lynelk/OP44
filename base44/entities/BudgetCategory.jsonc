@@ -1,0 +1,47 @@
+{
+  "name": "BudgetCategory",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "food",
+        "transport",
+        "housing",
+        "health",
+        "education",
+        "entertainment",
+        "utilities",
+        "clothing",
+        "savings",
+        "loan_repayment",
+        "other"
+      ]
+    },
+    "monthly_limit": {
+      "type": "number",
+      "description": "Maximum spending allowed per month in UGX"
+    },
+    "alert_threshold": {
+      "type": "number",
+      "default": 80,
+      "description": "Percentage (0-100) at which to alert user"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "month_year": {
+      "type": "string",
+      "description": "YYYY-MM format, e.g. 2024-01"
+    }
+  },
+  "required": [
+    "user_id",
+    "category",
+    "monthly_limit"
+  ]
+}

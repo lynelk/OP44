@@ -30,6 +30,10 @@
       ],
       "default": "active"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "invested_at": {
       "type": "string",
       "format": "date-time"

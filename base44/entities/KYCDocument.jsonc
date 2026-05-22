@@ -27,6 +27,10 @@
       ],
       "default": "pending"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "reviewer_notes": {
       "type": "string"
     },

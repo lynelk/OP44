@@ -41,6 +41,10 @@
     "transaction_ref": {
       "type": "string"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "paid_by_agent": {
       "type": "boolean",
       "default": false

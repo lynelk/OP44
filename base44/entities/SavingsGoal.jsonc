@@ -30,6 +30,10 @@
       ],
       "default": "active"
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "linked_expense_categories": {
       "type": "array",
       "items": {
