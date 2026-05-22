@@ -1,11 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, CreditCard, PiggyBank, Receipt, User } from 'lucide-react';
+import { Home, CreditCard, PiggyBank, TrendingUp, User } from 'lucide-react';
 
 const NAV_ITEMS = [
   { path: '/', icon: Home, label: 'Home' },
   { path: '/loans', icon: CreditCard, label: 'Loans' },
   { path: '/savings', icon: PiggyBank, label: 'Save' },
-  { path: '/budget', icon: Receipt, label: 'Budget' },
+  { path: '/invest', icon: TrendingUp, label: 'Invest' },
   { path: '/profile', icon: User, label: 'Profile' },
 ];
 

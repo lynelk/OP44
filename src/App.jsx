@@ -14,6 +14,8 @@ import Profile from './pages/Profile';
 import GitHubDashboard from './pages/GitHubDashboard';
 import DriveReview from './pages/DriveReview';
 import BottomNav from './components/BottomNav';
+import CreditScore from './pages/CreditScore';
+import Invest from './pages/Invest';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -48,6 +50,8 @@ const AuthenticatedApp = () => {
       <Route path="/savings" element={<><Savings /><BottomNav /></>} />
       <Route path="/budget" element={<><Budget /><BottomNav /></>} />
       <Route path="/profile" element={<><Profile /><BottomNav /></>} />
+      <Route path="/credit-score" element={<><CreditScore /><BottomNav /></>} />
+      <Route path="/invest" element={<><Invest /><BottomNav /></>} />
       <Route path="/github" element={<GitHubDashboard />} />
       <Route path="/drive-review" element={<DriveReview />} />
       <Route path="*" element={<PageNotFound />} />

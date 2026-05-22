@@ -1,0 +1,63 @@
+{
+  "name": "CreditScore",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "score": {
+      "type": "number"
+    },
+    "risk_band": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    "calculated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "score_breakdown": {
+      "type": "object",
+      "properties": {
+        "kyc_score": {
+          "type": "number"
+        },
+        "repayment_score": {
+          "type": "number"
+        },
+        "loan_history_score": {
+          "type": "number"
+        },
+        "savings_boost": {
+          "type": "number"
+        },
+        "expense_boost": {
+          "type": "number"
+        },
+        "income_score": {
+          "type": "number"
+        }
+      }
+    },
+    "reason_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "max_loan_limit": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "user_id",
+    "score",
+    "risk_band",
+    "calculated_at"
+  ]
+}

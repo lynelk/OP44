@@ -1,0 +1,51 @@
+{
+  "name": "InvestorContribution",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "investment_pool_id": {
+      "type": "string"
+    },
+    "contribution_amount": {
+      "type": "number"
+    },
+    "current_contribution_value": {
+      "type": "number"
+    },
+    "total_returns_earned": {
+      "type": "number",
+      "default": 0
+    },
+    "actual_return_rate": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "matured",
+        "withdrawn"
+      ],
+      "default": "active"
+    },
+    "invested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "maturity_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "withdrawal_requested_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "investment_pool_id",
+    "contribution_amount"
+  ]
+}

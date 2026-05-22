@@ -1,0 +1,74 @@
+{
+  "name": "InvestmentPool",
+  "type": "object",
+  "properties": {
+    "pool_name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "target_amount": {
+      "type": "number"
+    },
+    "current_amount_raised": {
+      "type": "number",
+      "default": 0
+    },
+    "min_investment_per_investor": {
+      "type": "number"
+    },
+    "interest_rate_offered": {
+      "type": "number"
+    },
+    "loan_duration_months": {
+      "type": "number"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open_for_funding",
+        "funding_closed",
+        "active_lending",
+        "completed",
+        "closed"
+      ],
+      "default": "open_for_funding"
+    },
+    "funding_start_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "funding_end_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "maturity_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "insurance_backed": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "pool_name",
+    "description",
+    "target_amount",
+    "min_investment_per_investor",
+    "interest_rate_offered",
+    "loan_duration_months",
+    "funding_start_date",
+    "maturity_date"
+  ]
+}

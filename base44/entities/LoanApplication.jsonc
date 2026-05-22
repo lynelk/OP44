@@ -30,6 +30,20 @@
       ],
       "default": "C"
     },
+    "credit_score_at_application": {
+      "type": "number",
+      "description": "The credit score at the time of loan application"
+    },
+    "risk_band_at_application": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "description": "Risk band at the time of loan application"
+    },
     "status": {
       "type": "string",
       "enum": [
