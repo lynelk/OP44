@@ -3,7 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { User, Shield, Bell, LogOut, ChevronRight, Star, Award } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { User, Shield, Bell, LogOut, ChevronRight, Star, Award, ToggleLeft } from 'lucide-react';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -96,23 +97,29 @@ export default function Profile() {
         <Card>
           <CardContent className="p-0">
             {[
-              { icon: Shield, label: 'Identity & KYC', sub: kycApproved ? 'Verified' : 'Action needed' },
-              { icon: Bell, label: 'Notifications', sub: 'Manage alerts' },
-              { icon: User, label: 'Account Settings', sub: 'Profile & preferences' },
-            ].map(({ icon: Icon, label, sub }, idx) => (
-              <div key={label} className={`flex items-center justify-between p-4 ${idx < 2 ? 'border-b' : ''}`}>
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                    <Icon className="w-4 h-4 text-gray-600" />
+              { icon: Shield, label: 'Identity & KYC', sub: kycApproved ? 'Verified' : 'Action needed', to: null },
+              { icon: Bell, label: 'Notifications', sub: 'Manage alerts', to: null },
+              { icon: ToggleLeft, label: 'Data & Consent', sub: 'Manage your consents', to: '/consent' },
+              { icon: User, label: 'Account Settings', sub: 'Profile & preferences', to: null },
+            ].map(({ icon: Icon, label, sub, to }, idx, arr) => {
+              const inner = (
+                <div className={`flex items-center justify-between p-4 ${idx < arr.length - 1 ? 'border-b' : ''}`}>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                      <Icon className="w-4 h-4 text-gray-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{label}</p>
+                      <p className="text-xs text-gray-400">{sub}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium">{label}</p>
-                    <p className="text-xs text-gray-400">{sub}</p>
-                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-300" />
                 </div>
-                <ChevronRight className="w-4 h-4 text-gray-300" />
-              </div>
-            ))}
+              );
+              return to
+                ? <Link key={label} to={to}>{inner}</Link>
+                : <div key={label}>{inner}</div>;
+            })}
           </CardContent>
         </Card>
 

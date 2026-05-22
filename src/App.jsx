@@ -16,6 +16,7 @@ import DriveReview from './pages/DriveReview';
 import BottomNav from './components/BottomNav';
 import CreditScore from './pages/CreditScore';
 import Invest from './pages/Invest';
+import ConsentManager from './pages/ConsentManager';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -51,6 +52,7 @@ const AuthenticatedApp = () => {
       <Route path="/budget" element={<><Budget /><BottomNav /></>} />
       <Route path="/profile" element={<><Profile /><BottomNav /></>} />
       <Route path="/credit-score" element={<><CreditScore /><BottomNav /></>} />
+      <Route path="/consent" element={<><ConsentManager /><BottomNav /></>} />
       <Route path="/invest" element={<><Invest /><BottomNav /></>} />
       <Route path="/github" element={<GitHubDashboard />} />
       <Route path="/drive-review" element={<DriveReview />} />

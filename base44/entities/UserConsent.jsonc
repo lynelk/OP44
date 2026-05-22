@@ -1,0 +1,66 @@
+{
+  "name": "UserConsent",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "consent_type": {
+      "type": "string",
+      "enum": [
+        "terms_and_conditions",
+        "privacy_policy",
+        "data_processing",
+        "credit_bureau_check",
+        "marketing_communications",
+        "third_party_data_sharing",
+        "kyc_data_retention",
+        "loan_agreement",
+        "rosca_rules",
+        "investment_risk_disclosure"
+      ]
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the document consented to (e.g. v1.2)"
+    },
+    "granted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether consent was given (true) or withdrawn (false)"
+    },
+    "granted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "withdrawn_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP address at time of consent for audit purposes"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "app",
+        "ussd",
+        "agent",
+        "web"
+      ],
+      "default": "app",
+      "description": "Channel through which consent was recorded"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional context or notes about this consent record"
+    }
+  },
+  "required": [
+    "user_id",
+    "consent_type",
+    "version",
+    "granted"
+  ]
+}
