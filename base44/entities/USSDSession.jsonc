@@ -1,0 +1,80 @@
+{
+  "name": "USSDSession",
+  "type": "object",
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "description": "Gateway session ID"
+    },
+    "phone_number": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Matched OpFin user ID if found"
+    },
+    "network_code": {
+      "type": "string"
+    },
+    "service_code": {
+      "type": "string"
+    },
+    "input": {
+      "type": "string",
+      "description": "Full user input string for this session"
+    },
+    "current_menu": {
+      "type": "string",
+      "description": "Last menu state"
+    },
+    "response_text": {
+      "type": "string",
+      "description": "Last response sent to user"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "timeout",
+        "error"
+      ],
+      "default": "active"
+    },
+    "steps": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of menu steps taken"
+    },
+    "action_taken": {
+      "type": "string",
+      "enum": [
+        "none",
+        "balance_check",
+        "loan_status",
+        "loan_application",
+        "repayment",
+        "savings_deposit",
+        "savings_withdrawal"
+      ],
+      "default": "none"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount involved in any transaction"
+    },
+    "gateway": {
+      "type": "string",
+      "enum": [
+        "africas_talking",
+        "twilio",
+        "generic"
+      ],
+      "default": "africas_talking"
+    }
+  },
+  "required": [
+    "session_id",
+    "phone_number"
+  ]
+}
