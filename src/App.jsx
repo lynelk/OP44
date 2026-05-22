@@ -23,6 +23,9 @@ import FinancialHealth from './pages/FinancialHealth';
 import LoanStatement from './pages/LoanStatement';
 import RepayLoan from './pages/RepayLoan';
 import Claims from './pages/Claims';
+import ExpenseInsights from './pages/ExpenseInsights';
+import RepaymentPlanner from './pages/RepaymentPlanner';
+import FutureHealthProjection from './pages/FutureHealthProjection';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -64,6 +67,9 @@ const AuthenticatedApp = () => {
       <Route path="/ussd-monitor" element={<><USSDMonitor /><BottomNav /></>} />
       <Route path="/insurance" element={<><Insurance /><BottomNav /></>} />
       <Route path="/insurance/claims" element={<><Claims /><BottomNav /></>} />
+      <Route path="/loans/planner" element={<><RepaymentPlanner /><BottomNav /></>} />
+      <Route path="/budget/insights" element={<><ExpenseInsights /><BottomNav /></>} />
+      <Route path="/health/projection" element={<><FutureHealthProjection /><BottomNav /></>} />
       <Route path="/financial-health" element={<><FinancialHealth /><BottomNav /></>} />
       <Route path="/invest" element={<><Invest /><BottomNav /></>} />
       <Route path="/github" element={<GitHubDashboard />} />

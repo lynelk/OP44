@@ -5,8 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CreditCard, CheckCircle, Clock, AlertTriangle, Plus, Calculator, FileText, ArrowUpCircle } from 'lucide-react';
+import { CreditCard, Plus, Calculator, FileText, ArrowUpCircle, TrendingDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import LoanCostBreakdown, { calcLoanCosts } from '@/components/loans/LoanCostBreakdown';
 
 const STATUS_CONFIG = {
   draft: { label: 'Draft', color: 'bg-gray-100 text-gray-600' },
@@ -36,11 +37,7 @@ export default function Loans() {
     });
   }, []);
 
-  const monthlyRate = 0.05;
-  const monthly = amount && tenure
-    ? (parseFloat(amount) * monthlyRate * Math.pow(1 + monthlyRate, parseInt(tenure))) /
-      (Math.pow(1 + monthlyRate, parseInt(tenure)) - 1)
-    : 0;
+  const { monthly, totalRepayable, disbursementFee, insuranceCost, netDisbursement } = calcLoanCosts(amount, tenure);
 
   const handleApply = async () => {
     if (!amount || !purpose) return;
@@ -52,7 +49,10 @@ export default function Loans() {
       purpose,
       status: 'submitted',
       monthly_installment: monthly,
-      total_repayable: monthly * parseInt(tenure),
+      total_repayable: totalRepayable,
+      disbursement_fee: disbursementFee,
+      insurance_cost: insuranceCost,
+      net_disbursement: netDisbursement,
     });
     setLoans(prev => [loan, ...prev]);
     setShowApply(false);
@@ -90,6 +90,11 @@ export default function Loans() {
             </Button>
           </Link>
         </div>
+        <Link to="/loans/planner">
+          <Button variant="outline" className="w-full border-purple-500 text-purple-700 text-sm">
+            <TrendingDown className="w-4 h-4" /> Repayment Planner
+          </Button>
+        </Link>
 
         {/* Apply Form */}
         {showApply && (
@@ -140,14 +145,7 @@ export default function Loans() {
                   </SelectContent>
                 </Select>
               </div>
-              {monthly > 0 && (
-                <div className="bg-blue-50 rounded-lg p-3">
-                  <p className="text-xs text-gray-500">Monthly Installment</p>
-                  <p className="text-xl font-bold text-blue-700">UGX {monthly.toLocaleString('en-UG', { maximumFractionDigits: 0 })}</p>
-                  <p className="text-xs text-gray-400 mt-1">Total repayable: UGX {(monthly * parseInt(tenure)).toLocaleString('en-UG', { maximumFractionDigits: 0 })}</p>
-                  <p className="text-xs text-gray-400">Interest rate: 5% per month</p>
-                </div>
-              )}
+              <LoanCostBreakdown amount={amount} tenure={tenure} />
               <Button
                 className="w-full bg-[#1a3a6b] text-white"
                 onClick={handleApply}

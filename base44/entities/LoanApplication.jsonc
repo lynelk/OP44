@@ -31,8 +31,7 @@
       "default": "C"
     },
     "credit_score_at_application": {
-      "type": "number",
-      "description": "The credit score at the time of loan application"
+      "type": "number"
     },
     "risk_band_at_application": {
       "type": "string",
@@ -41,8 +40,7 @@
         "B",
         "C",
         "D"
-      ],
-      "description": "Risk band at the time of loan application"
+      ]
     },
     "status": {
       "type": "string",
@@ -90,6 +88,18 @@
     "submitted_by_agent": {
       "type": "boolean",
       "default": false
+    },
+    "disbursement_fee": {
+      "type": "number",
+      "description": "Fee deducted from disbursed amount (3% of loan)"
+    },
+    "insurance_cost": {
+      "type": "number",
+      "description": "Loan protection insurance (1% of loan)"
+    },
+    "net_disbursement": {
+      "type": "number",
+      "description": "Actual amount received after fees"
     }
   },
   "required": [

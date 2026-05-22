@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, Activity } from 'lucide-react';
+import { RefreshCw, Activity, TrendingUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import HealthScoreRing from '@/components/health/HealthScoreRing';
 import PillarBar from '@/components/health/PillarBar';
 import AIAdviceCard from '@/components/health/AIAdviceCard';
@@ -58,6 +59,9 @@ export default function FinancialHealth() {
           )}
         </div>
         {lastUpdated && <p className="text-slate-400 text-xs">Last updated {lastUpdated}</p>}
+        <Link to="/health/projection" className="mt-3 flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2 text-sm text-white w-fit">
+          <TrendingUp className="w-4 h-4 text-emerald-400" /> Future Health Projection
+        </Link>
 
         {/* Score ring */}
         {report && !generating && (

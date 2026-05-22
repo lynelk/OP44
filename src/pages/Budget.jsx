@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Plus, TrendingDown, PieChart } from 'lucide-react';
+import { Receipt, Plus, TrendingDown, PieChart, BarChart2 } from 'lucide-react';
 import { PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { Link } from 'react-router-dom';
 
 const CATEGORIES = ['food', 'transport', 'housing', 'health', 'education', 'entertainment', 'utilities', 'clothing', 'savings', 'loan_repayment', 'other'];
 const CATEGORY_COLORS = {
@@ -62,9 +63,16 @@ export default function Budget() {
       </div>
 
       <div className="px-4 mt-4 space-y-4">
-        <Button className="w-full bg-[#f97316] hover:bg-orange-600 text-white" onClick={() => setShowAdd(!showAdd)}>
-          <Plus className="w-4 h-4 mr-2" /> Track an Expense
-        </Button>
+        <div className="grid grid-cols-2 gap-2">
+          <Button className="bg-[#f97316] hover:bg-orange-600 text-white" onClick={() => setShowAdd(!showAdd)}>
+            <Plus className="w-4 h-4" /> Track Expense
+          </Button>
+          <Link to="/budget/insights">
+            <Button variant="outline" className="w-full border-purple-500 text-purple-700">
+              <BarChart2 className="w-4 h-4" /> Expense Insights
+            </Button>
+          </Link>
+        </div>
 
         {showAdd && (
           <Card>
