@@ -1,0 +1,113 @@
+{
+  "name": "BusinessProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "business_name": {
+      "type": "string"
+    },
+    "registration_number": {
+      "type": "string"
+    },
+    "tax_id": {
+      "type": "string"
+    },
+    "industry": {
+      "type": "string",
+      "enum": [
+        "agriculture",
+        "retail",
+        "manufacturing",
+        "services",
+        "technology",
+        "construction",
+        "transport",
+        "education",
+        "health",
+        "finance",
+        "other"
+      ]
+    },
+    "business_type": {
+      "type": "string",
+      "enum": [
+        "sole_proprietor",
+        "partnership",
+        "limited_company",
+        "cooperative",
+        "ngo",
+        "other"
+      ]
+    },
+    "annual_revenue": {
+      "type": "number"
+    },
+    "number_of_employees": {
+      "type": "number"
+    },
+    "physical_address": {
+      "type": "string"
+    },
+    "contact_person": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "kyc_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "verified",
+        "rejected",
+        "suspended"
+      ],
+      "default": "pending"
+    },
+    "risk_rating": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "crb_checked": {
+      "type": "boolean",
+      "default": false
+    },
+    "crb_last_checked": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "crb_score": {
+      "type": "number"
+    },
+    "crb_report_url": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended",
+        "closed"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "user_id",
+    "business_name",
+    "business_type"
+  ]
+}

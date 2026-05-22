@@ -32,6 +32,13 @@ import Notifications from './pages/Notifications';
 import SavingsGroups from './pages/SavingsGroups';
 import SavingsGroupDetail from './pages/SavingsGroupDetail';
 import LandingPage from './pages/LandingPage';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminProducts from './pages/admin/AdminProducts';
+import AdminRules from './pages/admin/AdminRules';
+import AdminCRB from './pages/admin/AdminCRB';
+import AdminSubmissions from './pages/admin/AdminSubmissions';
+import AdminLoans from './pages/admin/AdminLoans';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -84,6 +91,13 @@ const AuthenticatedApp = () => {
       <Route path="/financial-health" element={<><FinancialHealth /><BottomNav /></>} />
       <Route path="/invest" element={<><Invest /><BottomNav /></>} />
       <Route path="/landing" element={<LandingPage />} />
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/admin/users" element={<AdminUsers />} />
+      <Route path="/admin/products" element={<AdminProducts />} />
+      <Route path="/admin/rules" element={<AdminRules />} />
+      <Route path="/admin/crb" element={<AdminCRB />} />
+      <Route path="/admin/submissions" element={<AdminSubmissions />} />
+      <Route path="/admin/loans" element={<AdminLoans />} />
       <Route path="/github" element={<GitHubDashboard />} />
       <Route path="/drive-review" element={<DriveReview />} />
       <Route path="*" element={<PageNotFound />} />

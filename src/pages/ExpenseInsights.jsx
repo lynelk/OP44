@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { TrendingUp, PiggyBank, AlertCircle, ChevronLeft } from 'lucide-react';
+import { TrendingUp, Wallet, AlertCircle, ChevronLeft, Sparkles, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
@@ -26,6 +26,8 @@ export default function ExpenseInsights() {
   const [loading, setLoading] = useState(true);
   const [suggestions, setSuggestions] = useState([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [categorizing, setCategorizing] = useState(false);
+  const [catResult, setCatResult] = useState(null);
 
   useEffect(() => {
     base44.entities.Expense.filter({}).then(data => {
@@ -84,6 +86,18 @@ export default function ExpenseInsights() {
     avgMonthly: total / months,
     suggestedBudget: Math.round((total / months) * 0.9)
   })).sort((a, b) => b.avgMonthly - a.avgMonthly);
+
+  const runAICategorizer = async () => {
+    setCategorizing(true);
+    setCatResult(null);
+    const res = await base44.functions.invoke('categorizeExpenses', {});
+    setCatResult(res.data);
+    if (res.data?.updated > 0) {
+      const updated = await base44.entities.Expense.filter({});
+      setExpenses(updated);
+    }
+    setCategorizing(false);
+  };
 
   const getAIInsights = async () => {
     setLoadingSuggestions(true);
@@ -177,7 +191,7 @@ export default function ExpenseInsights() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2">
-                <PiggyBank className="w-4 h-4 text-green-600" /> Suggested Monthly Budgets
+                <Wallet className="w-4 h-4 text-green-600" /> Suggested Monthly Budgets
               </CardTitle>
               <p className="text-xs text-gray-400">Based on your history (10% trimmed to help you save)</p>
             </CardHeader>
@@ -203,6 +217,33 @@ export default function ExpenseInsights() {
             </CardContent>
           </Card>
         )}
+
+        {/* AI Categorizer */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-blue-600" /> AI Expense Categorizer
+            </CardTitle>
+            <p className="text-xs text-gray-400">Auto-categorize uncategorized transactions using AI</p>
+          </CardHeader>
+          <CardContent>
+            {catResult ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 bg-green-50 p-3 rounded-lg">
+                  <Sparkles className="w-4 h-4 text-green-600" />
+                  <p className="text-green-700 text-sm font-medium">{catResult.message}</p>
+                </div>
+                <Button onClick={runAICategorizer} variant="outline" className="w-full text-sm">
+                  Run Again
+                </Button>
+              </div>
+            ) : (
+              <Button onClick={runAICategorizer} disabled={categorizing} className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm">
+                {categorizing ? <><RefreshCw className="w-4 h-4 animate-spin mr-2" /> Categorizing...</> : <><Sparkles className="w-4 h-4 mr-2" /> Auto-Categorize with AI</>}
+              </Button>
+            )}
+          </CardContent>
+        </Card>
 
         {/* AI Tips */}
         <Card>

@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { User, Shield, Bell, LogOut, ChevronRight, Star, Award, ToggleLeft } from 'lucide-react';
+import { User, Shield, Bell, LogOut, ChevronRight, Star, Award, ToggleLeft, LayoutDashboard } from 'lucide-react';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -122,6 +122,14 @@ export default function Profile() {
             })}
           </CardContent>
         </Card>
+
+        {user?.role === 'admin' && (
+          <Link to="/admin">
+            <Button className="w-full bg-[#1a3a6b] text-white mb-2">
+              <LayoutDashboard className="w-4 h-4 mr-2" /> Admin Panel
+            </Button>
+          </Link>
+        )}
 
         <Button variant="outline" className="w-full text-red-500 border-red-200" onClick={handleLogout}>
           <LogOut className="w-4 h-4 mr-2" /> Sign Out

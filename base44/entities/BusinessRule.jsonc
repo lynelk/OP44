@@ -1,0 +1,72 @@
+{
+  "name": "BusinessRule",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "rule_type": {
+      "type": "string",
+      "enum": [
+        "loan_validation",
+        "kyc_requirement",
+        "interest_rate",
+        "credit_limit",
+        "repayment_schedule",
+        "eligibility",
+        "data_submission",
+        "compliance"
+      ]
+    },
+    "module": {
+      "type": "string",
+      "enum": [
+        "loans",
+        "savings",
+        "insurance",
+        "investments",
+        "kyc",
+        "crb",
+        "reporting"
+      ]
+    },
+    "conditions": {
+      "type": "object",
+      "description": "JSON condition object"
+    },
+    "action": {
+      "type": "object",
+      "description": "JSON action to perform"
+    },
+    "priority": {
+      "type": "number",
+      "default": 0
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "effective_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "effective_to": {
+      "type": "string",
+      "format": "date"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "last_modified_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "rule_type",
+    "module"
+  ]
+}
