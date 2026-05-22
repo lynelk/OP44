@@ -1,0 +1,94 @@
+{
+  "name": "InsuranceProduct",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string",
+      "description": "Insurance company name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "life",
+        "health",
+        "loan_protection",
+        "crop_agriculture",
+        "asset",
+        "device",
+        "car"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "coverage_amount": {
+      "type": "number"
+    },
+    "premium_amount": {
+      "type": "number",
+      "description": "Premium per period"
+    },
+    "premium_frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "annually"
+      ],
+      "default": "monthly"
+    },
+    "duration_months": {
+      "type": "number"
+    },
+    "eligibility_criteria": {
+      "type": "string"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "coming_soon"
+      ],
+      "default": "active"
+    },
+    "enrollment_type": {
+      "type": "string",
+      "enum": [
+        "instant",
+        "review_required",
+        "external_link"
+      ],
+      "default": "review_required"
+    },
+    "external_url": {
+      "type": "string",
+      "description": "Link to insurer platform if enrollment_type=external_link"
+    },
+    "icon": {
+      "type": "string"
+    },
+    "popular": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "name",
+    "provider",
+    "category",
+    "premium_amount",
+    "coverage_amount"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "name": "InsuranceClaim",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "policy_id": {
+      "type": "string"
+    },
+    "claim_type": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "amount_claimed": {
+      "type": "number"
+    },
+    "amount_approved": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "under_review",
+        "approved",
+        "rejected",
+        "paid"
+      ],
+      "default": "submitted"
+    },
+    "supporting_docs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "File URLs"
+    },
+    "reviewer_notes": {
+      "type": "string"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "paid_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "policy_id",
+    "claim_type",
+    "description",
+    "amount_claimed"
+  ]
+}

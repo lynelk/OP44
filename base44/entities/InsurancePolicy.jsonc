@@ -1,0 +1,82 @@
+{
+  "name": "InsurancePolicy",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "product_id": {
+      "type": "string"
+    },
+    "policy_number": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending_review",
+        "active",
+        "lapsed",
+        "cancelled",
+        "claimed",
+        "expired"
+      ],
+      "default": "pending_review"
+    },
+    "coverage_amount": {
+      "type": "number"
+    },
+    "premium_amount": {
+      "type": "number"
+    },
+    "premium_frequency": {
+      "type": "string"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "next_premium_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "beneficiary_name": {
+      "type": "string"
+    },
+    "beneficiary_relationship": {
+      "type": "string"
+    },
+    "beneficiary_phone": {
+      "type": "string"
+    },
+    "asset_description": {
+      "type": "string",
+      "description": "For device/car/asset \u2014 description of insured item"
+    },
+    "asset_value": {
+      "type": "number"
+    },
+    "admin_notes": {
+      "type": "string"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "total_premiums_paid": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "user_id",
+    "product_id"
+  ]
+}
