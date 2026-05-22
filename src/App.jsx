@@ -20,6 +20,8 @@ import ConsentManager from './pages/ConsentManager';
 import USSDMonitor from './pages/USSDMonitor';
 import Insurance from './pages/Insurance';
 import FinancialHealth from './pages/FinancialHealth';
+import LoanStatement from './pages/LoanStatement';
+import RepayLoan from './pages/RepayLoan';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -51,6 +53,8 @@ const AuthenticatedApp = () => {
       <Route path="/" element={<><Dashboard /><BottomNav /></>} />
       <Route path="/loans" element={<><Loans /><BottomNav /></>} />
       <Route path="/loans/apply" element={<><Loans /><BottomNav /></>} />
+      <Route path="/loans/statement" element={<><LoanStatement /><BottomNav /></>} />
+      <Route path="/loans/repay" element={<><RepayLoan /><BottomNav /></>} />
       <Route path="/savings" element={<><Savings /><BottomNav /></>} />
       <Route path="/budget" element={<><Budget /><BottomNav /></>} />
       <Route path="/profile" element={<><Profile /><BottomNav /></>} />

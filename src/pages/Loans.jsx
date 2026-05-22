@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CreditCard, CheckCircle, Clock, AlertTriangle, Plus, Calculator } from 'lucide-react';
+import { CreditCard, CheckCircle, Clock, AlertTriangle, Plus, Calculator, FileText, ArrowUpCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const STATUS_CONFIG = {
   draft: { label: 'Draft', color: 'bg-gray-100 text-gray-600' },
@@ -69,14 +70,26 @@ export default function Loans() {
       </div>
 
       <div className="px-4 mt-4 space-y-4">
-        {/* Apply Button */}
-        <Button
-          className="w-full bg-[#f97316] hover:bg-orange-600 text-white"
-          onClick={() => setShowApply(!showApply)}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Apply for a Loan
-        </Button>
+        {/* Quick action buttons */}
+        <div className="grid grid-cols-3 gap-2">
+          <Button
+            className="bg-[#f97316] hover:bg-orange-600 text-white col-span-1"
+            onClick={() => setShowApply(!showApply)}
+          >
+            <Plus className="w-4 h-4" />
+            Apply
+          </Button>
+          <Link to="/loans/statement" className="col-span-1">
+            <Button variant="outline" className="w-full border-[#1a3a6b] text-[#1a3a6b]">
+              <FileText className="w-4 h-4" /> Statement
+            </Button>
+          </Link>
+          <Link to="/loans/repay" className="col-span-1">
+            <Button variant="outline" className="w-full border-green-600 text-green-700">
+              <ArrowUpCircle className="w-4 h-4" /> Repay
+            </Button>
+          </Link>
+        </div>
 
         {/* Apply Form */}
         {showApply && (
@@ -169,14 +182,21 @@ export default function Loans() {
                     </div>
                     <Badge className={cfg.color}>{cfg.label}</Badge>
                   </div>
-                  {loan.outstanding_balance > 0 && (
-                    <div className="mt-3 pt-3 border-t">
-                      <div className="flex justify-between text-xs text-gray-500">
-                        <span>Outstanding</span>
-                        <span className="font-semibold text-gray-700">UGX {(loan.outstanding_balance / 1000).toFixed(0)}K</span>
+                  <div className="mt-3 pt-3 border-t flex items-center justify-between">
+                    {loan.outstanding_balance > 0 ? (
+                      <div className="text-xs text-gray-500">Outstanding: <span className="font-semibold text-gray-700">UGX {(loan.outstanding_balance / 1000).toFixed(0)}K</span></div>
+                    ) : <div />}
+                    {['active', 'disbursed'].includes(loan.status) && (
+                      <div className="flex gap-2">
+                        <Link to={`/loans/statement?loan_id=${loan.id}`}>
+                          <Button size="sm" variant="ghost" className="text-xs text-[#1a3a6b] h-7 px-2"><FileText className="w-3 h-3 mr-1" />Statement</Button>
+                        </Link>
+                        <Link to={`/loans/repay?loan_id=${loan.id}`}>
+                          <Button size="sm" className="text-xs bg-[#f97316] text-white h-7 px-2"><ArrowUpCircle className="w-3 h-3 mr-1" />Repay</Button>
+                        </Link>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             );
