@@ -1,0 +1,64 @@
+{
+  "name": "RiskProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": [
+        "conservative",
+        "moderate",
+        "aggressive"
+      ],
+      "default": "moderate"
+    },
+    "monthly_surplus": {
+      "type": "number",
+      "description": "Amount available to auto-invest monthly"
+    },
+    "auto_invest_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "auto_invest_percentage": {
+      "type": "number",
+      "default": 20,
+      "description": "% of surplus to auto-invest"
+    },
+    "allocation": {
+      "type": "object",
+      "properties": {
+        "bonds": {
+          "type": "number"
+        },
+        "p2p_loans": {
+          "type": "number"
+        },
+        "money_market": {
+          "type": "number"
+        },
+        "sacco": {
+          "type": "number"
+        }
+      }
+    },
+    "total_portfolio_value": {
+      "type": "number",
+      "default": 0
+    },
+    "total_returns_earned": {
+      "type": "number",
+      "default": 0
+    },
+    "last_rebalanced": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "risk_level"
+  ]
+}

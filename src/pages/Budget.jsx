@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Plus, TrendingDown, PieChart, BarChart2 } from 'lucide-react';
+import { Receipt, Plus, TrendingDown, PieChart, BarChart2, Camera } from 'lucide-react';
 import { PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Link } from 'react-router-dom';
 import BudgetLimitsManager from '@/components/budget/BudgetLimitsManager';
+import ReceiptScanner from '@/components/budget/ReceiptScanner';
 
 const CATEGORIES = ['food', 'transport', 'housing', 'health', 'education', 'entertainment', 'utilities', 'clothing', 'savings', 'loan_repayment', 'other'];
 const CATEGORY_COLORS = {
@@ -25,6 +26,7 @@ export default function Budget() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [user, setUser] = useState(null);
   const [adding, setAdding] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(u => {
@@ -64,16 +66,27 @@ export default function Budget() {
       </div>
 
       <div className="px-4 mt-4 space-y-4">
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <Button className="bg-[#f97316] hover:bg-orange-600 text-white" onClick={() => setShowAdd(!showAdd)}>
-            <Plus className="w-4 h-4" /> Track Expense
+            <Plus className="w-4 h-4" /> Add
+          </Button>
+          <Button className="bg-[#1a3a6b] text-white" onClick={() => setShowScanner(true)}>
+            <Camera className="w-4 h-4" /> Scan
           </Button>
           <Link to="/budget/insights">
             <Button variant="outline" className="w-full border-purple-500 text-purple-700">
-              <BarChart2 className="w-4 h-4" /> Expense Insights
+              <BarChart2 className="w-4 h-4" /> Insights
             </Button>
           </Link>
         </div>
+
+        {showScanner && (
+          <ReceiptScanner
+            userId={user?.id}
+            onExpenseAdded={(expense) => setExpenses(prev => [expense, ...prev])}
+            onClose={() => setShowScanner(false)}
+          />
+        )}
 
         {showAdd && (
           <Card>

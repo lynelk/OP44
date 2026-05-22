@@ -1,0 +1,33 @@
+{
+  "name": "PortfolioSnapshot",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "snapshot_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "total_value": {
+      "type": "number"
+    },
+    "total_invested": {
+      "type": "number"
+    },
+    "total_returns": {
+      "type": "number"
+    },
+    "return_rate": {
+      "type": "number"
+    },
+    "allocation_breakdown": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "user_id",
+    "snapshot_date",
+    "total_value"
+  ]
+}

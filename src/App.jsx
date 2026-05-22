@@ -31,6 +31,7 @@ import DebtPayoff from './pages/DebtPayoff';
 import Notifications from './pages/Notifications';
 import SavingsGroups from './pages/SavingsGroups';
 import SavingsGroupDetail from './pages/SavingsGroupDetail';
+import LandingPage from './pages/LandingPage';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -82,6 +83,7 @@ const AuthenticatedApp = () => {
       <Route path="/savings-groups/:groupId" element={<><SavingsGroupDetail /><BottomNav /></>} />
       <Route path="/financial-health" element={<><FinancialHealth /><BottomNav /></>} />
       <Route path="/invest" element={<><Invest /><BottomNav /></>} />
+      <Route path="/landing" element={<LandingPage />} />
       <Route path="/github" element={<GitHubDashboard />} />
       <Route path="/drive-review" element={<DriveReview />} />
       <Route path="*" element={<PageNotFound />} />
