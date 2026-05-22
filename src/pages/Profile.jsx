@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { User, Shield, Bell, LogOut, ChevronRight, Star, Award, ToggleLeft, LayoutDashboard } from 'lucide-react';
+import { Shield, Bell, LogOut, ChevronRight, Star, Award, ToggleLeft, LayoutDashboard, User, AlertCircle } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -22,118 +25,137 @@ export default function Profile() {
   const totalPoints = badges.reduce((sum, b) => sum + (b.points_awarded || 0), 0);
 
   const handleLogout = () => base44.auth.logout('/');
+  const handleDeleteAccount = () => {
+    base44.auth.logout('/');
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
-      <div className="bg-[#1a3a6b] text-white px-4 pt-10 pb-16">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-32">
+      {/* Profile Hero */}
+      <div className="bg-gradient-to-br from-[#0f2952] via-[#1a3a6b] to-[#1e4d8c] text-white px-5 pt-16 pb-20">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl font-bold">
-            {user?.full_name?.[0] || 'U'}
+          <div className="w-18 h-18 w-[72px] h-[72px] bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-3xl font-bold border-2 border-white/30">
+            {user?.full_name?.[0]?.toUpperCase() || 'U'}
           </div>
           <div>
             <h1 className="text-xl font-bold">{user?.full_name || 'User'}</h1>
-            <p className="text-blue-200 text-sm">{user?.email}</p>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge className={kycApproved ? 'bg-green-400 text-white' : kycPending ? 'bg-yellow-400 text-white' : 'bg-gray-400 text-white'}>
+            <p className="text-blue-200 text-sm mt-0.5">{user?.email}</p>
+            <div className="mt-2">
+              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${kycApproved ? 'bg-emerald-400/20 text-emerald-300' : kycPending ? 'bg-amber-400/20 text-amber-300' : 'bg-white/20 text-white/70'}`}>
                 {kycApproved ? '✓ KYC Verified' : kycPending ? '⏳ KYC Pending' : 'KYC Required'}
-              </Badge>
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="px-4 -mt-6 space-y-4">
-        {/* Points card */}
-        <Card className="bg-gradient-to-r from-[#f97316] to-orange-400 text-white shadow-lg">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-orange-100 text-sm">OpFin Points</p>
-              <p className="text-3xl font-bold">{totalPoints}</p>
-              <p className="text-orange-100 text-xs">{badges.length} badges earned</p>
-            </div>
-            <Award className="w-12 h-12 opacity-40" />
-          </CardContent>
-        </Card>
+      <div className="px-4 -mt-10 space-y-4">
+        {/* Points Card */}
+        <div className="bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-2xl p-5 shadow-lg flex items-center justify-between">
+          <div>
+            <p className="text-orange-100 text-xs font-medium">OpFin Points</p>
+            <p className="text-4xl font-bold tracking-tight">{totalPoints}</p>
+            <p className="text-orange-100 text-xs mt-1">{badges.length} badges earned</p>
+          </div>
+          <Award className="w-14 h-14 opacity-30" />
+        </div>
 
-        {/* KYC Status */}
+        {/* KYC Alert */}
         {!kycApproved && (
-          <Card className="border-orange-200 bg-orange-50">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Shield className="w-5 h-5 text-orange-500" />
-                  <div>
-                    <p className="font-semibold text-sm text-orange-800">Complete Your KYC</p>
-                    <p className="text-xs text-orange-600">Verify your identity to unlock credit access</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-orange-400" />
-              </div>
-            </CardContent>
-          </Card>
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800 rounded-2xl p-4 flex items-center gap-3">
+            <div className="w-10 h-10 bg-amber-100 dark:bg-amber-900/40 rounded-xl flex items-center justify-center shrink-0">
+              <Shield className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-sm text-amber-800 dark:text-amber-200">Complete Your KYC</p>
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">Verify your identity to unlock credit access</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-amber-400 shrink-0" />
+          </div>
         )}
 
         {/* Badges */}
         {badges.length > 0 && (
-          <Card>
-            <CardContent className="p-4">
-              <p className="font-semibold text-sm mb-3 flex items-center gap-2">
-                <Star className="w-4 h-4 text-yellow-500" /> My Achievements
-              </p>
-              <div className="grid grid-cols-3 gap-2">
-                {badges.map(badge => (
-                  <div key={badge.id} className="bg-gray-50 rounded-xl p-2 text-center">
-                    <div className="text-2xl mb-1">🏆</div>
-                    <p className="text-xs text-gray-600 leading-tight">{badge.badge_name}</p>
-                    <p className="text-xs text-yellow-500 font-semibold">+{badge.points_awarded}pts</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+            <p className="font-semibold text-sm text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+              <Star className="w-4 h-4 text-amber-400" /> My Achievements
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {badges.map(badge => (
+                <div key={badge.id} className="bg-gray-50 dark:bg-gray-700 rounded-xl p-3 text-center">
+                  <div className="text-2xl mb-1">🏆</div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 leading-tight">{badge.badge_name}</p>
+                  <p className="text-xs text-amber-500 font-semibold mt-0.5">+{badge.points_awarded}pts</p>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
-        {/* Menu Items */}
-        <Card>
-          <CardContent className="p-0">
-            {[
-              { icon: Shield, label: 'Identity & KYC', sub: kycApproved ? 'Verified' : 'Action needed', to: null },
-              { icon: Bell, label: 'Notifications', sub: 'Manage alerts', to: null },
-              { icon: ToggleLeft, label: 'Data & Consent', sub: 'Manage your consents', to: '/consent' },
-              { icon: User, label: 'Account Settings', sub: 'Profile & preferences', to: null },
-            ].map(({ icon: Icon, label, sub, to }, idx, arr) => {
-              const inner = (
-                <div className={`flex items-center justify-between p-4 ${idx < arr.length - 1 ? 'border-b' : ''}`}>
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                      <Icon className="w-4 h-4 text-gray-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{label}</p>
-                      <p className="text-xs text-gray-400">{sub}</p>
-                    </div>
+        {/* Settings Menu */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
+          {[
+            { icon: Shield, label: 'Identity & KYC', sub: kycApproved ? 'Verified' : 'Action needed', to: null, iconBg: 'bg-blue-100 dark:bg-blue-900/40', iconColor: 'text-blue-600 dark:text-blue-400' },
+            { icon: Bell, label: 'Notifications', sub: 'Manage alerts', to: '/notifications', iconBg: 'bg-red-100 dark:bg-red-900/40', iconColor: 'text-red-500' },
+            { icon: ToggleLeft, label: 'Data & Consent', sub: 'Manage your consents', to: '/consent', iconBg: 'bg-purple-100 dark:bg-purple-900/40', iconColor: 'text-purple-600 dark:text-purple-400' },
+            { icon: User, label: 'Account Settings', sub: 'Profile & preferences', to: null, iconBg: 'bg-gray-100 dark:bg-gray-700', iconColor: 'text-gray-600 dark:text-gray-400' },
+          ].map(({ icon: Icon, label, sub, to, iconBg, iconColor }, idx, arr) => {
+            const inner = (
+              <div className={`flex items-center justify-between px-4 py-3.5 min-h-[60px] ${idx < arr.length - 1 ? 'border-b border-gray-50 dark:border-gray-700' : ''}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`w-9 h-9 ${iconBg} rounded-xl flex items-center justify-center`}>
+                    <Icon className={`w-4 h-4 ${iconColor}`} />
                   </div>
-                  <ChevronRight className="w-4 h-4 text-gray-300" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{label}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{sub}</p>
+                  </div>
                 </div>
-              );
-              return to
-                ? <Link key={label} to={to}>{inner}</Link>
-                : <div key={label}>{inner}</div>;
-            })}
-          </CardContent>
-        </Card>
+                <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600" />
+              </div>
+            );
+            return to ? <Link key={label} to={to}>{inner}</Link> : <div key={label}>{inner}</div>;
+          })}
+        </div>
 
         {user?.role === 'admin' && (
           <Link to="/admin">
-            <Button className="w-full bg-[#1a3a6b] text-white mb-2">
-              <LayoutDashboard className="w-4 h-4 mr-2" /> Admin Panel
-            </Button>
+            <button className="w-full h-12 bg-[#1a3a6b] text-white rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-95">
+              <LayoutDashboard className="w-4 h-4" /> Admin Panel
+            </button>
           </Link>
         )}
 
-        <Button variant="outline" className="w-full text-red-500 border-red-200" onClick={handleLogout}>
-          <LogOut className="w-4 h-4 mr-2" /> Sign Out
-        </Button>
+        <button
+          className="w-full h-12 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-2xl font-medium text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+          onClick={handleLogout}
+        >
+          <LogOut className="w-4 h-4 text-red-500" />
+          <span className="text-red-500 font-medium">Sign Out</span>
+        </button>
+
+        {/* Delete Account */}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <button className="w-full h-11 text-red-400 dark:text-red-500 text-sm font-medium underline underline-offset-2 flex items-center justify-center gap-1.5">
+              <AlertCircle className="w-4 h-4" /> Delete Account
+            </button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete your account?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. All your data including loans, savings, and history will be permanently removed.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteAccount} className="bg-red-600 hover:bg-red-700 text-white">
+                Delete Account
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

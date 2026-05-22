@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import { useEffect } from 'react';
 // Add page imports here
 import Dashboard from './pages/Dashboard';
 import Loans from './pages/Loans';
@@ -39,6 +40,7 @@ import AdminRules from './pages/admin/AdminRules';
 import AdminCRB from './pages/admin/AdminCRB';
 import AdminSubmissions from './pages/admin/AdminSubmissions';
 import AdminLoans from './pages/admin/AdminLoans';
+import MobileHeader from './components/MobileHeader';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -65,6 +67,8 @@ const AuthenticatedApp = () => {
 
   // Render the main app
   return (
+    <>
+    <MobileHeader />
     <Routes>
       {/* Add your page Route elements here */}
       <Route path="/" element={<><Dashboard /><BottomNav /></>} />
@@ -102,11 +106,22 @@ const AuthenticatedApp = () => {
       <Route path="/loans/pre-qualify" element={<><LoanPreQualify /><BottomNav /></>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    </>
   );
 };
 
 
 function App() {
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const apply = (e) => {
+      if (e.matches) document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+    };
+    apply(mq);
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
 
   return (
     <AuthProvider>

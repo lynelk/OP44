@@ -1,12 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { TrendingUp, PiggyBank, CreditCard, Shield, Bell, ChevronRight, Target, ArrowUpRight, ArrowDownRight, Wallet, TrendingDown, Users } from 'lucide-react';
+import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, PiggyBank, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity } from 'lucide-react';
 import MilestoneProgress from '@/components/milestones/MilestoneProgress';
 import ChallengesBoard from '@/components/dashboard/ChallengesBoard';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+const TIP_STYLES = {
+  warning: { bg: 'bg-amber-50 border-amber-100 dark:bg-amber-900/20 dark:border-amber-800', icon: 'text-amber-500', text: 'text-amber-800 dark:text-amber-200', sub: 'text-amber-600 dark:text-amber-300' },
+  action: { bg: 'bg-blue-50 border-blue-100 dark:bg-blue-900/20 dark:border-blue-800', icon: 'text-blue-500', text: 'text-blue-800 dark:text-blue-200', sub: 'text-blue-600 dark:text-blue-300' },
+  positive: { bg: 'bg-emerald-50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800', icon: 'text-emerald-500', text: 'text-emerald-800 dark:text-emerald-200', sub: 'text-emerald-600 dark:text-emerald-300' },
+  tip: { bg: 'bg-purple-50 border-purple-100 dark:bg-purple-900/20 dark:border-purple-800', icon: 'text-purple-500', text: 'text-purple-800 dark:text-purple-200', sub: 'text-purple-600 dark:text-purple-300' },
+};
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -14,205 +19,285 @@ export default function Dashboard() {
   const [savings, setSavings] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [badges, setBadges] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const scrollRef = useRef(null);
+  const pullStartY = useRef(0);
+  const queryClient = useQueryClient();
 
+  const loadData = async () => {
+    const me = await base44.auth.me();
+    setUser(me);
+    const [l, s, n, b] = await Promise.all([
+      base44.entities.LoanApplication.filter({}),
+      base44.entities.SavingsPocket.filter({}),
+      base44.entities.Notification.filter({ is_read: false }),
+      base44.entities.GamificationBadge.filter({}),
+    ]);
+    setLoans(l); setSavings(s); setNotifications(n); setBadges(b);
+  };
+
+  useEffect(() => { loadData(); }, []);
+
+  const { data: tipsData, isLoading: loadingTips } = useQuery({
+    queryKey: ['financialTips'],
+    queryFn: () => base44.functions.invoke('financialTipsGenerator', {}).then(r => r.data),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await loadData();
+    queryClient.invalidateQueries(['financialTips']);
+    setTimeout(() => setIsRefreshing(false), 800);
+  };
+
+  // Pull to refresh
   useEffect(() => {
-    base44.auth.me().then(setUser);
-    base44.entities.LoanApplication.filter({}).then(setLoans);
-    base44.entities.SavingsPocket.filter({}).then(setSavings);
-    base44.entities.Notification.filter({ is_read: false }).then(setNotifications);
-    base44.entities.GamificationBadge.filter({}).then(setBadges);
+    const el = scrollRef.current;
+    if (!el) return;
+    const onTouchStart = (e) => { pullStartY.current = e.touches[0].clientY; };
+    const onTouchEnd = (e) => {
+      const delta = e.changedTouches[0].clientY - pullStartY.current;
+      if (delta > 80 && el.scrollTop === 0) handleRefresh();
+    };
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => { el.removeEventListener('touchstart', onTouchStart); el.removeEventListener('touchend', onTouchEnd); };
   }, []);
 
   const activeLoan = loans.find(l => l.status === 'active' || l.status === 'disbursed');
   const totalSavings = savings.reduce((sum, s) => sum + (s.current_balance || 0), 0);
-  const creditScore = activeLoan ? (activeLoan.risk_band === 'A' ? 820 : activeLoan.risk_band === 'B' ? 720 : 620) : 680;
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+  const QUICK_ACTIONS = [
+    { icon: CreditCard, label: 'Apply Loan', path: '/loans/apply', color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' },
+    { icon: PiggyBank, label: 'Save', path: '/savings', color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300' },
+    { icon: Wallet, label: 'Budget', path: '/budget', color: 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300' },
+    { icon: Shield, label: 'Insure', path: '/insurance', color: 'bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-300' },
+    { icon: TrendingDown, label: 'Debt', path: '/debt-payoff', color: 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300' },
+    { icon: Users, label: 'Groups', path: '/savings-groups', color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300' },
+    { icon: Activity, label: 'Health', path: '/financial-health', color: 'bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300' },
+    { icon: Target, label: 'Goals', path: '/savings-goals', color: 'bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-300' },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-[#1a3a6b] text-white px-4 pt-10 pb-16">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <p className="text-blue-200 text-sm">Good morning,</p>
-            <h1 className="text-2xl font-bold">{user?.full_name?.split(' ')[0] || 'User'} 👋</h1>
+    <div ref={scrollRef} className="min-h-screen bg-gray-50 dark:bg-gray-950 overflow-y-auto">
+      {/* Pull to refresh indicator */}
+      {isRefreshing && (
+        <div className="flex justify-center pt-4 pb-2">
+          <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-full px-4 py-2 shadow-lg text-sm text-gray-600 dark:text-gray-300">
+            <RefreshCw className="w-4 h-4 animate-spin text-blue-500" /> Refreshing...
           </div>
-          <Link to="/notifications" className="relative">
-            <Bell className="w-6 h-6" />
+        </div>
+      )}
+
+      {/* Hero Header */}
+      <div className="bg-gradient-to-br from-[#0f2952] via-[#1a3a6b] to-[#1e4d8c] text-white px-5 pt-14 pb-20">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <p className="text-blue-200 text-sm font-medium">{greeting},</p>
+            <h1 className="text-2xl font-bold tracking-tight">{user?.full_name?.split(' ')[0] || 'Welcome'} 👋</h1>
+          </div>
+          <Link to="/notifications" className="relative w-11 h-11 bg-white/10 rounded-full flex items-center justify-center">
+            <Bell className="w-5 h-5" />
             {notifications.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                {notifications.length}
+              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                {notifications.length > 9 ? '9+' : notifications.length}
               </span>
             )}
           </Link>
         </div>
 
-        {/* Credit Score Card */}
-        <div className="bg-white/10 backdrop-blur rounded-2xl p-4">
+        {/* Credit Score Banner */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-blue-200 text-xs mb-1">Your Credit Score</p>
+              <p className="text-blue-200 text-xs font-medium mb-0.5">Your Credit Score</p>
               <div className="flex items-end gap-2">
-                <span className="text-4xl font-bold">{creditScore}</span>
-                <Badge className="bg-green-400 text-white text-xs mb-1">Good</Badge>
+                <span className="text-4xl font-bold tracking-tight">680</span>
+                <span className="text-xs bg-emerald-400/20 text-emerald-300 rounded-full px-2 py-0.5 mb-1 font-medium">Good</span>
               </div>
-              <p className="text-blue-200 text-xs mt-1">Keep up your repayments!</p>
+              <p className="text-blue-200 text-xs mt-1 opacity-80">Keep up your repayments!</p>
             </div>
             <div className="text-right">
-              <p className="text-blue-200 text-xs mb-1">Available Credit</p>
+              <p className="text-blue-200 text-xs mb-1 font-medium">Available Credit</p>
               <p className="text-2xl font-bold">UGX 500K</p>
               <Link to="/loans/apply">
-                <Button size="sm" className="mt-2 bg-[#f97316] hover:bg-orange-600 text-white text-xs">
+                <button className="mt-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold rounded-xl px-4 py-2 transition-colors">
                   Apply Now
-                </Button>
+                </button>
               </Link>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="px-4 -mt-8 grid grid-cols-2 gap-3">
-        <Card className="shadow-lg">
-          <CardContent className="p-4">
+      <div className="px-4 -mt-10 space-y-5 pb-32">
+        {/* Quick Stats Cards */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                <PiggyBank className="w-4 h-4 text-green-600" />
+              <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl flex items-center justify-center">
+                <PiggyBank className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <span className="text-xs text-gray-500">Total Savings</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Savings</span>
             </div>
-            <p className="text-xl font-bold text-gray-800">UGX {(totalSavings / 1000).toFixed(0)}K</p>
-            <p className="text-xs text-green-500 flex items-center gap-0.5 mt-1">
+            <p className="text-xl font-bold text-gray-900 dark:text-white">UGX {(totalSavings / 1000).toFixed(0)}K</p>
+            <p className="text-xs text-emerald-500 flex items-center gap-0.5 mt-1">
               <ArrowUpRight className="w-3 h-3" /> {savings.length} pockets
             </p>
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card className="shadow-lg">
-          <CardContent className="p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                <CreditCard className="w-4 h-4 text-orange-600" />
+              <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/40 rounded-xl flex items-center justify-center">
+                <CreditCard className="w-4 h-4 text-orange-600 dark:text-orange-400" />
               </div>
-              <span className="text-xs text-gray-500">Active Loan</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Active Loan</span>
             </div>
             {activeLoan ? (
               <>
-                <p className="text-xl font-bold text-gray-800">UGX {((activeLoan.outstanding_balance || activeLoan.amount_approved || 0) / 1000).toFixed(0)}K</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                  UGX {((activeLoan.outstanding_balance || activeLoan.amount_approved || 0) / 1000).toFixed(0)}K
+                </p>
                 <p className="text-xs text-orange-500 flex items-center gap-0.5 mt-1">
                   <ArrowDownRight className="w-3 h-3" /> Outstanding
                 </p>
               </>
             ) : (
               <>
-                <p className="text-xl font-bold text-gray-800">None</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white">None</p>
                 <p className="text-xs text-gray-400 mt-1">No active loans</p>
               </>
             )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="px-4 mt-6">
-        <h2 className="font-semibold text-gray-700 mb-3">Quick Actions</h2>
-        <div className="grid grid-cols-4 gap-2">
-          {[
-            { icon: CreditCard, label: 'Apply Loan', path: '/loans/apply', color: 'bg-blue-100 text-blue-600' },
-            { icon: PiggyBank, label: 'Save', path: '/savings', color: 'bg-green-100 text-green-600' },
-            { icon: Wallet, label: 'Budget', path: '/budget', color: 'bg-yellow-100 text-yellow-600' },
-            { icon: Shield, label: 'Insure', path: '/insurance', color: 'bg-orange-100 text-orange-600' },
-            { icon: TrendingDown, label: 'Debt Plan', path: '/debt-payoff', color: 'bg-red-100 text-red-600' },
-            { icon: Users, label: 'Groups', path: '/savings-groups', color: 'bg-purple-100 text-purple-600' },
-          ].map(({ icon: Icon, label, path, color }) => (
-            <Link key={label} to={path} className="flex flex-col items-center gap-1">
-              <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center`}>
-                <Icon className="w-5 h-5" />
-              </div>
-              <span className="text-xs text-gray-600 text-center leading-tight">{label}</span>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* Savings Pockets */}
-      <div className="px-4 mt-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-gray-700">My Savings Pockets</h2>
-          <Link to="/savings" className="text-blue-600 text-sm flex items-center gap-1">
-            View all <ChevronRight className="w-3 h-3" />
-          </Link>
-        </div>
-        {savings.length === 0 ? (
-          <Card className="border-dashed border-2">
-            <CardContent className="p-4 text-center">
-              <PiggyBank className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-              <p className="text-sm text-gray-400">No savings pockets yet</p>
-              <Link to="/savings">
-                <Button size="sm" variant="outline" className="mt-2 text-xs">Create Pocket</Button>
-              </Link>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-2">
-            {savings.slice(0, 2).map(pocket => {
-              const progress = pocket.goal_amount ? Math.min((pocket.current_balance / pocket.goal_amount) * 100, 100) : 0;
-              return (
-                <Card key={pocket.id} className="shadow-sm">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl">{pocket.icon || '🎯'}</span>
-                        <div>
-                          <p className="font-medium text-sm">{pocket.name}</p>
-                          <p className="text-xs text-gray-400">Goal: UGX {(pocket.goal_amount / 1000).toFixed(0)}K</p>
-                        </div>
-                      </div>
-                      <span className="text-sm font-bold text-green-600">
-                        UGX {(pocket.current_balance / 1000).toFixed(0)}K
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2">
-                      <div className="bg-green-500 h-2 rounded-full" style={{ width: `${progress}%` }} />
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1">{progress.toFixed(0)}% of goal</p>
-                  </CardContent>
-                </Card>
-              );
-            })}
           </div>
-        )}
-      </div>
-
-      {/* Savings Challenges Board */}
-      {user && (
-        <div className="px-4 mt-6">
-          <ChallengesBoard userId={user.id} />
         </div>
-      )}
 
-      {/* Milestone Progress */}
-      {user && (
-        <div className="px-4 mt-6">
-          <MilestoneProgress userId={user.id} />
-        </div>
-      )}
-
-      {/* Badges */}
-      {badges.length > 0 && (
-        <div className="px-4 mt-4 mb-8">
-          <h2 className="font-semibold text-gray-700 mb-3">Your Achievements</h2>
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {badges.map(badge => (
-              <div key={badge.id} className="flex-shrink-0 bg-white rounded-xl p-3 shadow-sm text-center w-20">
-                <div className="text-2xl mb-1">🏆</div>
-                <p className="text-xs text-gray-600 leading-tight">{badge.badge_name}</p>
-              </div>
+        {/* Quick Actions */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+          <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-4 gap-3">
+            {QUICK_ACTIONS.map(({ icon: Icon, label, path, color }) => (
+              <Link key={label} to={path} className="flex flex-col items-center gap-1.5">
+                <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center transition-transform active:scale-95`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] text-gray-500 dark:text-gray-400 text-center leading-tight font-medium">{label}</span>
+              </Link>
             ))}
           </div>
         </div>
-      )}
 
-      <div className="h-24" />
+        {/* AI Financial Insights */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-purple-500" /> Your Insights
+            </h2>
+            <button onClick={handleRefresh} className="text-blue-500 text-xs font-medium flex items-center gap-1">
+              <RefreshCw className="w-3 h-3" /> Refresh
+            </button>
+          </div>
+
+          {loadingTips ? (
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 flex items-center justify-center gap-2 text-gray-400 shadow-sm">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="text-sm">Analysing your finances…</span>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {(tipsData?.tips || []).map((tip, i) => {
+                const style = TIP_STYLES[tip.type] || TIP_STYLES.tip;
+                return (
+                  <div key={i} className={`rounded-2xl p-4 border ${style.bg}`}>
+                    <div className="flex items-start gap-3">
+                      <span className="text-xl leading-none mt-0.5">{tip.icon}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm font-semibold ${style.text}`}>{tip.title}</p>
+                        <p className={`text-xs mt-0.5 leading-relaxed ${style.sub}`}>{tip.body}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+              {(!tipsData?.tips || tipsData.tips.length === 0) && (
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 text-center shadow-sm">
+                  <Sparkles className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+                  <p className="text-sm text-gray-400">Log more transactions to unlock insights</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Savings Pockets */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">My Savings</h2>
+            <Link to="/savings" className="text-blue-500 text-xs font-medium flex items-center gap-0.5">
+              View all <ChevronRight className="w-3 h-3" />
+            </Link>
+          </div>
+          {savings.length === 0 ? (
+            <Link to="/savings">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 shadow-sm">
+                <PiggyBank className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                <p className="text-sm text-gray-400 dark:text-gray-500">Create your first savings pocket</p>
+              </div>
+            </Link>
+          ) : (
+            <div className="space-y-2.5">
+              {savings.slice(0, 2).map(pocket => {
+                const progress = pocket.goal_amount ? Math.min((pocket.current_balance / pocket.goal_amount) * 100, 100) : 0;
+                return (
+                  <div key={pocket.id} className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-xl">{pocket.icon || '🎯'}</span>
+                        <div>
+                          <p className="font-semibold text-sm text-gray-900 dark:text-white">{pocket.name}</p>
+                          <p className="text-xs text-gray-400">Goal: UGX {(pocket.goal_amount / 1000).toFixed(0)}K</p>
+                        </div>
+                      </div>
+                      <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                        UGX {(pocket.current_balance / 1000).toFixed(0)}K
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                      <div className="bg-emerald-500 h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1">{progress.toFixed(0)}% of goal</p>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Challenges & Milestones */}
+        {user && (
+          <>
+            <div><ChallengesBoard userId={user.id} /></div>
+            <div><MilestoneProgress userId={user.id} /></div>
+          </>
+        )}
+
+        {/* Badges */}
+        {badges.length > 0 && (
+          <div>
+            <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm mb-3">Achievements</h2>
+            <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
+              {badges.map(badge => (
+                <div key={badge.id} className="flex-shrink-0 bg-white dark:bg-gray-800 rounded-2xl p-3 shadow-sm text-center w-20">
+                  <div className="text-2xl mb-1">🏆</div>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400 leading-tight">{badge.badge_name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

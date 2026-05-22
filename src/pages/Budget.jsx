@@ -1,20 +1,22 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Plus, TrendingDown, PieChart, BarChart2, Camera } from 'lucide-react';
+import { Receipt, Plus, BarChart2, Camera, X } from 'lucide-react';
 import { PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Link } from 'react-router-dom';
 import BudgetLimitsManager from '@/components/budget/BudgetLimitsManager';
 import ReceiptScanner from '@/components/budget/ReceiptScanner';
 
-const CATEGORIES = ['food', 'transport', 'housing', 'health', 'education', 'entertainment', 'utilities', 'clothing', 'savings', 'loan_repayment', 'other'];
+const CATEGORIES = ['food','transport','housing','health','education','entertainment','utilities','clothing','savings','loan_repayment','other'];
 const CATEGORY_COLORS = {
-  food: '#f97316', transport: '#3b82f6', housing: '#8b5cf6', health: '#ef4444',
-  education: '#06b6d4', entertainment: '#ec4899', utilities: '#f59e0b',
-  clothing: '#10b981', savings: '#22c55e', loan_repayment: '#6366f1', other: '#94a3b8'
+  food:'#f97316', transport:'#3b82f6', housing:'#8b5cf6', health:'#ef4444',
+  education:'#06b6d4', entertainment:'#ec4899', utilities:'#f59e0b',
+  clothing:'#10b981', savings:'#22c55e', loan_repayment:'#6366f1', other:'#94a3b8'
+};
+const CATEGORY_ICONS = {
+  food:'🍔', transport:'🚌', housing:'🏠', health:'💊', education:'📚',
+  entertainment:'🎬', utilities:'💡', clothing:'👗', savings:'💰', loan_repayment:'🏦', other:'📋'
 };
 
 export default function Budget() {
@@ -29,133 +31,126 @@ export default function Budget() {
   const [showScanner, setShowScanner] = useState(false);
 
   useEffect(() => {
-    base44.auth.me().then(u => {
-      setUser(u);
-      base44.entities.Expense.filter({}).then(setExpenses);
-    });
+    base44.auth.me().then(u => { setUser(u); base44.entities.Expense.filter({}).then(setExpenses); });
   }, []);
 
   const handleAdd = async () => {
     if (!amount || !category) return;
     setAdding(true);
-    const expense = await base44.entities.Expense.create({
-      user_id: user?.id,
-      amount: parseFloat(amount),
-      category,
-      description,
-      date,
-    });
+    const expense = await base44.entities.Expense.create({ user_id: user?.id, amount: parseFloat(amount), category, description, date });
     setExpenses(prev => [expense, ...prev]);
-    setShowAdd(false);
-    setAmount(''); setCategory(''); setDescription('');
+    setShowAdd(false); setAmount(''); setCategory(''); setDescription('');
     setAdding(false);
   };
 
   const totalSpend = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
   const byCategory = CATEGORIES.map(cat => ({
-    name: cat.replace('_', ' '),
-    value: expenses.filter(e => e.category === cat).reduce((sum, e) => sum + (e.amount || 0), 0),
-    color: CATEGORY_COLORS[cat],
+    name: cat.replace('_', ' '), value: expenses.filter(e => e.category === cat).reduce((sum, e) => sum + (e.amount || 0), 0), color: CATEGORY_COLORS[cat],
   })).filter(c => c.value > 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
-      <div className="bg-[#1a3a6b] text-white px-4 pt-10 pb-6">
-        <h1 className="text-2xl font-bold mb-1">Budget & Expenses</h1>
-        <p className="text-blue-200 text-sm">Total spent: UGX {totalSpend.toLocaleString()}</p>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-28 font-sans">
+      {/* Header */}
+      <div className="bg-gradient-to-br from-[#451a03] via-[#78350f] to-[#92400e] text-white px-5 pt-14 pb-8">
+        <h1 className="text-2xl font-bold tracking-tight mb-1">Budget & Expenses</h1>
+        <p className="text-amber-200 text-sm">Total spent: <span className="font-bold text-white">UGX {totalSpend.toLocaleString()}</span></p>
       </div>
 
-      <div className="px-4 mt-4 space-y-4">
-        <div className="grid grid-cols-3 gap-2">
-          <Button className="bg-[#f97316] hover:bg-orange-600 text-white" onClick={() => setShowAdd(!showAdd)}>
-            <Plus className="w-4 h-4" /> Add
-          </Button>
-          <Button className="bg-[#1a3a6b] text-white" onClick={() => setShowScanner(true)}>
-            <Camera className="w-4 h-4" /> Scan
-          </Button>
+      <div className="px-4 mt-4 space-y-3">
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <button onClick={() => setShowAdd(!showAdd)}
+            className="flex items-center gap-1.5 h-10 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 rounded-full transition-colors">
+            <Plus className="w-4 h-4" /> Add Expense
+          </button>
+          <button onClick={() => setShowScanner(true)}
+            className="flex items-center gap-1.5 h-10 bg-[#1a3a6b] text-white text-sm font-medium px-4 rounded-full">
+            <Camera className="w-4 h-4" /> Scan Receipt
+          </button>
           <Link to="/budget/insights">
-            <Button variant="outline" className="w-full border-purple-500 text-purple-700">
+            <div className="flex items-center gap-1.5 h-10 border border-violet-200 dark:border-violet-800 text-violet-700 dark:text-violet-400 text-sm font-medium px-4 rounded-full bg-white dark:bg-gray-900">
               <BarChart2 className="w-4 h-4" /> Insights
-            </Button>
+            </div>
           </Link>
         </div>
 
         {showScanner && (
-          <ReceiptScanner
-            userId={user?.id}
-            onExpenseAdded={(expense) => setExpenses(prev => [expense, ...prev])}
-            onClose={() => setShowScanner(false)}
-          />
+          <ReceiptScanner userId={user?.id} onExpenseAdded={(e) => setExpenses(prev => [e, ...prev])} onClose={() => setShowScanner(false)} />
         )}
 
+        {/* Add Form */}
         {showAdd && (
-          <Card>
-            <CardContent className="p-4 space-y-3">
-              <Input type="number" placeholder="Amount (UGX)" value={amount} onChange={e => setAmount(e.target.value)} />
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+              <p className="font-semibold text-sm text-gray-900 dark:text-white">Add Expense</p>
+              <button onClick={() => setShowAdd(false)} className="w-7 h-7 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                <X className="w-3.5 h-3.5 text-gray-500" />
+              </button>
+            </div>
+            <div className="p-4 space-y-3">
+              <Input type="number" placeholder="Amount (UGX)" value={amount} onChange={e => setAmount(e.target.value)} className="h-11 rounded-xl" />
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger><SelectValue placeholder="Category" /></SelectTrigger>
+                <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Category" /></SelectTrigger>
                 <SelectContent>
                   {CATEGORIES.map(cat => (
-                    <SelectItem key={cat} value={cat}>{cat.replace('_', ' ')}</SelectItem>
+                    <SelectItem key={cat} value={cat}>{CATEGORY_ICONS[cat]} {cat.replace('_', ' ')}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <Input placeholder="Description (optional)" value={description} onChange={e => setDescription(e.target.value)} />
-              <Input type="date" value={date} onChange={e => setDate(e.target.value)} />
-              <Button className="w-full bg-[#1a3a6b] text-white" onClick={handleAdd} disabled={adding}>
+              <Input placeholder="Description (optional)" value={description} onChange={e => setDescription(e.target.value)} className="h-11 rounded-xl" />
+              <Input type="date" value={date} onChange={e => setDate(e.target.value)} className="h-11 rounded-xl" />
+              <button onClick={handleAdd} disabled={adding || !amount || !category}
+                className="w-full h-11 bg-[#1a3a6b] disabled:opacity-50 text-white font-semibold rounded-xl">
                 {adding ? 'Adding...' : 'Add Expense'}
-              </Button>
-            </CardContent>
-          </Card>
+              </button>
+            </div>
+          </div>
         )}
 
         {user && <BudgetLimitsManager userId={user.id} expenses={expenses} />}
 
         {byCategory.length > 0 && (
-          <Card>
-            <CardHeader><CardTitle className="text-sm flex items-center gap-2"><PieChart className="w-4 h-4" /> Spending Breakdown</CardTitle></CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={220}>
-                <RechartsPie>
-                  <Pie data={byCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
-                    {byCategory.map((entry, idx) => (
-                      <Cell key={idx} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(val) => `UGX ${val.toLocaleString()}`} />
-                  <Legend />
-                </RechartsPie>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 shadow-sm">
+            <p className="font-semibold text-sm text-gray-900 dark:text-white mb-3">Spending Breakdown</p>
+            <ResponsiveContainer width="100%" height={200}>
+              <RechartsPie>
+                <Pie data={byCategory} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75} paddingAngle={2}>
+                  {byCategory.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
+                </Pie>
+                <Tooltip formatter={(val) => `UGX ${val.toLocaleString()}`} />
+                <Legend iconType="circle" iconSize={8} />
+              </RechartsPie>
+            </ResponsiveContainer>
+          </div>
         )}
 
         {expenses.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
             <Receipt className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>No expenses tracked yet</p>
+            <p className="font-medium text-gray-500">No expenses tracked yet</p>
+            <p className="text-sm">Add your first expense above</p>
           </div>
         ) : (
-          <div className="space-y-2">
-            <h2 className="font-semibold text-gray-700 text-sm">Recent Transactions</h2>
-            {expenses.slice(0, 20).map(expense => (
-              <Card key={expense.id} className="shadow-sm">
-                <CardContent className="p-3 flex items-center justify-between">
+          <div>
+            <p className="font-semibold text-sm text-gray-900 dark:text-white mb-3">Recent Transactions</p>
+            <div className="space-y-2">
+              {expenses.slice(0, 20).map(expense => (
+                <div key={expense.id} className="bg-white dark:bg-gray-900 rounded-2xl p-3.5 shadow-sm flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                      style={{ backgroundColor: CATEGORY_COLORS[expense.category] || '#94a3b8' }}>
-                      {expense.category?.[0]?.toUpperCase()}
+                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-lg"
+                      style={{ backgroundColor: `${CATEGORY_COLORS[expense.category]}20` }}>
+                      {CATEGORY_ICONS[expense.category] || '📋'}
                     </div>
                     <div>
-                      <p className="text-sm font-medium capitalize">{expense.category?.replace('_', ' ')}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white capitalize">{expense.category?.replace('_', ' ')}</p>
                       {expense.description && <p className="text-xs text-gray-400">{expense.description}</p>}
                       <p className="text-xs text-gray-400">{expense.date}</p>
                     </div>
                   </div>
-                  <p className="font-semibold text-red-500">-UGX {expense.amount?.toLocaleString()}</p>
-                </CardContent>
-              </Card>
-            ))}
+                  <p className="font-semibold text-red-500">-{(expense.amount / 1000).toFixed(0)}K</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
