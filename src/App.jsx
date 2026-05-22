@@ -26,6 +26,9 @@ import Claims from './pages/Claims';
 import ExpenseInsights from './pages/ExpenseInsights';
 import RepaymentPlanner from './pages/RepaymentPlanner';
 import FutureHealthProjection from './pages/FutureHealthProjection';
+import SavingsChallenges from './pages/SavingsChallenges';
+import DebtPayoff from './pages/DebtPayoff';
+import Notifications from './pages/Notifications';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -70,6 +73,9 @@ const AuthenticatedApp = () => {
       <Route path="/loans/planner" element={<><RepaymentPlanner /><BottomNav /></>} />
       <Route path="/budget/insights" element={<><ExpenseInsights /><BottomNav /></>} />
       <Route path="/health/projection" element={<><FutureHealthProjection /><BottomNav /></>} />
+      <Route path="/savings-challenges" element={<><SavingsChallenges /><BottomNav /></>} />
+      <Route path="/debt-payoff" element={<><DebtPayoff /><BottomNav /></>} />
+      <Route path="/notifications" element={<><Notifications /><BottomNav /></>} />
       <Route path="/financial-health" element={<><FinancialHealth /><BottomNav /></>} />
       <Route path="/invest" element={<><Invest /><BottomNav /></>} />
       <Route path="/github" element={<GitHubDashboard />} />

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Receipt, Plus, TrendingDown, PieChart, BarChart2 } from 'lucide-react';
 import { PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Link } from 'react-router-dom';
+import BudgetLimitsManager from '@/components/budget/BudgetLimitsManager';
 
 const CATEGORIES = ['food', 'transport', 'housing', 'health', 'education', 'entertainment', 'utilities', 'clothing', 'savings', 'loan_repayment', 'other'];
 const CATEGORY_COLORS = {
@@ -94,6 +95,8 @@ export default function Budget() {
             </CardContent>
           </Card>
         )}
+
+        {user && <BudgetLimitsManager userId={user.id} expenses={expenses} />}
 
         {byCategory.length > 0 && (
           <Card>
