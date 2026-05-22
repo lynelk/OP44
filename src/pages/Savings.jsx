@@ -4,7 +4,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PiggyBank, Plus, Target, Zap } from 'lucide-react';
+import { PiggyBank, Plus, Target, Zap, History } from 'lucide-react';
+import AutoSaveManager from '@/components/savings/AutoSaveManager';
+import AutoSaveHistory from '@/components/savings/AutoSaveHistory';
 
 const ICONS = ['🎯', '🏠', '📚', '✈️', '💊', '💍', '🚗', '💼'];
 
@@ -19,6 +21,7 @@ export default function Savings() {
   const [user, setUser] = useState(null);
   const [depositAmount, setDepositAmount] = useState({});
   const [saving, setSaving] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(u => {
@@ -61,11 +64,23 @@ export default function Savings() {
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
       <div className="bg-[#1a3a6b] text-white px-4 pt-10 pb-6">
-        <h1 className="text-2xl font-bold mb-1">Savings Pockets</h1>
+        <div className="flex items-center justify-between mb-1">
+          <h1 className="text-2xl font-bold">Savings Pockets</h1>
+          <button onClick={() => setShowHistory(!showHistory)} className="flex items-center gap-1 text-blue-200 text-xs border border-blue-400 rounded-full px-2 py-1">
+            <History className="w-3 h-3" /> Auto-Save Log
+          </button>
+        </div>
         <p className="text-blue-200 text-sm">Total saved: UGX {totalSavings.toLocaleString()}</p>
       </div>
 
       <div className="px-4 mt-4 space-y-4">
+        {showHistory && user && (
+          <div>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Auto-Save History</p>
+            <AutoSaveHistory userId={user.id} />
+          </div>
+        )}
+
         <Button className="w-full bg-green-600 hover:bg-green-700 text-white" onClick={() => setShowCreate(!showCreate)}>
           <Plus className="w-4 h-4 mr-2" /> Create New Pocket
         </Button>
@@ -138,7 +153,7 @@ export default function Savings() {
                   <div className="w-full bg-gray-100 rounded-full h-2 mb-3">
                     <div className="bg-green-500 h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mb-3">
                     <Input
                       type="number"
                       placeholder="Deposit amount (UGX)"
@@ -150,6 +165,13 @@ export default function Savings() {
                       Add
                     </Button>
                   </div>
+                  {user && (
+                    <AutoSaveManager
+                      pocket={pocket}
+                      userId={user.id}
+                      onUpdated={updated => setPockets(prev => prev.map(p => p.id === pocket.id ? updated : p))}
+                    />
+                  )}
                 </CardContent>
               </Card>
             );

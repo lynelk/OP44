@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, PiggyBank, CreditCard, Shield, Bell, ChevronRight, Target, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import MilestoneProgress from '@/components/milestones/MilestoneProgress';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -179,9 +180,16 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* Milestone Progress */}
+      {user && (
+        <div className="px-4 mt-6">
+          <MilestoneProgress userId={user.id} />
+        </div>
+      )}
+
       {/* Badges */}
       {badges.length > 0 && (
-        <div className="px-4 mt-6 mb-8">
+        <div className="px-4 mt-4 mb-8">
           <h2 className="font-semibold text-gray-700 mb-3">Your Achievements</h2>
           <div className="flex gap-2 overflow-x-auto pb-2">
             {badges.map(badge => (

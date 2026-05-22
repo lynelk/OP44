@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Shield } from 'lucide-react';
+import { Shield, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import ProductCard from '@/components/insurance/ProductCard';
 import MyPolicies from '@/components/insurance/MyPolicies';
 import EnrollModal from '@/components/insurance/EnrollModal';
@@ -53,21 +54,25 @@ export default function Insurance() {
         </div>
         <p className="text-slate-400 text-sm">Protect what matters most</p>
 
-        <div className="grid grid-cols-2 gap-3 mt-4">
+        <div className="grid grid-cols-3 gap-3 mt-4">
           <div className="bg-white/10 rounded-xl p-3">
             <p className="text-xs text-slate-400">Active Policies</p>
             <p className="text-2xl font-bold">{activePoliciesCount}</p>
           </div>
           <div className="bg-white/10 rounded-xl p-3">
-            <p className="text-xs text-slate-400">Available Products</p>
+            <p className="text-xs text-slate-400">Products</p>
             <p className="text-2xl font-bold">{products.length}</p>
           </div>
+          <Link to="/insurance/claims" className="bg-white/10 rounded-xl p-3 flex flex-col items-center justify-center hover:bg-white/20 transition-colors">
+            <FileText className="w-5 h-5 text-slate-300 mb-1" />
+            <p className="text-xs text-slate-300">My Claims</p>
+          </Link>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex border-b bg-white sticky top-0 z-10">
-        {[['marketplace', 'Marketplace'], ['my_policies', `My Policies${policies.length ? ` (${policies.length})` : ''}`]].map(([key, label]) => (
+        {[['marketplace', 'Marketplace'], ['my_policies', `My Policies${policies.length ? ` (${policies.length})` : ''}`], ['claims', 'Claims']].map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -118,8 +123,16 @@ export default function Insurance() {
               </div>
             )}
           </>
-        ) : (
+        ) : tab === 'my_policies' ? (
           <MyPolicies policies={policies} products={products} />
+        ) : (
+          <Link to="/insurance/claims" className="block">
+            <div className="text-center py-8 text-slate-400">
+              <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
+              <p className="text-sm">View and manage your claims</p>
+              <p className="text-xs text-blue-500 mt-1">Open Claims Page →</p>
+            </div>
+          </Link>
         )}
       </div>
 

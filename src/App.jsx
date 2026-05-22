@@ -22,6 +22,7 @@ import Insurance from './pages/Insurance';
 import FinancialHealth from './pages/FinancialHealth';
 import LoanStatement from './pages/LoanStatement';
 import RepayLoan from './pages/RepayLoan';
+import Claims from './pages/Claims';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -62,6 +63,7 @@ const AuthenticatedApp = () => {
       <Route path="/consent" element={<><ConsentManager /><BottomNav /></>} />
       <Route path="/ussd-monitor" element={<><USSDMonitor /><BottomNav /></>} />
       <Route path="/insurance" element={<><Insurance /><BottomNav /></>} />
+      <Route path="/insurance/claims" element={<><Claims /><BottomNav /></>} />
       <Route path="/financial-health" element={<><FinancialHealth /><BottomNav /></>} />
       <Route path="/invest" element={<><Invest /><BottomNav /></>} />
       <Route path="/github" element={<GitHubDashboard />} />

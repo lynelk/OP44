@@ -1,0 +1,47 @@
+{
+  "name": "AutoSaveLog",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "pocket_id": {
+      "type": "string"
+    },
+    "pocket_name": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failed",
+        "pending"
+      ],
+      "default": "success"
+    },
+    "executed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "pocket_id",
+    "amount"
+  ]
+}
