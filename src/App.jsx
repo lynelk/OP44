@@ -19,6 +19,7 @@ import Invest from './pages/Invest';
 import ConsentManager from './pages/ConsentManager';
 import USSDMonitor from './pages/USSDMonitor';
 import Insurance from './pages/Insurance';
+import FinancialHealth from './pages/FinancialHealth';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -57,6 +58,7 @@ const AuthenticatedApp = () => {
       <Route path="/consent" element={<><ConsentManager /><BottomNav /></>} />
       <Route path="/ussd-monitor" element={<><USSDMonitor /><BottomNav /></>} />
       <Route path="/insurance" element={<><Insurance /><BottomNav /></>} />
+      <Route path="/financial-health" element={<><FinancialHealth /><BottomNav /></>} />
       <Route path="/invest" element={<><Invest /><BottomNav /></>} />
       <Route path="/github" element={<GitHubDashboard />} />
       <Route path="/drive-review" element={<DriveReview />} />

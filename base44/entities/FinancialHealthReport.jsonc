@@ -1,0 +1,93 @@
+{
+  "name": "FinancialHealthReport",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "overall_score": {
+      "type": "number",
+      "description": "0-100 overall financial health score"
+    },
+    "grade": {
+      "type": "string",
+      "enum": [
+        "Excellent",
+        "Good",
+        "Fair",
+        "Needs Work",
+        "Critical"
+      ]
+    },
+    "credit_score": {
+      "type": "number"
+    },
+    "credit_pillar_score": {
+      "type": "number",
+      "description": "0-100 credit pillar sub-score"
+    },
+    "savings_pillar_score": {
+      "type": "number",
+      "description": "0-100 savings pillar sub-score"
+    },
+    "spending_pillar_score": {
+      "type": "number",
+      "description": "0-100 spending pillar sub-score"
+    },
+    "debt_pillar_score": {
+      "type": "number",
+      "description": "0-100 debt management pillar sub-score"
+    },
+    "ai_summary": {
+      "type": "string",
+      "description": "AI-generated personalised narrative"
+    },
+    "ai_tips": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Actionable AI tips"
+    },
+    "rule_flags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Rule-based warning flags"
+    },
+    "total_savings": {
+      "type": "number"
+    },
+    "savings_goal_progress": {
+      "type": "number",
+      "description": "Average % progress across savings goals"
+    },
+    "total_expenses_last30": {
+      "type": "number"
+    },
+    "top_expense_category": {
+      "type": "string"
+    },
+    "active_loans": {
+      "type": "number"
+    },
+    "overdue_repayments": {
+      "type": "number"
+    },
+    "on_time_repayment_rate": {
+      "type": "number",
+      "description": "Percentage 0-100"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "overall_score",
+    "grade",
+    "generated_at"
+  ]
+}
