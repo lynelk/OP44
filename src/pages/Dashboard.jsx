@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [savings, setSavings] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [badges, setBadges] = useState([]);
+  const [creditScore, setCreditScore] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const scrollRef = useRef(null);
   const pullStartY = useRef(0);
@@ -27,13 +28,15 @@ export default function Dashboard() {
   const loadData = async () => {
     const me = await base44.auth.me();
     setUser(me);
-    const [l, s, n, b] = await Promise.all([
+    const [l, s, n, b, scores] = await Promise.all([
       base44.entities.LoanApplication.filter({}),
       base44.entities.SavingsPocket.filter({}),
       base44.entities.Notification.filter({ is_read: false }),
       base44.entities.GamificationBadge.filter({}),
+      base44.entities.CreditScore.filter({ user_id: me.id }, '-calculated_at', 1),
     ]);
     setLoans(l); setSavings(s); setNotifications(n); setBadges(b);
+    if (scores.length > 0) setCreditScore(scores[0]);
   };
 
   useEffect(() => { loadData(); }, []);
@@ -110,27 +113,46 @@ export default function Dashboard() {
         </div>
 
         {/* Credit Score Banner */}
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-200 text-xs font-medium mb-0.5">Your Credit Score</p>
-              <div className="flex items-end gap-2">
-                <span className="text-4xl font-bold tracking-tight">680</span>
-                <span className="text-xs bg-emerald-400/20 text-emerald-300 rounded-full px-2 py-0.5 mb-1 font-medium">Good</span>
+        <Link to="/credit-score">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-200 text-xs font-medium mb-0.5">Your Credit Score</p>
+                <div className="flex items-end gap-2">
+                  <span className="text-4xl font-bold tracking-tight">
+                    {creditScore?.score ?? '—'}
+                  </span>
+                  {creditScore?.risk_band && (
+                    <span className={`text-xs rounded-full px-2 py-0.5 mb-1 font-medium ${
+                      creditScore.risk_band === 'A' ? 'bg-emerald-400/20 text-emerald-300' :
+                      creditScore.risk_band === 'B' ? 'bg-blue-400/20 text-blue-300' :
+                      creditScore.risk_band === 'C' ? 'bg-amber-400/20 text-amber-300' :
+                      'bg-red-400/20 text-red-300'
+                    }`}>
+                      Band {creditScore.risk_band}
+                    </span>
+                  )}
+                </div>
+                <p className="text-blue-200 text-xs mt-1 opacity-80">
+                  {creditScore ? 'Tap to view full report' : 'Tap to calculate your score'}
+                </p>
               </div>
-              <p className="text-blue-200 text-xs mt-1 opacity-80">Keep up your repayments!</p>
-            </div>
-            <div className="text-right">
-              <p className="text-blue-200 text-xs mb-1 font-medium">Available Credit</p>
-              <p className="text-2xl font-bold">UGX 500K</p>
-              <Link to="/loans/apply">
-                <button className="mt-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold rounded-xl px-4 py-2 transition-colors">
-                  Apply Now
-                </button>
-              </Link>
+              <div className="text-right">
+                <p className="text-blue-200 text-xs mb-1 font-medium">Available Credit</p>
+                <p className="text-2xl font-bold">
+                  {creditScore?.max_loan_limit
+                    ? `UGX ${(creditScore.max_loan_limit / 1000).toFixed(0)}K`
+                    : 'N/A'}
+                </p>
+                <Link to="/loans/apply" onClick={e => e.stopPropagation()}>
+                  <button className="mt-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold rounded-xl px-4 py-2 transition-colors">
+                    Apply Now
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
       </div>
 
       <div className="px-4 -mt-10 space-y-5 pb-32">

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { CreditCard, FileText, ArrowUpCircle, TrendingDown, Zap, ChevronRight, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Banknote, RefreshCw, CalendarClock } from 'lucide-react';
+import { CreditCard, FileText, ArrowUpCircle, TrendingDown, Zap, ChevronRight, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Banknote, RefreshCw, CalendarClock, Phone } from 'lucide-react';
 import LoanApplicationWizard from '@/components/loans/LoanApplicationWizard';
 import LoanRescheduleModal from '@/components/loans/LoanRescheduleModal';
 
@@ -94,6 +94,11 @@ export default function Loans() {
           <Link to="/loans/planner" className="flex-shrink-0">
             <div className="flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-violet-200 text-violet-700 dark:text-violet-400 text-sm font-medium px-4 h-10 rounded-full">
               <TrendingDown className="w-4 h-4" /> Planner
+            </div>
+          </Link>
+          <Link to="/ussd" className="flex-shrink-0">
+            <div className="flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium px-4 h-10 rounded-full">
+              <Phone className="w-4 h-4" /> USSD
             </div>
           </Link>
         </div>

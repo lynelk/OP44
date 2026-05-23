@@ -4,9 +4,10 @@ import { X, ChevronRight, ChevronLeft, Zap, Calculator, CheckCircle2, Loader2, A
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import LoanCostBreakdown, { calcLoanCosts } from '@/components/loans/LoanCostBreakdown';
+import KYCDocumentUploader from '@/components/loans/KYCDocumentUploader';
 
 const PURPOSES = ['Emergency', 'School Fees', 'Business', 'Medical', 'Daily Expenses', 'Asset Acquisition', 'Agriculture', 'Rent'];
-const STEPS = ['amount', 'purpose', 'review', 'submit'];
+const STEPS = ['amount', 'purpose', 'documents', 'review', 'submit'];
 
 export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
   const [step, setStep] = useState(0);
@@ -19,6 +20,7 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
   const [submitted, setSubmitted] = useState(false);
 
   const costs = calcLoanCosts(amount, tenure);
+  const [extractedDocData, setExtractedDocData] = useState({});
 
   useEffect(() => {
     setLoadingPreQual(true);
@@ -109,7 +111,7 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
               </button>
             )}
             <h2 className="text-base font-bold text-gray-900">
-              {['Loan Amount', 'Purpose & Terms', 'Review Offer', 'Submit'][step]}
+              {['Loan Amount', 'Purpose & Terms', 'Documents', 'Review Offer', 'Submit'][step]}
             </h2>
           </div>
           <div className="flex items-center gap-3">
@@ -236,13 +238,32 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
                 onClick={() => setStep(2)}
                 className="w-full h-12 bg-[#1a3a6b] disabled:opacity-40 text-white font-bold rounded-xl"
               >
+                Next: Documents →
+              </button>
+            </div>
+          )}
+
+          {/* Step 2: KYC Documents */}
+          {step === 2 && (
+            <div className="space-y-4">
+              <p className="text-xs text-gray-500 bg-blue-50 border border-blue-100 rounded-xl p-3">
+                📎 Upload your documents to speed up approval. Our AI will auto-read key information.
+              </p>
+              <KYCDocumentUploader
+                userId={user?.id}
+                onExtracted={(type, data) => setExtractedDocData(p => ({ ...p, [type]: data }))}
+              />
+              <button
+                onClick={() => setStep(3)}
+                className="w-full h-12 bg-[#1a3a6b] text-white font-bold rounded-xl"
+              >
                 See Offer →
               </button>
             </div>
           )}
 
-          {/* Step 2: Review */}
-          {step === 2 && (
+          {/* Step 3: Review */}
+          {step === 3 && (
             <div className="space-y-4">
               <div className="bg-gradient-to-br from-[#0f2a55] to-[#1e4480] rounded-2xl p-5 text-white">
                 <p className="text-blue-200 text-xs mb-1">Your Offer</p>
@@ -267,7 +288,7 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
               </div>
 
               <button
-                onClick={() => setStep(3)}
+                onClick={() => setStep(4)}
                 className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl"
               >
                 Accept & Apply
@@ -275,8 +296,8 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
             </div>
           )}
 
-          {/* Step 3: Final submit */}
-          {step === 3 && (
+          {/* Step 4: Final submit */}
+          {step === 4 && (
             <div className="space-y-5">
               <div className="text-center py-4">
                 <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
