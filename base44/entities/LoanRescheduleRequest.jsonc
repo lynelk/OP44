@@ -30,6 +30,10 @@
       "type": "string",
       "maxLength": 500
     },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
     "status": {
       "type": "string",
       "enum": [

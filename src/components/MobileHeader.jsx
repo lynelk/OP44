@@ -36,7 +36,7 @@ export default function MobileHeader() {
   const title = PAGE_TITLES[path];
 
   // Don't show header on landing/admin pages or pages with their own headers
-  const hideOn = ['/landing', '/admin', '/admin/users', '/admin/products', '/admin/rules', '/admin/crb', '/admin/submissions', '/admin/loans'];
+  const hideOn = ['/landing', '/about', '/contact', '/admin', '/admin/users', '/admin/products', '/admin/rules', '/admin/crb', '/admin/submissions', '/admin/loans'];
   if (hideOn.some(p => path.startsWith(p))) return null;
 
   // Hide on main tab pages that have their own full headers
@@ -54,7 +54,7 @@ export default function MobileHeader() {
         {!isRoot ? (
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1 text-blue-500 font-medium text-sm min-w-[44px] min-h-[44px] flex items-center"
+            className="flex items-center gap-1 text-[#006B3C] font-medium text-sm min-w-[44px] min-h-[44px] flex items-center"
           >
             <ChevronLeft className="w-5 h-5" />
             Back

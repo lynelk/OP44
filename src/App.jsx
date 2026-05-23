@@ -45,6 +45,8 @@ import AdminRescheduleRequests from './pages/admin/AdminRescheduleRequests';
 import USSDSimulator from './pages/USSDSimulator';
 import MobileHeader from './components/MobileHeader';
 import GroupChallenges from './pages/GroupChallenges';
+import About from './pages/About';
+import Contact from './pages/Contact';
 import P2POnboarding from './pages/P2POnboarding';
 import P2PDashboard from './pages/P2PDashboard';
 import P2PApply from './pages/P2PApply';
@@ -52,7 +54,7 @@ import P2PMarketplace from './pages/P2PMarketplace';
 import AdminP2P from './pages/admin/AdminP2P';
 
 // Root paths get a fade transition; child paths slide in from the right
-const ROOT_PATHS = ['/', '/loans', '/savings', '/budget', '/profile', '/credit-score', '/invest', '/insurance', '/financial-health', '/notifications', '/p2p', '/savings-goals', '/savings-groups', '/savings-challenges', '/group-challenges', '/debt-payoff'];
+const ROOT_PATHS = ['/', '/loans', '/savings', '/budget', '/profile', '/credit-score', '/invest', '/insurance', '/financial-health', '/notifications', '/p2p', '/savings-goals', '/savings-groups', '/savings-challenges', '/group-challenges', '/debt-payoff', '/about', '/contact'];
 
 const slideVariants = {
   initial: { opacity: 0, x: '100%' },
@@ -156,6 +158,8 @@ const AuthenticatedApp = () => {
       <Route path="/p2p/apply" element={<P2PApply />} />
       <Route path="/p2p/marketplace" element={<P2PMarketplace />} />
       <Route path="/admin/p2p" element={<AdminP2P />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
       <Route path="/savings-goals" element={<><SavingsGoals /><BottomNav /></>} />
       <Route path="/loans/pre-qualify" element={<><LoanPreQualify /><BottomNav /></>} />
       <Route path="*" element={<PageNotFound />} />

@@ -5,7 +5,10 @@ module.exports = {
   theme: {
   	extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        sans: ['Poppins', 'Nunito', 'system-ui', '-apple-system', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif'],
+        nunito: ['Nunito', 'sans-serif'],
+        quicksand: ['Quicksand', 'sans-serif'],
       },
   		borderRadius: {
   			lg: 'var(--radius)',
@@ -15,6 +18,10 @@ module.exports = {
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
+        'forest': '#006B3C',
+        'pipiya-green': '#7BC943',
+        'pipiya-gold': '#F4B400',
+        'soft-white': '#F8F9FA',
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'
@@ -66,20 +73,12 @@ module.exports = {
   		},
   		keyframes: {
   			'accordion-down': {
-  				from: {
-  					height: '0'
-  				},
-  				to: {
-  					height: 'var(--radix-accordion-content-height)'
-  				}
+  				from: { height: '0' },
+  				to: { height: 'var(--radix-accordion-content-height)' }
   			},
   			'accordion-up': {
-  				from: {
-  					height: 'var(--radix-accordion-content-height)'
-  				},
-  				to: {
-  					height: '0'
-  				}
+  				from: { height: 'var(--radix-accordion-content-height)' },
+  				to: { height: '0' }
   			}
   		},
   		animation: {

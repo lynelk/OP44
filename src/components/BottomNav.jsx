@@ -37,10 +37,10 @@ export default function BottomNav() {
             to={path}
             onClick={(e) => handleClick(e, path)}
             className={`flex flex-col items-center gap-0.5 min-w-[52px] min-h-[44px] justify-center rounded-xl transition-all duration-150 select-none ${
-              active ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
+              active ? 'text-[#006B3C] dark:text-[#7BC943]' : 'text-gray-400 dark:text-gray-500'
             }`}
           >
-            <div className={`p-1.5 rounded-xl transition-all duration-150 ${active ? 'bg-blue-50 dark:bg-blue-900/40' : ''}`}>
+            <div className={`p-1.5 rounded-xl transition-all duration-150 ${active ? 'bg-green-50 dark:bg-green-900/40' : ''}`}>
               <Icon className="w-5 h-5" />
             </div>
             <span className={`text-[10px] leading-none ${active ? 'font-semibold' : 'font-medium'}`}>{label}</span>

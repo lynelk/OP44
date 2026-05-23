@@ -96,7 +96,7 @@ export default function Dashboard() {
       )}
 
       {/* Hero Header */}
-      <div className="bg-gradient-to-br from-[#0f2952] via-[#1a3a6b] to-[#1e4d8c] text-white px-5 pt-14 pb-20">
+      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-20">
         <div className="flex items-center justify-between mb-5">
           <div>
             <p className="text-blue-200 text-sm font-medium">{greeting},</p>
@@ -105,7 +105,7 @@ export default function Dashboard() {
           <Link to="/notifications" className="relative w-11 h-11 bg-white/10 rounded-full flex items-center justify-center">
             <Bell className="w-5 h-5" />
             {notifications.length > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+              <span className="absolute -top-0.5 -right-0.5 bg-[#F4B400] text-[#006B3C] text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                 {notifications.length > 9 ? '9+' : notifications.length}
               </span>
             )}
@@ -145,7 +145,7 @@ export default function Dashboard() {
                     : 'N/A'}
                 </p>
                 <Link to="/loans/apply" onClick={e => e.stopPropagation()}>
-                  <button className="mt-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold rounded-xl px-4 py-2 transition-colors">
+                  <button className="mt-2 bg-[#F4B400] hover:bg-yellow-500 text-[#006B3C] text-xs font-semibold rounded-xl px-4 py-2 transition-colors">
                     Apply Now
                   </button>
                 </Link>
