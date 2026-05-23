@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { Shield, Bell, LogOut, ChevronRight, Star, Award, ToggleLeft, LayoutDashboard, User, AlertCircle } from 'lucide-react';
+import AchievementHub from '@/components/profile/AchievementHub';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -74,23 +75,8 @@ export default function Profile() {
           </div>
         )}
 
-        {/* Badges */}
-        {badges.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
-            <p className="font-semibold text-sm text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-              <Star className="w-4 h-4 text-amber-400" /> My Achievements
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              {badges.map(badge => (
-                <div key={badge.id} className="bg-gray-50 dark:bg-gray-700 rounded-xl p-3 text-center">
-                  <div className="text-2xl mb-1">🏆</div>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 leading-tight">{badge.badge_name}</p>
-                  <p className="text-xs text-amber-500 font-semibold mt-0.5">+{badge.points_awarded}pts</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Achievement Hub */}
+        <AchievementHub />
 
         {/* Settings Menu */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">

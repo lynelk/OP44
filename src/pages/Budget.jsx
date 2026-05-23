@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Receipt, Plus, BarChart2, Camera, X } from 'lucide-react';
+import ExportExpensesCSV from '@/components/budget/ExportExpensesCSV';
 import { PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Link } from 'react-router-dom';
 import BudgetLimitsManager from '@/components/budget/BudgetLimitsManager';
@@ -73,6 +74,7 @@ export default function Budget() {
               <BarChart2 className="w-4 h-4" /> Insights
             </div>
           </Link>
+          <ExportExpensesCSV expenses={expenses} />
         </div>
 
         {showScanner && (
