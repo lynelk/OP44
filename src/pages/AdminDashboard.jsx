@@ -57,7 +57,7 @@ export default function AdminDashboard() {
 
     const [statsRes, loansData, repsData, savingsData, usersData, policiesData] = await Promise.all([
       base44.functions.invoke('adminManager', { action: 'get_stats', entity: 'users' }),
-      base44.asServiceRole ? base44.entities.LoanApplication.filter({}) : base44.entities.LoanApplication.filter({}),
+      base44.entities.LoanApplication.filter({}),
       base44.entities.Repayment.filter({}),
       base44.entities.SavingsPocket.filter({}),
       base44.entities.User.list(),
