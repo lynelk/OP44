@@ -1,26 +1,64 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
+// ─── GNUGRID CRB lookup ────────────────────────────────────────────────────────
+async function fetchGnugridCRB({ national_id, phone_number, full_name }) {
+  const baseUrl = Deno.env.get('GNUGRID_BASE_URL');
+  const apiKey = Deno.env.get('GNUGRID_API_KEY');
+
+  const res = await fetch(`${baseUrl}/v1/credit-check`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ national_id, phone_number, full_name }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    console.warn(`GNUGRID CRB lookup failed (${res.status}): ${errText}`);
+    return null; // Non-fatal: fall back to internal scoring only
+  }
+
+  return await res.json();
+}
+
+// ─── Main Handler ─────────────────────────────────────────────────────────────
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    // Allow admin to score other users; default to self
+    const body = req.method === 'POST' ? await req.json().catch(() => ({})) : {};
+    const targetUserId = body.user_id || user.id;
 
-    const userId = user.id;
-
-    // Fetch all relevant data in parallel
-    const [loans, repayments, kycDocs, savingsPockets, expenses] = await Promise.all([
-      base44.entities.LoanApplication.filter({ user_id: userId }),
-      base44.entities.Repayment.filter({ user_id: userId }),
-      base44.entities.KYCDocument.filter({ user_id: userId }),
-      base44.entities.SavingsPocket.filter({ user_id: userId }),
-      base44.entities.Expense.filter({ user_id: userId })
+    // ── Fetch all relevant data in parallel ──
+    const [loans, repayments, kycDocs, savingsPockets, expenses, profile, p2pLoans, p2pRepayments] = await Promise.all([
+      base44.asServiceRole.entities.LoanApplication.filter({ user_id: targetUserId }),
+      base44.asServiceRole.entities.Repayment.filter({ user_id: targetUserId }),
+      base44.asServiceRole.entities.KYCDocument.filter({ user_id: targetUserId }),
+      base44.asServiceRole.entities.SavingsPocket.filter({ user_id: targetUserId }),
+      base44.asServiceRole.entities.Expense.filter({ user_id: targetUserId }),
+      base44.asServiceRole.entities.UserProfile.filter({ user_id: targetUserId }),
+      base44.asServiceRole.entities.P2PLoan.filter({ borrower_id: targetUserId }),
+      base44.asServiceRole.entities.P2PRepayment.filter({ borrower_id: targetUserId }),
     ]);
 
-    let score = 300; // Base score
+    const userProfile = profile[0] || {};
+
+    // ── GNUGRID CRB external lookup ──
+    let crbData = null;
+    if (userProfile.national_id || userProfile.phone_number) {
+      crbData = await fetchGnugridCRB({
+        national_id: userProfile.national_id,
+        phone_number: userProfile.phone_number,
+        full_name: user.full_name,
+      });
+    }
+
+    let score = 300;
     const reasonCodes = [];
     const breakdown = {
       kyc_score: 0,
@@ -28,7 +66,9 @@ Deno.serve(async (req) => {
       loan_history_score: 0,
       savings_boost: 0,
       expense_boost: 0,
-      income_score: 0
+      income_score: 0,
+      crb_score: 0,
+      p2p_score: 0,
     };
 
     // ─── 1. KYC Score (max 100 pts) ───────────────────────────────────────────
@@ -36,24 +76,18 @@ Deno.serve(async (req) => {
     const kycPoints = Math.min(approvedDocs.length * 25, 100);
     breakdown.kyc_score = kycPoints;
     score += kycPoints;
+    if (approvedDocs.length === 0) reasonCodes.push('NO_KYC_VERIFIED');
+    else if (approvedDocs.length < 3) reasonCodes.push('PARTIAL_KYC');
 
-    if (approvedDocs.length === 0) {
-      reasonCodes.push('NO_KYC_VERIFIED');
-    } else if (approvedDocs.length < 3) {
-      reasonCodes.push('PARTIAL_KYC');
-    }
-
-    // ─── 2. Repayment Behaviour (max 200 pts) ─────────────────────────────────
-    if (repayments.length > 0) {
-      const paidOnTime = repayments.filter(r => r.status === 'paid' && r.paid_date && r.due_date && r.paid_date <= r.due_date).length;
-      const overdue = repayments.filter(r => r.status === 'overdue').length;
-      const total = repayments.length;
-
-      const onTimeRate = total > 0 ? paidOnTime / total : 0;
-      const repaymentPoints = Math.round(onTimeRate * 200);
+    // ─── 2. Repayment Behaviour — Traditional Loans (max 150 pts) ────────────
+    const allRepayments = [...repayments, ...p2pRepayments];
+    if (allRepayments.length > 0) {
+      const paidOnTime = allRepayments.filter(r => r.status === 'paid' && r.paid_date && r.due_date && r.paid_date <= r.due_date).length;
+      const overdue = allRepayments.filter(r => r.status === 'overdue').length;
+      const onTimeRate = allRepayments.length > 0 ? paidOnTime / allRepayments.length : 0;
+      const repaymentPoints = Math.round(onTimeRate * 150);
       breakdown.repayment_score = repaymentPoints;
       score += repaymentPoints;
-
       if (overdue > 0) reasonCodes.push(`OVERDUE_PAYMENTS:${overdue}`);
       if (onTimeRate >= 0.9) reasonCodes.push('EXCELLENT_REPAYMENT_HISTORY');
       else if (onTimeRate >= 0.7) reasonCodes.push('GOOD_REPAYMENT_HISTORY');
@@ -63,110 +97,124 @@ Deno.serve(async (req) => {
     }
 
     // ─── 3. Loan History Score (max 100 pts) ──────────────────────────────────
-    const closedLoans = loans.filter(l => l.status === 'closed').length;
-    const defaultedLoans = loans.filter(l => l.status === 'defaulted').length;
+    const allLoans = [...loans, ...p2pLoans];
+    const closedLoans = allLoans.filter(l => l.status === 'closed').length;
+    const defaultedLoans = allLoans.filter(l => l.status === 'defaulted').length;
     const loanHistoryPoints = Math.max(0, Math.min(closedLoans * 20 - defaultedLoans * 50, 100));
     breakdown.loan_history_score = loanHistoryPoints;
     score += loanHistoryPoints;
-
     if (defaultedLoans > 0) reasonCodes.push(`LOAN_DEFAULTS:${defaultedLoans}`);
     if (closedLoans > 0) reasonCodes.push(`LOANS_FULLY_REPAID:${closedLoans}`);
 
     // ─── 4. Income Score (max 100 pts) ────────────────────────────────────────
-    const monthlyIncome = user.monthly_income || 0;
-    const employmentStatus = user.employment_status;
+    const monthlyIncome = userProfile.monthly_income || 0;
+    const employmentStatus = userProfile.employment_status;
     let incomePoints = 0;
-
     if (employmentStatus === 'employed') incomePoints += 30;
     else if (employmentStatus === 'self_employed') incomePoints += 20;
     else if (employmentStatus === 'retired') incomePoints += 15;
-
     if (monthlyIncome > 500000) incomePoints += 70;
     else if (monthlyIncome > 200000) incomePoints += 50;
     else if (monthlyIncome > 100000) incomePoints += 30;
     else if (monthlyIncome > 50000) incomePoints += 15;
-
     incomePoints = Math.min(incomePoints, 100);
     breakdown.income_score = incomePoints;
     score += incomePoints;
-
     if (!monthlyIncome) reasonCodes.push('NO_INCOME_DECLARED');
 
-    // ─── 5. BOOST: Savings Consistency (max +100 pts) — never negative ────────
+    // ─── 5. GNUGRID CRB Score Boost (max 150 pts) ─────────────────────────────
+    if (crbData) {
+      const crbScore = crbData.credit_score || crbData.score || 0;
+      const crbMax = crbData.max_score || 1000;
+      const crbPoints = Math.round((crbScore / crbMax) * 150);
+      breakdown.crb_score = crbPoints;
+      score += crbPoints;
+      reasonCodes.push(`CRB_SCORE:${crbScore}`);
+      if (crbData.has_active_arrears) reasonCodes.push('CRB_ACTIVE_ARREARS');
+      if (crbData.has_fraud_flag) reasonCodes.push('CRB_FRAUD_FLAG');
+    } else {
+      reasonCodes.push('CRB_LOOKUP_SKIPPED');
+    }
+
+    // ─── 6. P2P Lending Track Record (max 50 pts) ─────────────────────────────
+    const activeLending = (await base44.asServiceRole.entities.LenderInvestment.filter({ lender_id: targetUserId })).filter(i => i.status === 'active' || i.status === 'completed');
+    if (activeLending.length > 0) {
+      const p2pPoints = Math.min(activeLending.length * 10, 50);
+      breakdown.p2p_score = p2pPoints;
+      score += p2pPoints;
+      reasonCodes.push(`P2P_LENDER_ACTIVITY:+${p2pPoints}pts`);
+    }
+
+    // ─── 7. Savings Consistency Boost (max 100 pts) ───────────────────────────
     if (savingsPockets.length > 0) {
       const activePockets = savingsPockets.filter(s => s.status === 'active');
       const completedPockets = savingsPockets.filter(s => s.status === 'completed');
       const totalSavingsBalance = savingsPockets.reduce((sum, s) => sum + (s.current_balance || 0), 0);
-
-      let savingsBoost = 0;
-      savingsBoost += Math.min(activePockets.length * 10, 30);
-      savingsBoost += Math.min(completedPockets.length * 20, 40);
+      let savingsBoost = Math.min(activePockets.length * 10, 30) + Math.min(completedPockets.length * 20, 40);
       if (totalSavingsBalance > 1000000) savingsBoost += 30;
       else if (totalSavingsBalance > 500000) savingsBoost += 20;
       else if (totalSavingsBalance > 100000) savingsBoost += 10;
-
       savingsBoost = Math.min(savingsBoost, 100);
       breakdown.savings_boost = savingsBoost;
       score += savingsBoost;
-
       if (savingsBoost > 0) reasonCodes.push(`SAVINGS_BOOST:+${savingsBoost}pts`);
     }
 
-    // ─── 6. BOOST: Responsible Spending (max +50 pts) — never negative ────────
+    // ─── 8. Responsible Spending Boost (max 50 pts) ───────────────────────────
     if (expenses.length > 0) {
-      const recentExpenses = expenses.slice(-30); // last 30 records
+      const recentExpenses = expenses.slice(-30);
       const savingsExpenses = recentExpenses.filter(e => e.category === 'savings' || e.category === 'loan_repayment');
       const savingsRatio = recentExpenses.length > 0 ? savingsExpenses.length / recentExpenses.length : 0;
-
       let expenseBoost = 0;
       if (savingsRatio >= 0.3) expenseBoost = 50;
       else if (savingsRatio >= 0.2) expenseBoost = 30;
       else if (savingsRatio >= 0.1) expenseBoost = 15;
-
       breakdown.expense_boost = expenseBoost;
       score += expenseBoost;
-
-      if (expenseBoost > 0) reasonCodes.push(`RESPONSIBLE_SPENDING_BOOST:+${expenseBoost}pts`);
+      if (expenseBoost > 0) reasonCodes.push(`RESPONSIBLE_SPENDING:+${expenseBoost}pts`);
     }
 
-    // ─── Cap score at 850 ─────────────────────────────────────────────────────
+    // ─── Cap & Determine Risk Band ─────────────────────────────────────────────
     score = Math.min(Math.round(score), 850);
-
-    // ─── Determine Risk Band ──────────────────────────────────────────────────
     let riskBand;
     if (score >= 720) riskBand = 'A';
     else if (score >= 620) riskBand = 'B';
     else if (score >= 500) riskBand = 'C';
     else riskBand = 'D';
 
-    // ─── Max loan limit based on score + income ───────────────────────────────
     const incomeMultiplier = { A: 6, B: 4, C: 2.5, D: 1 };
     const maxLoanLimit = Math.round((monthlyIncome || 0) * (incomeMultiplier[riskBand] || 1));
 
-    // ─── Save credit score record ─────────────────────────────────────────────
-    const creditScoreRecord = await base44.entities.CreditScore.create({
-      user_id: userId,
+    // ─── Save credit score record ──────────────────────────────────────────────
+    const creditScoreRecord = await base44.asServiceRole.entities.CreditScore.create({
+      user_id: targetUserId,
       score,
       risk_band: riskBand,
       calculated_at: new Date().toISOString(),
       score_breakdown: breakdown,
       reason_codes: reasonCodes,
-      max_loan_limit: maxLoanLimit
+      max_loan_limit: maxLoanLimit,
     });
 
-    // ─── Update user's current score ─────────────────────────────────────────
-    await base44.auth.updateMe({
-      current_credit_score: score,
-      current_risk_band: riskBand
-    });
+    // ─── Update UserProfile trust_score & risk_tier ────────────────────────────
+    const trustTier = score >= 720 ? 'platinum' : score >= 620 ? 'gold' : score >= 500 ? 'silver' : score >= 400 ? 'bronze' : 'restricted';
+    if (userProfile.id) {
+      await base44.asServiceRole.entities.UserProfile.update(userProfile.id, {
+        trust_score: score,
+        risk_tier: trustTier,
+        kyc_status: approvedDocs.length >= 3 ? 'verified' : userProfile.kyc_status,
+      });
+    }
 
     return Response.json({
       score,
       risk_band: riskBand,
+      risk_tier: trustTier,
       breakdown,
       reason_codes: reasonCodes,
       max_loan_limit: maxLoanLimit,
-      record_id: creditScoreRecord.id
+      crb_data: crbData ? { score: crbData.credit_score || crbData.score, has_arrears: crbData.has_active_arrears } : null,
+      record_id: creditScoreRecord.id,
     });
 
   } catch (error) {
