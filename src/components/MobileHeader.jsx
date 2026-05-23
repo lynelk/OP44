@@ -24,6 +24,7 @@ const PAGE_TITLES = {
   '/consent': 'Privacy & Consent',
   '/debt-payoff': 'Debt Payoff',
   '/savings-challenges': 'Challenges',
+  '/data-rights': 'My Data Rights',
 };
 
 const ROOT_PATHS = ['/', '/loans', '/savings', '/invest', '/profile'];
@@ -36,7 +37,7 @@ export default function MobileHeader() {
   const title = PAGE_TITLES[path];
 
   // Don't show header on landing/admin pages or pages with their own headers
-  const hideOn = ['/landing', '/about', '/contact', '/admin', '/admin/users', '/admin/products', '/admin/rules', '/admin/crb', '/admin/submissions', '/admin/loans'];
+  const hideOn = ['/landing', '/about', '/contact', '/admin', '/admin/users', '/admin/products', '/admin/rules', '/admin/crb', '/admin/submissions', '/admin/loans', '/privacy', '/terms', '/accessibility'];
   if (hideOn.some(p => path.startsWith(p))) return null;
 
   // Hide on main tab pages that have their own full headers

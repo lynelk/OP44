@@ -10,57 +10,57 @@ const CONSENT_DEFINITIONS = [
   {
     type: 'terms_and_conditions',
     label: 'Terms & Conditions',
-    description: 'You agree to the general terms governing use of OpFin services.',
-    version: 'v1.0',
+    description: 'You agree to the general terms governing use of Pipiya services.',
+    version: 'v2.0',
     required: true,
   },
   {
     type: 'privacy_policy',
     label: 'Privacy Policy',
-    description: 'You agree to how we collect, store, and use your personal data.',
-    version: 'v1.0',
+    description: 'You agree to how we collect, store, and use your personal data in accordance with the Uganda Data Protection and Privacy Act 2019.',
+    version: 'v2.0',
     required: true,
   },
   {
     type: 'data_processing',
     label: 'Data Processing',
-    description: 'You consent to processing your financial data to provide OpFin services.',
-    version: 'v1.0',
+    description: 'You consent to processing your financial data to provide Pipiya services, including credit scoring and fraud prevention.',
+    version: 'v2.0',
     required: true,
   },
   {
     type: 'credit_bureau_check',
     label: 'Credit Bureau Check',
-    description: 'You authorise OpFin to query credit reference bureaus when assessing loan applications.',
-    version: 'v1.0',
+    description: 'You authorise Pipiya to query credit reference bureaus (CRBs) when assessing loan applications.',
+    version: 'v2.0',
     required: false,
   },
   {
     type: 'kyc_data_retention',
     label: 'KYC Data Retention',
-    description: 'You consent to retaining your identity documents for regulatory compliance purposes.',
-    version: 'v1.0',
+    description: 'You consent to retaining your identity documents for 5 years after account closure, as required by AML/CFT regulations.',
+    version: 'v2.0',
     required: true,
   },
   {
     type: 'third_party_data_sharing',
     label: 'Third-Party Data Sharing',
-    description: 'You allow sharing of anonymised data with trusted financial partners to improve services.',
-    version: 'v1.0',
+    description: 'You allow sharing of anonymised data with trusted licensed financial partners to improve Pipiya services.',
+    version: 'v2.0',
     required: false,
   },
   {
     type: 'marketing_communications',
     label: 'Marketing Communications',
-    description: 'You agree to receive product updates, offers, and financial tips from OpFin.',
-    version: 'v1.0',
+    description: 'You agree to receive product updates, offers, and financial tips from Pipiya. You can unsubscribe at any time.',
+    version: 'v2.0',
     required: false,
   },
   {
     type: 'investment_risk_disclosure',
     label: 'Investment Risk Disclosure',
-    description: 'You acknowledge that P2P investments carry risk and returns are not guaranteed.',
-    version: 'v1.0',
+    description: 'You acknowledge that P2P investments carry risk, returns are not guaranteed, and capital may be lost.',
+    version: 'v2.0',
     required: false,
   },
 ];
@@ -180,7 +180,12 @@ export default function ConsentManager() {
 
             <div className="bg-slate-100 rounded-xl p-4 text-xs text-slate-500 mt-2">
               <p className="font-semibold text-slate-700 mb-1">Your Rights</p>
-              <p>You may withdraw optional consents at any time. Required consents are necessary to use core OpFin services. All consent changes are logged with a timestamp for your records.</p>
+              <p>You may withdraw optional consents at any time. Required consents are necessary to use core Pipiya services. All consent changes are logged with a timestamp for your records, in compliance with the Uganda Data Protection and Privacy Act 2019 and ISO/IEC 27701.</p>
+              <div className="flex gap-3 mt-2">
+                <a href="/privacy" className="text-slate-700 underline font-medium">Privacy Policy</a>
+                <a href="/terms" className="text-slate-700 underline font-medium">Terms of Service</a>
+                <a href="/data-rights" className="text-slate-700 underline font-medium">My Data Rights</a>
+              </div>
             </div>
           </>
         )}

@@ -215,8 +215,9 @@ export default function LandingPage() {
           <div className="flex flex-wrap gap-4 text-xs mb-5">
             <Link to="/about" className="hover:text-white transition-colors">About Pipiya</Link>
             <Link to="/contact" className="hover:text-white transition-colors">Contact Us</Link>
-            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms of Use</a>
+            <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="hover:text-white transition-colors">Terms of Use</Link>
+            <Link to="/accessibility" className="hover:text-white transition-colors">Accessibility</Link>
           </div>
           <div className="flex items-center gap-4 text-xs text-green-400 mb-4">
             <span className="flex items-center gap-1"><Phone className="w-3 h-3" /> +256 700 000 000</span>

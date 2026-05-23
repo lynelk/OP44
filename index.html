@@ -1,13 +1,62 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="https://base44.com/logo_v2.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Viewport: required by Apple App Store, Google Play, Huawei guidelines -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Primary SEO -->
+    <title>Pipiya — Your Hustle. Our Support. Your Growth.</title>
+    <meta name="description" content="Pipiya is Uganda's mobile-first financial platform offering savings, micro-loans, insurance, P2P lending and AI-powered budgeting for everyday earners." />
+    <meta name="keywords" content="Pipiya, Uganda, mobile banking, savings, micro loans, insurance, fintech, East Africa, financial inclusion" />
+    <meta name="author" content="Pipiya Technologies Ltd" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://app.pipiya.ug/" />
+
+    <!-- Open Graph / Social sharing (required for app stores & marketing) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://app.pipiya.ug/" />
+    <meta property="og:title" content="Pipiya — Your Hustle. Our Support. Your Growth." />
+    <meta property="og:description" content="Fast and simple mobile financial support built for everyday life in Uganda — savings, loans, insurance and more." />
+    <meta property="og:image" content="https://media.base44.com/images/public/6a0ed744d2266f7b5226f8a2/5220bc5cd_Pipiya_Master_Logo.png" />
+    <meta property="og:locale" content="en_UG" />
+    <meta property="og:site_name" content="Pipiya" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Pipiya — Your Hustle. Our Support. Your Growth." />
+    <meta name="twitter:description" content="Uganda's mobile-first financial platform for savings, loans, insurance & investments." />
+    <meta name="twitter:image" content="https://media.base44.com/images/public/6a0ed744d2266f7b5226f8a2/5220bc5cd_Pipiya_Master_Logo.png" />
+
+    <!-- PWA / Mobile App compliance (Apple App Store, Google Play, Huawei) -->
     <link rel="manifest" href="/manifest.json" />
-    <title>Base44 APP</title>
+    <meta name="theme-color" content="#006B3C" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Pipiya" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Pipiya" />
+
+    <!-- Security: CSP prevents XSS — ISO/IEC 27001 A.14.2.5 -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="https://media.base44.com/images/public/6a0ed744d2266f7b5226f8a2/5220bc5cd_Pipiya_Master_Logo.png" />
+    <link rel="apple-touch-icon" href="https://media.base44.com/images/public/6a0ed744d2266f7b5226f8a2/5220bc5cd_Pipiya_Master_Logo.png" />
+
+    <!-- Accessibility: skip-link target is in body -->
   </head>
   <body>
+    <!-- Skip to main content — WCAG 2.1 AA / Apple accessibility guideline -->
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:bg-white focus:text-[#006B3C] focus:font-bold focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg"
+    >
+      Skip to main content
+    </a>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
