@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
   let actionTaken = 'none';
 
   if (!user) {
-    response = `END Welcome to OpFin.\nYour number (${phoneNumber}) is not registered.\nDownload the OpFin app to create an account.`;
+    response = `END Welcome to Pipiya.\nYour number (${phoneNumber}) is not registered.\nDownload the Pipiya app to create an account.`;
   } else {
     response = await handleMenu(base44, user, levels, depth, phoneNumber);
     actionTaken = deriveAction(levels);
@@ -100,7 +100,7 @@ async function handleMenu(base44, user, levels, depth, phoneNumber) {
   const [l1, l2, l3, l4, l5] = levels;
 
   if (depth === 0 || l1 === '') return mainMenuText(user);
-  if (l1 === '0') return 'END Thank you for using OpFin. Goodbye!';
+  if (l1 === '0') return 'END Thank you for using Pipiya. Goodbye!';
 
   // ── 1. Account Balance ────────────────────────────────────────────────────
   if (l1 === '1') return await getBalanceSummary(base44, user);
@@ -195,7 +195,7 @@ Enter last 4 digits of your phone as PIN:`;
 
     // 3.1 Balance
     if (l2 === '1') {
-      if (active.length === 0) return 'END No savings pockets yet. Create one in the OpFin app.';
+      if (active.length === 0) return 'END No savings pockets yet. Create one in the Pipiya app.';
       const total = active.reduce((s, p) => s + (p.current_balance || 0), 0);
       const lines = active.slice(0, 4).map((p, i) => `${i + 1}. ${p.name}: UGX ${fmt(p.current_balance)}`).join('\n');
       return `END Savings Summary
@@ -205,7 +205,7 @@ ${lines}`;
 
     // 3.2 Deposit: select pocket → amount → confirm PIN → process
     if (l2 === '2') {
-      if (active.length === 0) return 'END No savings pockets found. Create one in the OpFin app.';
+      if (active.length === 0) return 'END No savings pockets found. Create one in the Pipiya app.';
       if (depth === 2) {
         const menu = active.slice(0, 5).map((p, i) => `${i + 1}. ${p.name} (UGX ${fmt(p.current_balance)})`).join('\n');
         return `CON Select pocket to deposit into:\n${menu}`;
@@ -459,7 +459,7 @@ async function getMiniStatement(base44, user) {
   return `END Mini Statement
 ${lines.join('\n')}
 
-For full history, view the OpFin app.`;
+For full history, view the Pipiya app.`;
 }
 
 async function getPreQualification(base44, user) {
@@ -469,7 +469,7 @@ async function getPreQualification(base44, user) {
 
   if (!latest) {
     return `END No credit profile found.
-Open the OpFin app to run your financial health check and get pre-qualified.`;
+Open the Pipiya app to run your financial health check and get pre-qualified.`;
   }
 
   const healthReports = await base44.asServiceRole.entities.FinancialHealthReport.filter({ user_id: user.id });
@@ -481,7 +481,7 @@ Risk Band: ${latest.risk_band}
 Pre-Approved Limit: UGX ${fmt(latest.max_loan_limit || 0)}
 ${report ? `Health Score: ${report.overall_score}/100 (${report.grade})` : ''}
 
-Apply in the OpFin app or dial back and select Loan Services.`;
+Apply in the Pipiya app or dial back and select Loan Services.`;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -499,7 +499,7 @@ function txRef() {
 }
 
 function mainMenuText(user) {
-  return `CON Welcome to OpFin, ${user.full_name?.split(' ')[0] || 'User'}
+  return `CON Welcome to Pipiya, ${user.full_name?.split(' ')[0] || 'User'}
 1. Account Balance
 2. Loan Services
 3. Savings
