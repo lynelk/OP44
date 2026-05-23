@@ -13,43 +13,48 @@ Deno.serve(async (req) => {
     let flagged = 0;
     let reminders = 0;
 
-    for (const repayment of overdue) {
-      // Mark repayment as overdue
-      await base44.asServiceRole.entities.Repayment.update(repayment.id, { status: 'overdue' });
+    // Batch-fetch all affected loans in one query to avoid N+1
+    const affectedLoanIds = [...new Set(overdue.map(r => r.loan_id))];
+    const allAffectedLoans = await base44.asServiceRole.entities.LoanApplication.filter({});
+    const loanMap = {};
+    allAffectedLoans.forEach(l => { loanMap[l.id] = l; });
 
-      // Fetch the associated loan
-      const loans = await base44.asServiceRole.entities.LoanApplication.filter({ id: repayment.loan_id });
-      const loan = loans[0];
-      if (!loan) continue;
-      if (['closed', 'defaulted', 'flagged'].includes(loan.status)) continue;
+    // Process in parallel batches of 10 to avoid timeout
+    const BATCH_SIZE = 10;
+    for (let i = 0; i < overdue.length; i += BATCH_SIZE) {
+      const batch = overdue.slice(i, i + BATCH_SIZE);
+      await Promise.all(batch.map(async (repayment) => {
+        await base44.asServiceRole.entities.Repayment.update(repayment.id, { status: 'overdue' });
 
-      const reminderCount = (loan.reminder_count || 0) + 1;
-      const daysOverdue = Math.floor((new Date(today) - new Date(repayment.due_date)) / (1000 * 60 * 60 * 24));
+        const loan = loanMap[repayment.loan_id];
+        if (!loan) return;
+        if (['closed', 'defaulted', 'flagged'].includes(loan.status)) return;
 
-      // Escalate to flagged after 3 reminders or 14+ days overdue
-      const shouldFlag = reminderCount >= 3 || daysOverdue >= 14;
+        const reminderCount = (loan.reminder_count || 0) + 1;
+        const daysOverdue = Math.floor((new Date(today) - new Date(repayment.due_date)) / (1000 * 60 * 60 * 24));
+        const shouldFlag = reminderCount >= 3 || daysOverdue >= 14;
 
-      await base44.asServiceRole.entities.LoanApplication.update(loan.id, {
-        reminder_count: reminderCount,
-        last_reminder_sent_date: new Date().toISOString(),
-        ...(shouldFlag && { status: 'flagged', escalated_to_collections: true }),
-      });
+        await base44.asServiceRole.entities.LoanApplication.update(loan.id, {
+          reminder_count: reminderCount,
+          last_reminder_sent_date: new Date().toISOString(),
+          ...(shouldFlag && { status: 'flagged', escalated_to_collections: true }),
+        });
 
-      // Send in-app notification
-      const message = shouldFlag
-        ? `⚠️ Your loan repayment of UGX ${repayment.amount?.toLocaleString()} is ${daysOverdue} days overdue. Your account has been escalated to our collections team. Please contact us immediately.`
-        : `Reminder ${reminderCount}: Your loan repayment of UGX ${repayment.amount?.toLocaleString()} was due on ${repayment.due_date}. Please make payment to avoid account escalation.`;
+        const message = shouldFlag
+          ? `⚠️ Your loan repayment of UGX ${repayment.amount?.toLocaleString()} is ${daysOverdue} days overdue. Your account has been escalated to our collections team. Please contact us immediately.`
+          : `Reminder ${reminderCount}: Your loan repayment of UGX ${repayment.amount?.toLocaleString()} was due on ${repayment.due_date}. Please make payment to avoid account escalation.`;
 
-      await base44.asServiceRole.entities.Notification.create({
-        user_id: loan.user_id,
-        title: shouldFlag ? '🚨 Loan Escalated to Collections' : `⏰ Payment Reminder #${reminderCount}`,
-        message,
-        type: shouldFlag ? 'error' : 'warning',
-        is_read: false,
-      });
+        await base44.asServiceRole.entities.Notification.create({
+          user_id: loan.user_id,
+          title: shouldFlag ? '🚨 Loan Escalated to Collections' : `⏰ Payment Reminder #${reminderCount}`,
+          message,
+          type: shouldFlag ? 'error' : 'warning',
+          is_read: false,
+        });
 
-      if (shouldFlag) flagged++;
-      else reminders++;
+        if (shouldFlag) flagged++;
+        else reminders++;
+      }));
     }
 
     return Response.json({

@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
   if (activeLoans.length > 2) flags.push('Multiple active loans increase financial risk');
 
   // ── 3. AI narrative ─────────────────────────────────────────────────────────
-  const prompt = `You are a friendly financial wellness coach for an African fintech app called OpFin.
+  const prompt = `You are a friendly financial wellness coach for an African fintech app called Pipiya.
 Analyse this user's financial data and write:
 1. A short personalised 2-3 sentence summary of their financial health (conversational, encouraging tone)
 2. Exactly 4 specific, actionable tips tailored to their situation

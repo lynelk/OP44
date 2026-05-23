@@ -68,7 +68,8 @@ Deno.serve(async (req) => {
   // CONTRIBUTE to group
   if (action === 'contribute') {
     const { group_id, amount, notes } = body;
-    const group = await base44.entities.SavingsGroup.list().then(gs => gs.find(g => g.id === group_id));
+    const groups = await base44.entities.SavingsGroup.filter({ id: group_id });
+    const group = groups[0];
     if (!group) return Response.json({ error: 'Group not found' }, { status: 404 });
 
     const contribution = await base44.entities.GroupContribution.create({
@@ -114,7 +115,8 @@ Deno.serve(async (req) => {
     const members = await base44.entities.GroupMember.filter({ group_id, user_id: user.id });
     if (members[0]) {
       await base44.entities.GroupMember.update(members[0].id, { status: 'left' });
-      const group = await base44.entities.SavingsGroup.list().then(gs => gs.find(g => g.id === group_id));
+      const groupArr = await base44.entities.SavingsGroup.filter({ id: group_id });
+      const group = groupArr[0];
       if (group) {
         await base44.entities.SavingsGroup.update(group_id, {
           members_count: Math.max(0, (group.members_count || 1) - 1),

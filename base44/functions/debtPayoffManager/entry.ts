@@ -8,14 +8,14 @@ Deno.serve(async (req) => {
   const body = await req.json().catch(() => ({}));
   const { method = 'snowball', extra_monthly_payment = 0, redirect_amount = 0, target_loan_id = null } = body;
 
-  // Get all active loans
-  const loans = await base44.entities.LoanApplication.filter({});
+  // Get only the authenticated user's loans (security fix)
+  const [loans, pockets] = await Promise.all([
+    base44.entities.LoanApplication.filter({ user_id: user.id }),
+    base44.entities.SavingsPocket.filter({ user_id: user.id }),
+  ]);
   const activeLoans = loans.filter(l => ['active', 'disbursed', 'approved'].includes(l.status) && (l.outstanding_balance || l.total_repayable) > 0);
 
   if (!activeLoans.length) return Response.json({ debts: [], plan: [], total_debt: 0 });
-
-  // Get savings pockets
-  const pockets = await base44.entities.SavingsPocket.filter({});
   const totalSurplusSavings = pockets.reduce((sum, p) => {
     // Surplus = balance above minimum reserve (keep at least 1 month installment per loan as reserve)
     return sum + Math.max(0, (p.current_balance || 0) - 50000);
@@ -95,7 +95,8 @@ Deno.serve(async (req) => {
   // Handle redirect to specific loan
   let redirectResult = null;
   if (redirect_amount > 0 && target_loan_id) {
-    const targetLoan = await base44.entities.LoanApplication.list().then(ls => ls.find(l => l.id === target_loan_id));
+    const targetLoanArr = await base44.entities.LoanApplication.filter({ id: target_loan_id, user_id: user.id });
+    const targetLoan = targetLoanArr[0];
     if (targetLoan) {
       // Deduct from first pocket with sufficient balance
       for (const pocket of pockets) {

@@ -61,8 +61,12 @@ Deno.serve(async (req) => {
     const insuranceCost = amount * 0.01;
     const netDisbursement = amount - disbursementFee - insuranceCost;
     const tenure = loan.tenure_months || 3;
-    const interestRate = 0.05; // 5% monthly
-    const totalRepayable = amount * Math.pow(1 + interestRate, tenure);
+    // Use stored interest rate if available, otherwise fall back to 5% monthly
+    const interestRate = loan.interest_rate ? loan.interest_rate / 100 : 0.05;
+    const r = interestRate;
+    const totalRepayable = r === 0
+      ? amount
+      : amount * (r * Math.pow(1 + r, tenure)) / (Math.pow(1 + r, tenure) - 1) * tenure;
     const monthly = totalRepayable / tenure;
 
     // Create repayment schedule

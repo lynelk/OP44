@@ -266,18 +266,16 @@ Deno.serve(async (req) => {
         description: params.description || ''
       });
 
-      // Create repayment schedule
-      for (const s of schedule) {
-        await base44.entities.P2PRepayment.create({
-          loan_id: loan.id,
-          borrower_id: user.id,
-          amount: s.amount,
-          due_date: s.due_date,
-          status: 'scheduled',
-          principal_portion: Math.round(params.amount / params.tenure_months),
-          interest_portion: Math.round(offer.monthly_installment - params.amount / params.tenure_months)
-        });
-      }
+      // Create repayment schedule in parallel
+      await Promise.all(schedule.map(s => base44.entities.P2PRepayment.create({
+        loan_id: loan.id,
+        borrower_id: user.id,
+        amount: s.amount,
+        due_date: s.due_date,
+        status: 'scheduled',
+        principal_portion: Math.round(params.amount / params.tenure_months),
+        interest_portion: Math.round(offer.monthly_installment - params.amount / params.tenure_months)
+      })));
 
       return Response.json({ loan, offer, rates, schedule });
     }
