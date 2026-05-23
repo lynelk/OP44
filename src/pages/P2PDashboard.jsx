@@ -34,8 +34,8 @@ export default function P2PDashboard() {
   const load = async () => {
     setLoading(true);
     const [dash, score] = await Promise.all([
-      base44.functions.invoke('p2pEngine', { action: 'get_dashboard' }),
-      base44.functions.invoke('p2pEngine', { action: 'score_borrower' })
+      base44.functions.invoke('p2pEngine', { action: 'get_dashboard' }).catch(() => ({ data: null })),
+      base44.functions.invoke('p2pEngine', { action: 'score_borrower' }).catch(() => ({ data: null })),
     ]);
     setData(dash.data);
     setScoring(score.data);
