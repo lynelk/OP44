@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, TrendingUp, Info } from 'lucide-react';
+import { RefreshCw, TrendingUp, Info, ShieldCheck } from 'lucide-react';
 import ScoreGauge from '@/components/credit/ScoreGauge';
 import ScoreBreakdown from '@/components/credit/ScoreBreakdown';
 import ReasonCodes from '@/components/credit/ReasonCodes';
@@ -99,6 +99,48 @@ export default function CreditScore() {
             </div>
 
             {scoreData?.score_breakdown && <ScoreBreakdown breakdown={scoreData.score_breakdown} />}
+
+            {/* GnuGrid CRB Summary Card */}
+            {scoreData?.crb_available && scoreData?.crb_summary && (
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 shadow-sm">
+                <p className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-3">
+                  <TrendingUp className="w-4 h-4 text-blue-500" /> GnuGrid CRB Bureau Data
+                </p>
+                <div className="grid grid-cols-3 gap-3">
+                  {scoreData.crb_summary.crb_score && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-center">
+                      <p className="text-xs text-gray-400 mb-1">CRB Score</p>
+                      <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{scoreData.crb_summary.crb_score}</p>
+                    </div>
+                  )}
+                  {scoreData.crb_summary.crb_band && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-center">
+                      <p className="text-xs text-gray-400 mb-1">CRB Band</p>
+                      <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{scoreData.crb_summary.crb_band}</p>
+                    </div>
+                  )}
+                  {scoreData.crb_summary.crb_rating && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-center">
+                      <p className="text-xs text-gray-400 mb-1">Rating</p>
+                      <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{scoreData.crb_summary.crb_rating}</p>
+                    </div>
+                  )}
+                  {scoreData.crb_summary.mno_score && (
+                    <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 text-center">
+                      <p className="text-xs text-gray-400 mb-1">MNO Score</p>
+                      <p className="text-lg font-bold text-purple-700 dark:text-purple-300">{scoreData.crb_summary.mno_score}</p>
+                    </div>
+                  )}
+                  {scoreData.crb_summary.mno_band && (
+                    <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 text-center">
+                      <p className="text-xs text-gray-400 mb-1">MNO Band</p>
+                      <p className="text-lg font-bold text-purple-700 dark:text-purple-300">{scoreData.crb_summary.mno_band}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {scoreData?.reason_codes?.length > 0 && <ReasonCodes codes={scoreData.reason_codes} />}
 
             {history.length > 1 && (
