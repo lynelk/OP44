@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { ChevronLeft, Search, RefreshCw, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { ChevronLeft, Search, RefreshCw, CheckCircle2, XCircle, Clock, CalendarClock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const STATUS_COLORS = {
@@ -13,7 +13,7 @@ const STATUS_COLORS = {
   under_review: 'bg-yellow-100 text-yellow-700', approved: 'bg-green-100 text-green-700',
   rejected: 'bg-red-100 text-red-700', disbursed: 'bg-indigo-100 text-indigo-700',
   active: 'bg-purple-100 text-purple-700', closed: 'bg-gray-100 text-gray-500',
-  defaulted: 'bg-red-200 text-red-800'
+  defaulted: 'bg-red-200 text-red-800', flagged: 'bg-orange-200 text-orange-800'
 };
 
 export default function AdminLoans() {
@@ -64,8 +64,17 @@ export default function AdminLoans() {
     <div className="min-h-screen bg-gray-50 pb-24">
       <div className="bg-[#1a3a6b] text-white px-4 pt-10 pb-5">
         <Link to="/admin" className="flex items-center gap-1 text-blue-200 text-sm mb-3"><ChevronLeft className="w-4 h-4" /> Admin</Link>
-        <h1 className="text-xl font-bold">Loan Management</h1>
-        <p className="text-blue-200 text-xs">{loans.length} total applications</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold">Loan Management</h1>
+            <p className="text-blue-200 text-xs">{loans.length} total applications</p>
+          </div>
+          <Link to="/admin/loans/reschedule">
+            <div className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 px-3 py-1.5 rounded-full text-xs font-semibold text-white transition-colors">
+              <CalendarClock className="w-3.5 h-3.5" /> Reschedules
+            </div>
+          </Link>
+        </div>
       </div>
 
       <div className="px-4 mt-4 space-y-3">

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { CreditCard, FileText, ArrowUpCircle, TrendingDown, Zap, ChevronRight, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Banknote, RefreshCw } from 'lucide-react';
+import { CreditCard, FileText, ArrowUpCircle, TrendingDown, Zap, ChevronRight, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Banknote, RefreshCw, CalendarClock } from 'lucide-react';
 import LoanApplicationWizard from '@/components/loans/LoanApplicationWizard';
+import LoanRescheduleModal from '@/components/loans/LoanRescheduleModal';
 
 const STATUS_CONFIG = {
   draft:        { label: 'Draft',        color: 'bg-gray-100 text-gray-600', icon: Clock },
@@ -19,6 +20,7 @@ const STATUS_CONFIG = {
 export default function Loans() {
   const [loans, setLoans] = useState([]);
   const [showWizard, setShowWizard] = useState(false);
+  const [rescheduleLoan, setRescheduleLoan] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -204,7 +206,8 @@ export default function Loans() {
                   </div>
 
                   {['active', 'disbursed'].includes(loan.status) && (
-                    <div className="px-4 pb-4 flex gap-2">
+                  <div className="px-4 pb-4 space-y-2">
+                    <div className="flex gap-2">
                       <Link to={`/loans/statement?loan_id=${loan.id}`} className="flex-1">
                         <button className="w-full text-xs text-blue-600 font-semibold h-9 rounded-xl bg-blue-50 flex items-center justify-center gap-1">
                           <FileText className="w-3.5 h-3.5" /> Statement
@@ -216,6 +219,13 @@ export default function Loans() {
                         </button>
                       </Link>
                     </div>
+                    <button
+                      onClick={() => setRescheduleLoan(loan)}
+                      className="w-full text-xs text-violet-700 font-semibold h-9 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center gap-1.5"
+                    >
+                      <CalendarClock className="w-3.5 h-3.5" /> Request Reschedule
+                    </button>
+                  </div>
                   )}
 
                   {loan.status === 'approved' && (
@@ -239,6 +249,14 @@ export default function Loans() {
           </div>
         )}
       </div>
+
+      {rescheduleLoan && (
+        <LoanRescheduleModal
+          loan={rescheduleLoan}
+          onClose={() => setRescheduleLoan(null)}
+          onSuccess={() => { setRescheduleLoan(null); load(); }}
+        />
+      )}
 
       {showWizard && (
         <LoanApplicationWizard

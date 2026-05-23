@@ -40,6 +40,7 @@ import AdminRules from './pages/admin/AdminRules';
 import AdminCRB from './pages/admin/AdminCRB';
 import AdminSubmissions from './pages/admin/AdminSubmissions';
 import AdminLoans from './pages/admin/AdminLoans';
+import AdminRescheduleRequests from './pages/admin/AdminRescheduleRequests';
 import MobileHeader from './components/MobileHeader';
 
 const AuthenticatedApp = () => {
@@ -102,6 +103,7 @@ const AuthenticatedApp = () => {
       <Route path="/admin/crb" element={<AdminCRB />} />
       <Route path="/admin/submissions" element={<AdminSubmissions />} />
       <Route path="/admin/loans" element={<AdminLoans />} />
+      <Route path="/admin/loans/reschedule" element={<AdminRescheduleRequests />} />
       <Route path="/savings-goals" element={<><SavingsGoals /><BottomNav /></>} />
       <Route path="/loans/pre-qualify" element={<><LoanPreQualify /><BottomNav /></>} />
       <Route path="*" element={<PageNotFound />} />

@@ -53,7 +53,8 @@
         "disbursed",
         "active",
         "closed",
-        "defaulted"
+        "defaulted",
+        "flagged"
       ],
       "default": "draft"
     },
@@ -104,6 +105,19 @@
     "net_disbursement": {
       "type": "number",
       "description": "Actual amount received after fees"
+    },
+    "reminder_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of overdue reminders sent"
+    },
+    "last_reminder_sent_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "escalated_to_collections": {
+      "type": "boolean",
+      "default": false
     }
   },
   "required": [

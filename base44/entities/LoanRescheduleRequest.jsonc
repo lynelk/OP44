@@ -1,0 +1,63 @@
+{
+  "name": "LoanRescheduleRequest",
+  "type": "object",
+  "properties": {
+    "loan_id": {
+      "type": "string"
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "original_tenure_months": {
+      "type": "number"
+    },
+    "original_monthly_installment": {
+      "type": "number"
+    },
+    "outstanding_balance": {
+      "type": "number"
+    },
+    "requested_tenure_months": {
+      "type": "number"
+    },
+    "proposed_monthly_installment": {
+      "type": "number"
+    },
+    "proposed_total_repayable": {
+      "type": "number"
+    },
+    "reason": {
+      "type": "string",
+      "maxLength": 500
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "admin_notes": {
+      "type": "string"
+    },
+    "requested_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "decision_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "decided_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "loan_id",
+    "user_id",
+    "requested_tenure_months",
+    "reason"
+  ]
+}
