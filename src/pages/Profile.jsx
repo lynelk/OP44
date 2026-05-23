@@ -33,14 +33,14 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-32">
       {/* Profile Hero */}
-      <div className="bg-gradient-to-br from-[#0f2952] via-[#1a3a6b] to-[#1e4d8c] text-white px-5 pt-16 pb-20">
+      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-16 pb-20">
         <div className="flex items-center gap-4">
           <div className="w-18 h-18 w-[72px] h-[72px] bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-3xl font-bold border-2 border-white/30">
             {user?.full_name?.[0]?.toUpperCase() || 'U'}
           </div>
           <div>
             <h1 className="text-xl font-bold">{user?.full_name || 'User'}</h1>
-            <p className="text-blue-200 text-sm mt-0.5">{user?.email}</p>
+            <p className="text-green-200 text-sm mt-0.5">{user?.email}</p>
             <div className="mt-2">
               <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${kycApproved ? 'bg-emerald-400/20 text-emerald-300' : kycPending ? 'bg-amber-400/20 text-amber-300' : 'bg-white/20 text-white/70'}`}>
                 {kycApproved ? '✓ KYC Verified' : kycPending ? '⏳ KYC Pending' : 'KYC Required'}
@@ -52,11 +52,11 @@ export default function Profile() {
 
       <div className="px-4 -mt-10 space-y-4">
         {/* Points Card */}
-        <div className="bg-gradient-to-r from-orange-500 to-amber-400 text-white rounded-2xl p-5 shadow-lg flex items-center justify-between">
+        <div className="bg-gradient-to-r from-[#006B3C] to-[#7BC943] text-white rounded-2xl p-5 shadow-lg flex items-center justify-between">
           <div>
-            <p className="text-orange-100 text-xs font-medium">OpFin Points</p>
+            <p className="text-green-100 text-xs font-medium">Pipiya Points</p>
             <p className="text-4xl font-bold tracking-tight">{totalPoints}</p>
-            <p className="text-orange-100 text-xs mt-1">{badges.length} badges earned</p>
+            <p className="text-green-100 text-xs mt-1">{badges.length} badges earned</p>
           </div>
           <Award className="w-14 h-14 opacity-30" />
         </div>
@@ -106,7 +106,7 @@ export default function Profile() {
 
         {user?.role === 'admin' && (
           <Link to="/admin">
-            <button className="w-full h-12 bg-[#1a3a6b] text-white rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-95">
+            <button className="w-full h-12 bg-[#006B3C] text-white rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-95">
               <LayoutDashboard className="w-4 h-4" /> Admin Panel
             </button>
           </Link>

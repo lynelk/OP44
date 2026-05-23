@@ -70,29 +70,29 @@ export default function Loans() {
         </div>
       )}
       {/* Hero Header */}
-      <div className="bg-gradient-to-br from-[#0f2a55] via-[#1a3a6b] to-[#1e4480] text-white px-5 pt-14 pb-6">
+      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">My Loans</h1>
-            <p className="text-blue-300 text-sm">Fast, transparent credit</p>
+            <p className="text-green-200 text-sm">Fast, transparent credit</p>
           </div>
           <button onClick={load} className="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center">
-            <RefreshCw className="w-4 h-4 text-blue-200" />
+            <RefreshCw className="w-4 h-4 text-green-200" />
           </button>
         </div>
 
         {activeLoans.length > 0 && (
           <div className="bg-white/10 rounded-2xl p-4 mt-2">
-            <p className="text-blue-200 text-xs mb-0.5">Total Outstanding</p>
+            <p className="text-green-200 text-xs mb-0.5">Total Outstanding</p>
             <p className="text-3xl font-bold">UGX {(totalOutstanding / 1000000).toFixed(2)}M</p>
             <div className="flex gap-4 mt-3">
               <div>
-                <p className="text-blue-300 text-xs">Active Loans</p>
+                <p className="text-green-200 text-xs">Active Loans</p>
                 <p className="text-lg font-bold">{activeLoans.length}</p>
               </div>
               {pendingLoans.length > 0 && (
                 <div>
-                  <p className="text-blue-300 text-xs">Pending Review</p>
+                  <p className="text-green-200 text-xs">Pending Review</p>
                   <p className="text-lg font-bold text-amber-300">{pendingLoans.length}</p>
                 </div>
               )}
@@ -106,7 +106,7 @@ export default function Loans() {
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           <button
             onClick={() => setShowWizard(true)}
-            className="flex-shrink-0 flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold px-5 h-10 rounded-full shadow-sm shadow-orange-200 transition-colors"
+            className="flex-shrink-0 flex items-center gap-1.5 bg-[#F4B400] hover:bg-yellow-500 text-[#006B3C] text-sm font-bold px-5 h-10 rounded-full shadow-sm shadow-yellow-200 transition-colors"
           >
             <Plus className="w-4 h-4" /> Apply Now
           </button>
@@ -134,17 +134,17 @@ export default function Loans() {
 
         {/* Pre-qualify Banner */}
         <Link to="/loans/pre-qualify">
-          <div className="bg-gradient-to-r from-orange-500 to-orange-400 rounded-2xl p-4 flex items-center justify-between text-white shadow-md shadow-orange-100">
+          <div className="bg-gradient-to-r from-[#006B3C] to-[#7BC943] rounded-2xl p-4 flex items-center justify-between text-white shadow-md shadow-green-100">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
                 <Zap className="w-5 h-5" />
               </div>
               <div>
                 <p className="font-bold text-sm">Check Pre-Qualification</p>
-                <p className="text-orange-100 text-xs">Instant credit check — no impact to score</p>
+                <p className="text-green-100 text-xs">Instant credit check — no impact to score</p>
               </div>
             </div>
-            <ChevronRight className="w-5 h-5 text-orange-200" />
+            <ChevronRight className="w-5 h-5 text-green-200" />
           </div>
         </Link>
 
@@ -171,14 +171,14 @@ export default function Loans() {
           </div>
         ) : loans.length === 0 ? (
           <div className="text-center py-16">
-            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Banknote className="w-10 h-10 text-blue-300" />
+            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Banknote className="w-10 h-10 text-[#7BC943]" />
             </div>
             <p className="font-semibold text-gray-700">No loans yet</p>
             <p className="text-sm text-gray-400 mt-1 mb-5">Apply for instant credit in minutes</p>
             <button
               onClick={() => setShowWizard(true)}
-              className="bg-orange-500 text-white font-bold px-6 py-2.5 rounded-full text-sm"
+              className="bg-[#F4B400] text-[#006B3C] font-bold px-6 py-2.5 rounded-full text-sm"
             >
               Apply for a Loan
             </button>
@@ -205,7 +205,7 @@ export default function Loans() {
                           {loan.purpose || 'Personal Loan'} · {loan.tenure_months} month{loan.tenure_months > 1 ? 's' : ''}
                         </p>
                         {loan.monthly_installment > 0 && (
-                          <p className="text-xs text-blue-600 font-medium mt-0.5">
+                          <p className="text-xs text-[#006B3C] font-medium mt-0.5">
                             UGX {loan.monthly_installment?.toLocaleString('en-UG', { maximumFractionDigits: 0 })}/mo
                           </p>
                         )}
@@ -243,19 +243,19 @@ export default function Loans() {
                   <div className="px-4 pb-4 space-y-2">
                     <div className="flex gap-2">
                       <Link to={`/loans/statement?loan_id=${loan.id}`} className="flex-1">
-                        <button className="w-full text-xs text-blue-600 font-semibold h-9 rounded-xl bg-blue-50 flex items-center justify-center gap-1">
+                        <button className="w-full text-xs text-[#006B3C] font-semibold h-9 rounded-xl bg-green-50 flex items-center justify-center gap-1">
                           <FileText className="w-3.5 h-3.5" /> Statement
                         </button>
                       </Link>
                       <Link to={`/loans/repay?loan_id=${loan.id}`} className="flex-1">
-                        <button className="w-full text-xs text-white font-bold h-9 rounded-xl bg-orange-500 flex items-center justify-center gap-1">
+                        <button className="w-full text-xs text-[#006B3C] font-bold h-9 rounded-xl bg-[#F4B400] flex items-center justify-center gap-1">
                           <ArrowUpCircle className="w-3.5 h-3.5" /> Repay Now
                         </button>
                       </Link>
                     </div>
                     <button
                       onClick={() => setRescheduleLoan(loan)}
-                      className="w-full text-xs text-violet-700 font-semibold h-9 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center gap-1.5"
+                      className="w-full text-xs text-[#006B3C] font-semibold h-9 rounded-xl bg-green-50 border border-green-100 flex items-center justify-center gap-1.5"
                     >
                       <CalendarClock className="w-3.5 h-3.5" /> Request Reschedule
                     </button>

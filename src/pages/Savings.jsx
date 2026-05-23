@@ -89,15 +89,15 @@ export default function Savings() {
         </div>
       )}
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#0f2952] via-[#1a3a6b] to-[#1e4d8c] text-white px-5 pt-14 pb-8">
+      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-8">
         <div className="flex items-center justify-between mb-1">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Savings Pockets</h1>
-            <p className="text-blue-200 text-sm mt-0.5">Total: UGX {totalSavings.toLocaleString()}</p>
+            <p className="text-green-200 text-sm mt-0.5">Total: UGX {totalSavings.toLocaleString()}</p>
           </div>
           <button
             onClick={() => setShowHistory(!showHistory)}
-            className="flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-2 text-xs font-medium text-blue-200"
+            className="flex items-center gap-1.5 bg-white/10 rounded-full px-3 py-2 text-xs font-medium text-green-200"
           >
             <History className="w-3.5 h-3.5" /> History
           </button>
@@ -114,20 +114,20 @@ export default function Savings() {
 
         <div className="grid grid-cols-2 gap-2">
           <button
-            className="flex items-center justify-center gap-1.5 bg-emerald-500 active:scale-95 text-white rounded-2xl h-12 text-sm font-semibold transition-all"
+            className="flex items-center justify-center gap-1.5 bg-[#006B3C] active:scale-95 text-white rounded-2xl h-12 text-sm font-semibold transition-all"
             onClick={() => setShowCreate(!showCreate)}
           >
             {showCreate ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             {showCreate ? 'Cancel' : 'New Pocket'}
           </button>
           <Link to="/savings-groups">
-            <button className="w-full flex items-center justify-center gap-1.5 bg-white dark:bg-gray-800 border border-purple-200 dark:border-purple-700 text-purple-700 dark:text-purple-300 rounded-2xl h-12 text-sm font-medium transition-all active:scale-95">
+            <button className="w-full flex items-center justify-center gap-1.5 bg-white dark:bg-gray-800 border border-green-200 dark:border-green-700 text-[#006B3C] dark:text-[#7BC943] rounded-2xl h-12 text-sm font-medium transition-all active:scale-95">
               <Users className="w-4 h-4" /> Group Savings
             </button>
           </Link>
         </div>
         <Link to="/savings-goals">
-          <button className="w-full flex items-center justify-center gap-1.5 bg-white dark:bg-gray-800 border border-orange-200 dark:border-orange-700 text-orange-600 dark:text-orange-300 rounded-2xl h-11 text-sm font-medium transition-all active:scale-95">
+          <button className="w-full flex items-center justify-center gap-1.5 bg-white dark:bg-gray-800 border border-yellow-200 dark:border-yellow-700 text-[#F4B400] dark:text-yellow-300 rounded-2xl h-11 text-sm font-medium transition-all active:scale-95">
             <Target className="w-4 h-4" /> Smart Savings Goals
           </button>
         </Link>
@@ -139,7 +139,7 @@ export default function Savings() {
               <div className="flex gap-2 flex-wrap">
                 {ICONS.map(ic => (
                   <button key={ic} onClick={() => setIcon(ic)}
-                    className={`text-2xl p-2 rounded-xl transition-all ${icon === ic ? 'bg-emerald-100 dark:bg-emerald-900/40 ring-2 ring-emerald-500' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                    className={`text-2xl p-2 rounded-xl transition-all ${icon === ic ? 'bg-green-100 dark:bg-green-900/40 ring-2 ring-[#006B3C]' : 'bg-gray-100 dark:bg-gray-700'}`}>
                     {ic}
                   </button>
                 ))}
@@ -159,7 +159,7 @@ export default function Savings() {
                 <Input placeholder="Auto-save amount (UGX)" type="number" value={autoAmount} onChange={e => setAutoAmount(e.target.value)} className="h-11 rounded-xl" />
               )}
               <button
-                className="w-full h-12 bg-[#1a3a6b] text-white rounded-2xl font-semibold text-sm transition-all active:scale-95 disabled:opacity-50"
+                className="w-full h-12 bg-[#006B3C] text-white rounded-2xl font-semibold text-sm transition-all active:scale-95 disabled:opacity-50"
                 onClick={handleCreate} disabled={saving}
               >
                 {saving ? 'Creating…' : 'Create Pocket'}
@@ -187,7 +187,7 @@ export default function Savings() {
                         <p className="font-semibold text-gray-900 dark:text-white">{pocket.name}</p>
                         <p className="text-xs text-gray-400 dark:text-gray-500">Goal: UGX {pocket.goal_amount?.toLocaleString()}</p>
                         {pocket.auto_save_frequency !== 'none' && pocket.auto_save_amount && (
-                          <p className="text-xs text-blue-500 flex items-center gap-1 mt-0.5">
+                          <p className="text-xs text-[#006B3C] flex items-center gap-1 mt-0.5">
                             <Zap className="w-3 h-3" /> UGX {pocket.auto_save_amount?.toLocaleString()} {pocket.auto_save_frequency}
                           </p>
                         )}
@@ -208,7 +208,7 @@ export default function Savings() {
                       onChange={e => setDepositAmount(prev => ({ ...prev, [pocket.id]: e.target.value }))}
                     />
                     <button
-                      className="px-4 h-10 bg-emerald-500 text-white rounded-xl text-sm font-medium active:scale-95"
+                      className="px-4 h-10 bg-[#006B3C] text-white rounded-xl text-sm font-medium active:scale-95"
                       onClick={() => handleDeposit(pocket)}
                     >Add</button>
                   </div>

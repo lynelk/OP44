@@ -45,19 +45,19 @@ export default function P2PDashboard() {
   useEffect(() => { load(); }, []);
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+    <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center">
+      <div className="w-8 h-8 border-4 border-green-200 border-t-[#006B3C] rounded-full animate-spin" />
     </div>
   );
 
   if (!data?.profile) return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-6 text-center">
-      <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4">
-        <Users className="w-10 h-10 text-blue-400" />
+    <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center px-6 text-center">
+      <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-4">
+        <Users className="w-10 h-10 text-[#7BC943]" />
       </div>
       <h2 className="text-xl font-bold text-gray-800 mb-2">Set Up Your P2P Profile</h2>
       <p className="text-sm text-gray-500 mb-6">Join our peer-to-peer lending marketplace as a borrower, lender, or both.</p>
-      <Button onClick={() => navigate('/p2p/onboarding')} className="bg-orange-500 hover:bg-orange-600 gap-2">
+      <Button onClick={() => navigate('/p2p/onboarding')} className="bg-[#006B3C] hover:bg-[#005530] gap-2">
         Get Started <ArrowRight className="w-4 h-4" />
       </Button>
       <BottomNav />
@@ -74,16 +74,16 @@ export default function P2PDashboard() {
   const totalReturns = investments.reduce((s, i) => s + (i.actual_return_earned || 0), 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-28 font-sans">
+    <div className="min-h-screen bg-[#F8F9FA] pb-28 font-poppins">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#0f2a55] via-[#1a3a6b] to-[#1e4480] text-white px-5 pt-14 pb-6">
+      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-black tracking-tight">P2P Marketplace</h1>
-            <p className="text-blue-300 text-sm">Peer-to-Peer Lending</p>
+            <p className="text-green-200 text-sm">Peer-to-Peer Lending</p>
           </div>
           <button onClick={load} className="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center">
-            <RefreshCw className="w-4 h-4 text-blue-200" />
+            <RefreshCw className="w-4 h-4 text-green-200" />
           </button>
         </div>
 
@@ -97,21 +97,21 @@ export default function P2PDashboard() {
               <span className="text-xs text-blue-300 capitalize">{profile.account_type}</span>
             </div>
             <div className="text-right">
-              <p className="text-xs text-blue-300">Trust Score</p>
+              <p className="text-xs text-green-200">Trust Score</p>
               <p className="text-lg font-black">{profile.trust_score || 0}<span className="text-xs text-blue-300">/100</span></p>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div className="text-center">
-              <p className="text-xs text-blue-300">Loan Limit</p>
+              <p className="text-xs text-green-200">Loan Limit</p>
               <p className="text-sm font-bold">{scoring?.max_loan_limit ? `${(scoring.max_loan_limit / 1000000).toFixed(1)}M` : '—'}</p>
             </div>
             <div className="text-center border-x border-white/10">
-              <p className="text-xs text-blue-300">Rate From</p>
+              <p className="text-xs text-green-200">Rate From</p>
               <p className="text-sm font-bold">{scoring?.rates?.final_interest_rate?.toFixed(1) || '—'}%/mo</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-blue-300">Reputation</p>
+              <p className="text-xs text-green-200">Reputation</p>
               <p className="text-sm font-bold capitalize">{profile.reputation_level || 'new'}</p>
             </div>
           </div>
@@ -138,7 +138,7 @@ export default function P2PDashboard() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 py-3 text-xs font-semibold border-b-2 transition-all ${activeTab === tab.id ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500'}`}
+            className={`flex-1 py-3 text-xs font-semibold border-b-2 transition-all ${activeTab === tab.id ? 'border-[#006B3C] text-[#006B3C]' : 'border-transparent text-gray-500'}`}
           >
             {tab.label}
           </button>
@@ -153,8 +153,8 @@ export default function P2PDashboard() {
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-white rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center">
-                    <Banknote className="w-4 h-4 text-blue-600" />
+                  <div className="w-8 h-8 bg-green-50 rounded-xl flex items-center justify-center">
+                    <Banknote className="w-4 h-4 text-[#006B3C]" />
                   </div>
                   <span className="text-xs text-gray-500">Active Loans</span>
                 </div>
@@ -179,19 +179,19 @@ export default function P2PDashboard() {
             <div className="grid grid-cols-2 gap-3">
               {(profile.account_type === 'borrower' || profile.account_type === 'both') && (
                 <Link to="/p2p/apply">
-                  <div className="bg-gradient-to-br from-orange-500 to-orange-400 text-white rounded-2xl p-4 shadow-md">
+                  <div className="bg-gradient-to-br from-[#F4B400] to-yellow-500 text-[#006B3C] rounded-2xl p-4 shadow-md">
                     <Plus className="w-5 h-5 mb-2" />
                     <p className="font-bold text-sm">Apply for Loan</p>
-                    <p className="text-xs text-orange-100">Instant P2P credit</p>
+                    <p className="text-xs text-[#006B3C]/70">Instant P2P credit</p>
                   </div>
                 </Link>
               )}
               {(profile.account_type === 'lender' || profile.account_type === 'both') && (
                 <Link to="/p2p/marketplace">
-                  <div className="bg-gradient-to-br from-blue-600 to-blue-500 text-white rounded-2xl p-4 shadow-md">
+                  <div className="bg-gradient-to-br from-[#006B3C] to-[#7BC943] text-white rounded-2xl p-4 shadow-md">
                     <BarChart3 className="w-5 h-5 mb-2" />
                     <p className="font-bold text-sm">Browse Loans</p>
-                    <p className="text-xs text-blue-100">Fund & earn returns</p>
+                    <p className="text-xs text-green-100">Fund & earn returns</p>
                   </div>
                 </Link>
               )}
@@ -227,7 +227,7 @@ export default function P2PDashboard() {
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div className="bg-gray-50 rounded-xl p-3">
                   <p className="text-xs text-gray-500">Max Limit</p>
-                  <p className="font-bold text-blue-700">UGX {scoring?.max_loan_limit?.toLocaleString() || '—'}</p>
+                  <p className="font-bold text-[#006B3C]">UGX {scoring?.max_loan_limit?.toLocaleString() || '—'}</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-3">
                   <p className="text-xs text-gray-500">Interest Rate</p>
@@ -244,7 +244,7 @@ export default function P2PDashboard() {
               </div>
             </div>
             <Link to="/p2p/apply">
-              <Button className="w-full bg-orange-500 hover:bg-orange-600 h-12 text-base font-bold gap-2">
+              <Button className="w-full bg-[#F4B400] hover:bg-yellow-500 text-[#006B3C] h-12 text-base font-bold gap-2">
                 <Plus className="w-5 h-5" /> Apply for a P2P Loan
               </Button>
             </Link>
@@ -307,7 +307,7 @@ export default function P2PDashboard() {
               </div>
             </div>
             <Link to="/p2p/marketplace">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 gap-2 h-12 font-bold">
+              <Button className="w-full bg-[#006B3C] hover:bg-[#005530] gap-2 h-12 font-bold">
                 <BarChart3 className="w-5 h-5" /> Browse Loans to Fund
               </Button>
             </Link>
