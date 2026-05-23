@@ -8,6 +8,10 @@
     "challenge_id": {
       "type": "string"
     },
+    "group_challenge_id": {
+      "type": "string",
+      "description": "Links to GroupChallenge if part of a group competition"
+    },
     "challenge_title": {
       "type": "string"
     },
@@ -73,6 +77,10 @@
     },
     "pocket_id": {
       "type": "string"
+    },
+    "rank": {
+      "type": "number",
+      "description": "Current rank within group challenge"
     }
   },
   "required": [

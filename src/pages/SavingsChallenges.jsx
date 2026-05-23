@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Flame, Trophy, Target, CheckCircle2, Clock, ChevronRight, Zap } from 'lucide-react';
+import { Flame, Trophy, Target, CheckCircle2, Clock, ChevronRight, Zap, Swords } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const CHALLENGE_TEMPLATES = [
   {
@@ -151,7 +152,23 @@ export default function SavingsChallenges() {
         ))}
       </div>
 
-      <div className="px-4 mt-4 space-y-4">
+      {/* Group Challenges Banner */}
+      <div className="px-4 mt-4">
+        <Link to="/group-challenges">
+          <div className="bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl p-4 flex items-center justify-between text-white mb-4">
+            <div>
+              <div className="flex items-center gap-2 mb-0.5">
+                <Swords className="w-4 h-4" />
+                <span className="font-bold text-sm">Group Challenges</span>
+              </div>
+              <p className="text-amber-100 text-xs">Compete with friends & win rewards</p>
+            </div>
+            <ChevronRight className="w-5 h-5 text-amber-100" />
+          </div>
+        </Link>
+      </div>
+
+      <div className="px-4 space-y-4">
 
         {/* Available Challenges */}
         {tab === 'available' && CHALLENGE_TEMPLATES.map(template => {

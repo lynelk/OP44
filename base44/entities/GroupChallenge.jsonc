@@ -1,0 +1,95 @@
+{
+  "name": "GroupChallenge",
+  "type": "object",
+  "properties": {
+    "group_id": {
+      "type": "string",
+      "description": "Links to SavingsGroup"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "challenge_type": {
+      "type": "string",
+      "enum": [
+        "most_saved",
+        "streak_king",
+        "first_to_goal",
+        "consistent_saver"
+      ],
+      "default": "most_saved"
+    },
+    "target_amount": {
+      "type": "number",
+      "description": "Group-level savings target"
+    },
+    "individual_target": {
+      "type": "number",
+      "description": "Per-member savings target"
+    },
+    "daily_minimum": {
+      "type": "number",
+      "description": "Min daily deposit for streak challenges"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "upcoming",
+        "active",
+        "completed",
+        "cancelled"
+      ],
+      "default": "upcoming"
+    },
+    "badge_emoji": {
+      "type": "string",
+      "default": "\ud83c\udfc6"
+    },
+    "badge_name": {
+      "type": "string"
+    },
+    "reward_type": {
+      "type": "string",
+      "enum": [
+        "badge",
+        "rate_reduction",
+        "limit_increase",
+        "cashback",
+        "fee_waiver"
+      ],
+      "default": "badge"
+    },
+    "reward_value": {
+      "type": "number"
+    },
+    "winner_user_id": {
+      "type": "string"
+    },
+    "participants_count": {
+      "type": "number",
+      "default": 0
+    },
+    "created_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "group_id",
+    "title",
+    "challenge_type",
+    "start_date",
+    "end_date"
+  ]
+}
