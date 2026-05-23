@@ -31,14 +31,29 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
   const amountNum = parseFloat(amount) || 0;
   const amountValid = amountNum >= 50000 && amountNum <= maxAmount;
 
+  const [autoApproved, setAutoApproved] = useState(false);
+
   const handleSubmit = async () => {
     setSubmitting(true);
+
+    // Check if the requested product qualifies for auto-approval
+    const eligibleProduct = preQual?.eligible_products?.find(p =>
+      p.auto_approve_eligible &&
+      amountNum <= (p.auto_approve_max_amount || Infinity) &&
+      parseInt(tenure) <= (p.auto_approve_max_tenure_months || Infinity)
+    );
+
+    const initialStatus = eligibleProduct ? 'approved' : 'submitted';
+
     const loan = await base44.entities.LoanApplication.create({
       user_id: user?.id,
       amount_requested: amountNum,
       tenure_months: parseInt(tenure),
       purpose,
-      status: 'submitted',
+      status: initialStatus,
+      risk_band: preQual?.final_risk_band || 'C',
+      risk_band_at_application: preQual?.final_risk_band || 'C',
+      credit_score_at_application: preQual?.credit_score || null,
       monthly_installment: costs.monthly,
       total_repayable: costs.totalRepayable,
       disbursement_fee: costs.disbursementFee,
@@ -46,21 +61,34 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
       net_disbursement: costs.netDisbursement,
       outstanding_balance: costs.totalRepayable,
     });
+
+    // If auto-approved, immediately trigger disbursement
+    if (eligibleProduct) {
+      setAutoApproved(true);
+      await base44.functions.invoke('disburseLoan', { loan_id: loan.id, action: 'disburse' });
+    }
+
     setSubmitting(false);
     setSubmitted(true);
-    setTimeout(() => onSuccess(loan), 2000);
+    setTimeout(() => onSuccess(loan), 2500);
   };
 
   if (submitted) {
     return (
       <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-5">
         <div className="bg-white rounded-3xl p-8 text-center w-full max-w-sm">
-          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+          <div className={`w-20 h-20 ${autoApproved ? 'bg-orange-100' : 'bg-emerald-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
+            <CheckCircle2 className={`w-10 h-10 ${autoApproved ? 'text-orange-500' : 'text-emerald-500'}`} />
           </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-1">Application Submitted!</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-1">
+            {autoApproved ? '⚡ Instantly Approved!' : 'Application Submitted!'}
+          </h2>
           <p className="text-sm text-gray-500 mb-2">UGX {amountNum.toLocaleString()} for {tenure} months</p>
-          <p className="text-xs text-gray-400">Under review — you'll be notified shortly</p>
+          <p className="text-xs text-gray-400">
+            {autoApproved
+              ? 'Your loan has been approved and is being disbursed to your mobile money account.'
+              : 'Under review — you\'ll be notified shortly'}
+          </p>
         </div>
       </div>
     );

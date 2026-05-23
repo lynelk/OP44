@@ -8,28 +8,6 @@
     "description": {
       "type": "string"
     },
-    "min_amount": {
-      "type": "number"
-    },
-    "max_amount": {
-      "type": "number"
-    },
-    "min_credit_score": {
-      "type": "number"
-    },
-    "interest_rate_min": {
-      "type": "number",
-      "description": "Monthly interest rate %"
-    },
-    "interest_rate_max": {
-      "type": "number"
-    },
-    "max_tenure_months": {
-      "type": "number"
-    },
-    "eligibility_criteria": {
-      "type": "string"
-    },
     "icon": {
       "type": "string",
       "default": "\ud83d\udcb0"
@@ -46,6 +24,26 @@
       "type": "boolean",
       "default": false
     },
+    "min_amount": {
+      "type": "number"
+    },
+    "max_amount": {
+      "type": "number"
+    },
+    "interest_rate_min": {
+      "type": "number",
+      "description": "Monthly interest rate %"
+    },
+    "interest_rate_max": {
+      "type": "number"
+    },
+    "max_tenure_months": {
+      "type": "number"
+    },
+    "min_credit_score": {
+      "type": "number",
+      "description": "Minimum internal credit score (300-850)"
+    },
     "risk_bands_allowed": {
       "type": "array",
       "items": {
@@ -57,7 +55,72 @@
           "D"
         ]
       },
-      "description": "Which risk bands qualify for this product"
+      "description": "Which internal risk bands qualify for this product"
+    },
+    "required_crb_rating": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "AAA",
+          "AA+",
+          "AA",
+          "A+",
+          "A",
+          "BBB+",
+          "BBB",
+          "BB+",
+          "BB",
+          "B+",
+          "B",
+          "CCC",
+          "CC",
+          "C",
+          "D"
+        ]
+      },
+      "description": "CRB rating(s) required. Leave empty to allow any rating."
+    },
+    "target_demographics": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "women",
+          "youth",
+          "employed",
+          "self_employed",
+          "business_owner",
+          "student",
+          "all"
+        ]
+      },
+      "description": "Target demographic groups. Leave empty or include 'all' for no restriction."
+    },
+    "min_age": {
+      "type": "number",
+      "description": "Minimum borrower age in years"
+    },
+    "max_age": {
+      "type": "number",
+      "description": "Maximum borrower age in years"
+    },
+    "eligibility_criteria": {
+      "type": "string",
+      "description": "Human-readable eligibility description shown to users"
+    },
+    "auto_approve_eligible": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, qualifying applications are auto-approved without admin review"
+    },
+    "auto_approve_max_amount": {
+      "type": "number",
+      "description": "Max loan amount eligible for auto-approval"
+    },
+    "auto_approve_max_tenure_months": {
+      "type": "number",
+      "description": "Max tenure (months) eligible for auto-approval"
     }
   },
   "required": [

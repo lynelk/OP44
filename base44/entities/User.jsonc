@@ -51,6 +51,38 @@
     },
     "address": {
       "type": "string"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "other",
+        "prefer_not_to_say"
+      ],
+      "description": "User's gender, used for demographic-based loan product eligibility"
+    },
+    "crb_rating": {
+      "type": "string",
+      "enum": [
+        "AAA",
+        "AA+",
+        "AA",
+        "A+",
+        "A",
+        "BBB+",
+        "BBB",
+        "BB+",
+        "BB",
+        "B+",
+        "B",
+        "CCC",
+        "CC",
+        "C",
+        "D"
+      ],
+      "description": "Credit Reference Bureau (CRB) external rating"
     }
-  }
+  },
+  "required": []
 }

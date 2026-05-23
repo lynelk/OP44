@@ -83,6 +83,26 @@ Deno.serve(async (req) => {
     }
   }
 
+  // ---- LOAN PRODUCTS ----
+  if (entity === 'loan_products') {
+    if (action === 'list') {
+      const products = await base44.asServiceRole.entities.LoanProduct.list('-created_date', 100);
+      return Response.json({ products });
+    }
+    if (action === 'create') {
+      const created = await base44.asServiceRole.entities.LoanProduct.create(data);
+      return Response.json({ product: created });
+    }
+    if (action === 'update') {
+      const updated = await base44.asServiceRole.entities.LoanProduct.update(id, data);
+      return Response.json({ product: updated });
+    }
+    if (action === 'delete') {
+      await base44.asServiceRole.entities.LoanProduct.delete(id);
+      return Response.json({ success: true });
+    }
+  }
+
   // ---- INSURANCE PRODUCTS ----
   if (entity === 'insurance_products') {
     if (action === 'list') {
