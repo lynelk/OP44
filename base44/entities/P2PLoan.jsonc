@@ -1,0 +1,197 @@
+{
+  "name": "P2PLoan",
+  "type": "object",
+  "properties": {
+    "borrower_id": {
+      "type": "string"
+    },
+    "borrower_profile_id": {
+      "type": "string"
+    },
+    "loan_ref": {
+      "type": "string",
+      "description": "Human-readable reference e.g. P2P-2026-00001"
+    },
+    "amount_requested": {
+      "type": "number"
+    },
+    "amount_approved": {
+      "type": "number"
+    },
+    "amount_funded": {
+      "type": "number",
+      "default": 0
+    },
+    "purpose": {
+      "type": "string"
+    },
+    "purpose_category": {
+      "type": "string",
+      "enum": [
+        "business",
+        "education",
+        "medical",
+        "agriculture",
+        "housing",
+        "personal",
+        "other"
+      ]
+    },
+    "tenure_months": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending_approval",
+        "awaiting_funding",
+        "funded",
+        "disbursed",
+        "active",
+        "overdue",
+        "defaulted",
+        "closed",
+        "written_off"
+      ],
+      "default": "draft"
+    },
+    "risk_band": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    "risk_tier": {
+      "type": "string",
+      "enum": [
+        "platinum",
+        "gold",
+        "silver",
+        "bronze",
+        "restricted"
+      ]
+    },
+    "credit_score_at_application": {
+      "type": "number"
+    },
+    "base_rate": {
+      "type": "number",
+      "description": "Base interest rate %"
+    },
+    "risk_premium": {
+      "type": "number"
+    },
+    "liquidity_premium": {
+      "type": "number"
+    },
+    "operational_margin": {
+      "type": "number"
+    },
+    "loyalty_discount": {
+      "type": "number"
+    },
+    "final_interest_rate": {
+      "type": "number",
+      "description": "Final monthly rate after all adjustments"
+    },
+    "monthly_installment": {
+      "type": "number"
+    },
+    "total_repayable": {
+      "type": "number"
+    },
+    "outstanding_balance": {
+      "type": "number"
+    },
+    "origination_fee": {
+      "type": "number"
+    },
+    "insurance_cost": {
+      "type": "number"
+    },
+    "net_disbursement": {
+      "type": "number"
+    },
+    "funding_threshold_pct": {
+      "type": "number",
+      "default": 80,
+      "description": "% funded needed to disburse"
+    },
+    "funding_deadline": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "disbursed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "next_repayment_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "overdue_since": {
+      "type": "string",
+      "format": "date"
+    },
+    "grace_period_days": {
+      "type": "number",
+      "default": 3
+    },
+    "late_fee_applied": {
+      "type": "number",
+      "default": 0
+    },
+    "days_overdue": {
+      "type": "number",
+      "default": 0
+    },
+    "reminder_count": {
+      "type": "number",
+      "default": 0
+    },
+    "escalated_to_collections": {
+      "type": "boolean",
+      "default": false
+    },
+    "crb_reported": {
+      "type": "boolean",
+      "default": false
+    },
+    "disbursement_method": {
+      "type": "string",
+      "enum": [
+        "mobile_money",
+        "bank_transfer",
+        "wallet"
+      ]
+    },
+    "admin_notes": {
+      "type": "string"
+    },
+    "rejection_reason": {
+      "type": "string"
+    },
+    "is_marketplace_listed": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_pooled_funding": {
+      "type": "boolean",
+      "default": false
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000
+    }
+  },
+  "required": [
+    "borrower_id",
+    "amount_requested",
+    "tenure_months",
+    "purpose"
+  ]
+}

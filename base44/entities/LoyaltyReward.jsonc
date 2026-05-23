@@ -1,0 +1,62 @@
+{
+  "name": "LoyaltyReward",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "profile_id": {
+      "type": "string"
+    },
+    "reward_type": {
+      "type": "string",
+      "enum": [
+        "rate_reduction",
+        "limit_increase",
+        "cashback",
+        "fee_waiver",
+        "priority_approval",
+        "trust_badge"
+      ]
+    },
+    "reward_reason": {
+      "type": "string",
+      "enum": [
+        "on_time_payment",
+        "early_repayment",
+        "consecutive_loans",
+        "savings_consistency",
+        "employer_linked",
+        "referral"
+      ]
+    },
+    "reward_value": {
+      "type": "number",
+      "description": "% discount or UGX cashback"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "redeemed",
+        "expired"
+      ],
+      "default": "active"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date"
+    },
+    "applied_to_loan_id": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_id",
+    "reward_type",
+    "reward_reason"
+  ]
+}

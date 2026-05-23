@@ -1,0 +1,33 @@
+{
+  "name": "ReserveFund",
+  "type": "object",
+  "properties": {
+    "total_balance": {
+      "type": "number",
+      "default": 0
+    },
+    "total_contributed": {
+      "type": "number",
+      "default": 0
+    },
+    "total_disbursed": {
+      "type": "number",
+      "default": 0
+    },
+    "allocation_pct": {
+      "type": "number",
+      "default": 15,
+      "description": "% of interest allocated to reserve"
+    },
+    "snapshot_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "snapshot_date"
+  ]
+}

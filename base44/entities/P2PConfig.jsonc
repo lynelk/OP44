@@ -1,0 +1,49 @@
+{
+  "name": "P2PConfig",
+  "type": "object",
+  "properties": {
+    "config_key": {
+      "type": "string",
+      "description": "Unique config identifier"
+    },
+    "config_label": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "interest_rate",
+        "risk_model",
+        "repayment",
+        "revenue_sharing",
+        "reserve",
+        "disbursement",
+        "collections"
+      ]
+    },
+    "value_number": {
+      "type": "number"
+    },
+    "value_string": {
+      "type": "string"
+    },
+    "value_json": {
+      "type": "string",
+      "description": "JSON string for complex configs"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "last_updated_by": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "config_key",
+    "category"
+  ]
+}

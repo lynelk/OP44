@@ -1,0 +1,78 @@
+{
+  "name": "P2PRepayment",
+  "type": "object",
+  "properties": {
+    "loan_id": {
+      "type": "string"
+    },
+    "borrower_id": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "principal_portion": {
+      "type": "number"
+    },
+    "interest_portion": {
+      "type": "number"
+    },
+    "late_fee_portion": {
+      "type": "number",
+      "default": 0
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "paid_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "paid",
+        "overdue",
+        "waived",
+        "partially_paid"
+      ],
+      "default": "scheduled"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "mobile_money",
+        "bank_transfer",
+        "wallet",
+        "payroll"
+      ]
+    },
+    "transaction_ref": {
+      "type": "string"
+    },
+    "days_late": {
+      "type": "number",
+      "default": 0
+    },
+    "lender_earnings_distributed": {
+      "type": "boolean",
+      "default": false
+    },
+    "reserve_allocated": {
+      "type": "boolean",
+      "default": false
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 500
+    }
+  },
+  "required": [
+    "loan_id",
+    "borrower_id",
+    "amount",
+    "due_date"
+  ]
+}

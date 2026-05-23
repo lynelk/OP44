@@ -1,0 +1,67 @@
+{
+  "name": "RevenueTransaction",
+  "type": "object",
+  "properties": {
+    "loan_id": {
+      "type": "string"
+    },
+    "repayment_id": {
+      "type": "string"
+    },
+    "transaction_type": {
+      "type": "string",
+      "enum": [
+        "origination_fee",
+        "servicing_fee",
+        "interest_income",
+        "late_fee",
+        "recovery_commission",
+        "reserve_allocation",
+        "lender_payout"
+      ]
+    },
+    "gross_interest": {
+      "type": "number"
+    },
+    "lender_share": {
+      "type": "number"
+    },
+    "platform_share": {
+      "type": "number"
+    },
+    "reserve_share": {
+      "type": "number"
+    },
+    "lender_share_pct": {
+      "type": "number"
+    },
+    "platform_share_pct": {
+      "type": "number"
+    },
+    "reserve_share_pct": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "distributed",
+        "reversed"
+      ],
+      "default": "pending"
+    },
+    "distributed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 500
+    }
+  },
+  "required": [
+    "loan_id",
+    "transaction_type",
+    "gross_interest"
+  ]
+}

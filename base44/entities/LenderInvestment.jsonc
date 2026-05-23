@@ -1,0 +1,82 @@
+{
+  "name": "LenderInvestment",
+  "type": "object",
+  "properties": {
+    "lender_id": {
+      "type": "string"
+    },
+    "lender_profile_id": {
+      "type": "string"
+    },
+    "loan_id": {
+      "type": "string",
+      "description": "P2PLoan ID"
+    },
+    "investment_type": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "auto_pool"
+      ],
+      "default": "manual"
+    },
+    "amount_invested": {
+      "type": "number"
+    },
+    "ownership_pct": {
+      "type": "number",
+      "description": "% of this loan owned by lender"
+    },
+    "expected_return": {
+      "type": "number"
+    },
+    "actual_return_earned": {
+      "type": "number",
+      "default": 0
+    },
+    "principal_recovered": {
+      "type": "number",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "defaulted",
+        "partially_recovered"
+      ],
+      "default": "active"
+    },
+    "lender_share_pct": {
+      "type": "number",
+      "default": 55,
+      "description": "Revenue share %"
+    },
+    "platform_share_pct": {
+      "type": "number",
+      "default": 30
+    },
+    "reserve_share_pct": {
+      "type": "number",
+      "default": 15
+    },
+    "invested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "maturity_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 500
+    }
+  },
+  "required": [
+    "lender_id",
+    "loan_id",
+    "amount_invested"
+  ]
+}

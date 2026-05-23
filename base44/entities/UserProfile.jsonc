@@ -1,0 +1,228 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "Links to built-in User entity"
+    },
+    "account_type": {
+      "type": "string",
+      "enum": [
+        "borrower",
+        "lender",
+        "both"
+      ],
+      "default": "borrower"
+    },
+    "national_id": {
+      "type": "string"
+    },
+    "phone_number": {
+      "type": "string"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "other"
+      ]
+    },
+    "address": {
+      "type": "string"
+    },
+    "district": {
+      "type": "string"
+    },
+    "employment_status": {
+      "type": "string",
+      "enum": [
+        "employed",
+        "self_employed",
+        "unemployed",
+        "student",
+        "retired"
+      ]
+    },
+    "employer_name": {
+      "type": "string"
+    },
+    "job_title": {
+      "type": "string"
+    },
+    "monthly_income": {
+      "type": "number"
+    },
+    "income_source": {
+      "type": "string",
+      "enum": [
+        "salary",
+        "business",
+        "freelance",
+        "rental",
+        "pension",
+        "other"
+      ]
+    },
+    "mobile_money_provider": {
+      "type": "string",
+      "enum": [
+        "mtn",
+        "airtel",
+        "other"
+      ]
+    },
+    "mobile_money_account": {
+      "type": "string"
+    },
+    "bank_name": {
+      "type": "string"
+    },
+    "bank_account_number": {
+      "type": "string"
+    },
+    "bank_branch": {
+      "type": "string"
+    },
+    "account_status": {
+      "type": "string",
+      "enum": [
+        "pending_verification",
+        "active",
+        "restricted",
+        "suspended",
+        "blacklisted"
+      ],
+      "default": "pending_verification"
+    },
+    "kyc_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "verified",
+        "rejected"
+      ],
+      "default": "not_started"
+    },
+    "aml_status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "in_progress",
+        "cleared",
+        "flagged"
+      ],
+      "default": "not_started"
+    },
+    "identity_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "device_verified": {
+      "type": "boolean",
+      "default": false
+    },
+    "duplicate_check_passed": {
+      "type": "boolean",
+      "default": false
+    },
+    "verification_started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verification_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "3-day window to complete"
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "rejection_reason": {
+      "type": "string"
+    },
+    "risk_tier": {
+      "type": "string",
+      "enum": [
+        "platinum",
+        "gold",
+        "silver",
+        "bronze",
+        "restricted"
+      ],
+      "description": "Derived from A/B/C/D band + loyalty factors"
+    },
+    "trust_score": {
+      "type": "number",
+      "default": 0,
+      "description": "0-100 dynamic trust score"
+    },
+    "reputation_level": {
+      "type": "string",
+      "enum": [
+        "new",
+        "building",
+        "established",
+        "trusted",
+        "elite"
+      ],
+      "default": "new"
+    },
+    "borrower_badge": {
+      "type": "string"
+    },
+    "lender_reliability_score": {
+      "type": "number",
+      "default": 0
+    },
+    "consecutive_on_time_payments": {
+      "type": "number",
+      "default": 0
+    },
+    "total_loans_completed": {
+      "type": "number",
+      "default": 0
+    },
+    "referral_code": {
+      "type": "string"
+    },
+    "referred_by": {
+      "type": "string"
+    },
+    "referral_count": {
+      "type": "number",
+      "default": 0
+    },
+    "loyalty_points": {
+      "type": "number",
+      "default": 0
+    },
+    "is_employer_linked_repayment": {
+      "type": "boolean",
+      "default": false
+    },
+    "fraud_flags": {
+      "type": "number",
+      "default": 0
+    },
+    "complaint_count": {
+      "type": "number",
+      "default": 0
+    },
+    "profile_completion_pct": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "user_id",
+    "account_type"
+  ]
+}

@@ -43,6 +43,11 @@ import AdminLoans from './pages/admin/AdminLoans';
 import AdminRescheduleRequests from './pages/admin/AdminRescheduleRequests';
 import USSDSimulator from './pages/USSDSimulator';
 import MobileHeader from './components/MobileHeader';
+import P2POnboarding from './pages/P2POnboarding';
+import P2PDashboard from './pages/P2PDashboard';
+import P2PApply from './pages/P2PApply';
+import P2PMarketplace from './pages/P2PMarketplace';
+import AdminP2P from './pages/admin/AdminP2P';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -106,6 +111,11 @@ const AuthenticatedApp = () => {
       <Route path="/admin/loans" element={<AdminLoans />} />
       <Route path="/admin/loans/reschedule" element={<AdminRescheduleRequests />} />
       <Route path="/ussd" element={<USSDSimulator />} />
+      <Route path="/p2p" element={<><P2PDashboard /><BottomNav /></>} />
+      <Route path="/p2p/onboarding" element={<P2POnboarding />} />
+      <Route path="/p2p/apply" element={<P2PApply />} />
+      <Route path="/p2p/marketplace" element={<P2PMarketplace />} />
+      <Route path="/admin/p2p" element={<AdminP2P />} />
       <Route path="/savings-goals" element={<><SavingsGoals /><BottomNav /></>} />
       <Route path="/loans/pre-qualify" element={<><LoanPreQualify /><BottomNav /></>} />
       <Route path="*" element={<PageNotFound />} />
