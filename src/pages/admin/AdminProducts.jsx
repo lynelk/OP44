@@ -190,9 +190,7 @@ export default function AdminProducts() {
   const load = async () => {
     setLoading(true);
     const [loans, ins, inv] = await Promise.all([
-      base44.asServiceRole?.entities
-        ? base44.functions.invoke('adminManager', { action: 'list', entity: 'loan_products' })
-        : Promise.resolve({ data: { products: [] } }),
+      base44.functions.invoke('adminManager', { action: 'list', entity: 'loan_products' }),
       base44.functions.invoke('adminManager', { action: 'list', entity: 'insurance_products' }),
       base44.functions.invoke('adminManager', { action: 'list', entity: 'investment_pools' }),
     ]);
