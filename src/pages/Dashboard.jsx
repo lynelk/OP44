@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, PiggyBank, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity } from 'lucide-react';
+import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity, Handshake, Vault } from 'lucide-react';
 import MilestoneProgress from '@/components/milestones/MilestoneProgress';
 import ChallengesBoard from '@/components/dashboard/ChallengesBoard';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [notifications, setNotifications] = useState([]);
   const [badges, setBadges] = useState([]);
   const [creditScore, setCreditScore] = useState(null);
+  const [totalInvestments, setTotalInvestments] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const scrollRef = useRef(null);
   const pullStartY = useRef(0);
@@ -28,15 +29,22 @@ export default function Dashboard() {
   const loadData = async () => {
     const me = await base44.auth.me();
     setUser(me);
-    const [l, s, n, b, scores] = await Promise.all([
+    const [l, s, n, b, scores, lenderInv, pockets, policies] = await Promise.all([
       base44.entities.LoanApplication.filter({}),
       base44.entities.SavingsPocket.filter({}),
       base44.entities.Notification.filter({ is_read: false }),
       base44.entities.GamificationBadge.filter({}),
       base44.entities.CreditScore.filter({ user_id: me.id }, '-calculated_at', 1),
+      base44.entities.LenderInvestment.filter({ lender_id: me.id }),
+      base44.entities.SavingsPocket.filter({ user_id: me.id }),
+      base44.entities.InsurancePolicy.filter({ user_id: me.id }),
     ]);
     setLoans(l); setSavings(s); setNotifications(n); setBadges(b);
     if (scores.length > 0) setCreditScore(scores[0]);
+    const p2pTotal = lenderInv.reduce((sum, i) => sum + (i.amount_invested || 0), 0);
+    const savingsTotal = pockets.reduce((sum, p) => sum + (p.current_balance || 0), 0);
+    const insuranceTotal = policies.reduce((sum, p) => sum + (p.total_premiums_paid || 0), 0);
+    setTotalInvestments(p2pTotal + savingsTotal + insuranceTotal);
   };
 
   useEffect(() => { loadData(); }, []);
@@ -69,19 +77,19 @@ export default function Dashboard() {
   }, []);
 
   const activeLoan = loans.find(l => l.status === 'active' || l.status === 'disbursed');
-  const totalSavings = savings.reduce((sum, s) => sum + (s.current_balance || 0), 0);
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   const QUICK_ACTIONS = [
     { icon: CreditCard, label: 'Apply Loan', path: '/loans/apply', color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' },
-    { icon: PiggyBank, label: 'Save', path: '/savings', color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300' },
-    { icon: Wallet, label: 'Budget', path: '/budget', color: 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300' },
+    { icon: Wallet, label: 'Save', path: '/savings', color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300' },
+    { icon: Target, label: 'Budget', path: '/budget', color: 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300' },
     { icon: Shield, label: 'Insure', path: '/insurance', color: 'bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-300' },
     { icon: TrendingDown, label: 'Debt', path: '/debt-payoff', color: 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300' },
     { icon: Users, label: 'Groups', path: '/savings-groups', color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300' },
     { icon: Activity, label: 'Health', path: '/financial-health', color: 'bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300' },
     { icon: Target, label: 'Goals', path: '/savings-goals', color: 'bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-300' },
+    { icon: Handshake, label: 'P2P', path: '/p2p', color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300' },
   ];
 
   return (
@@ -161,11 +169,11 @@ export default function Dashboard() {
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl flex items-center justify-center">
-                <PiggyBank className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Savings</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Investments</span>
             </div>
-            <p className="text-xl font-bold text-gray-900 dark:text-white">UGX {(totalSavings / 1000).toFixed(0)}K</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">UGX {(totalInvestments / 1000).toFixed(0)}K</p>
             <p className="text-xs text-emerald-500 flex items-center gap-0.5 mt-1">
               <ArrowUpRight className="w-3 h-3" /> {savings.length} pockets
             </p>
@@ -264,7 +272,7 @@ export default function Dashboard() {
           {savings.length === 0 ? (
             <Link to="/savings">
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 shadow-sm">
-                <PiggyBank className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                <Vault className="w-8 h-8 text-gray-300 mx-auto mb-2" />
                 <p className="text-sm text-gray-400 dark:text-gray-500">Create your first savings pocket</p>
               </div>
             </Link>

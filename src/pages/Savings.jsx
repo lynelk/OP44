@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PiggyBank, Plus, Target, Zap, History, Users, X, RefreshCw } from 'lucide-react';
+import { Vault, Plus, Target, Zap, History, Users, X, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AutoSaveManager from '@/components/savings/AutoSaveManager';
 import AutoSaveHistory from '@/components/savings/AutoSaveHistory';
@@ -170,7 +170,7 @@ export default function Savings() {
 
         {pockets.length === 0 ? (
           <div className="text-center py-20 text-gray-400">
-            <PiggyBank className="w-12 h-12 mx-auto mb-3 opacity-20" />
+            <Vault className="w-12 h-12 mx-auto mb-3 opacity-20" />
             <p className="font-medium text-gray-500 dark:text-gray-400">No savings pockets yet</p>
             <p className="text-sm mt-1">Create a pocket to start saving toward a goal</p>
           </div>

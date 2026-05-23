@@ -16,6 +16,8 @@ const MODULES = [
   { path: '/admin/submissions', icon: FileText, label: 'Data Submissions', desc: 'Regulatory & CRB reports', color: 'bg-red-500' },
   { path: '/admin/loans', icon: BarChart2, label: 'Loan Management', desc: 'Review & approve loans', color: 'bg-indigo-500' },
   { path: '/admin/p2p', icon: TrendingUp, label: 'P2P Lending Engine', desc: 'Marketplace, profiles & revenue', color: 'bg-teal-600' },
+  { path: '/admin/reports', icon: BarChart3, label: 'Reports', desc: 'Download, filter & email reports', color: 'bg-rose-500' },
+  { path: '/admin/portfolios', icon: Activity, label: 'Lender Portfolios', desc: 'Track individual lender returns', color: 'bg-cyan-600' },
 ];
 
 const COLORS = ['#1a3a6b', '#f97316', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];

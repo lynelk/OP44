@@ -52,6 +52,8 @@ import P2PDashboard from './pages/P2PDashboard';
 import P2PApply from './pages/P2PApply';
 import P2PMarketplace from './pages/P2PMarketplace';
 import AdminP2P from './pages/admin/AdminP2P';
+import AdminReports from './pages/admin/AdminReports';
+import AdminPortfolios from './pages/admin/AdminPortfolios';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import DataRights from './pages/DataRights';
@@ -163,6 +165,8 @@ const AuthenticatedApp = () => {
       <Route path="/p2p/apply" element={<P2PApply />} />
       <Route path="/p2p/marketplace" element={<P2PMarketplace />} />
       <Route path="/admin/p2p" element={<AdminP2P />} />
+      <Route path="/admin/reports" element={<AdminReports />} />
+      <Route path="/admin/portfolios" element={<AdminPortfolios />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
