@@ -108,4 +108,12 @@
   /* Scrollbar hide */
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Disable text selection on interactive elements for native feel */
+  button, a, [role="button"], nav, label,
+  .select-none-interactive {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }

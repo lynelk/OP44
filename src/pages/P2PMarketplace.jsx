@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Filter, TrendingUp, Shield, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, Filter, TrendingUp, Shield, Clock, AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -24,16 +24,36 @@ export default function P2PMarketplace() {
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('all');
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const scrollRef = useRef(null);
+  const pullStartY = useRef(0);
 
   const load = async () => {
     setLoading(true);
-    // For demo, fetch all awaiting_funding loans (admin sees all, users see listed ones)
     const res = await base44.asServiceRole?.entities?.P2PLoan?.filter({ status: 'awaiting_funding' }).catch(() => []);
     setLoans(res || []);
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
+
+  // Pull to refresh
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onTouchStart = (e) => { pullStartY.current = e.touches[0].clientY; };
+    const onTouchEnd = async (e) => {
+      const delta = e.changedTouches[0].clientY - pullStartY.current;
+      if (delta > 80 && el.scrollTop === 0) {
+        setIsRefreshing(true);
+        await load();
+        setTimeout(() => setIsRefreshing(false), 600);
+      }
+    };
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => { el.removeEventListener('touchstart', onTouchStart); el.removeEventListener('touchend', onTouchEnd); };
+  }, []);
 
   const filtered = filter === 'all' ? loans : loans.filter(l => l.risk_band === filter);
 
@@ -52,7 +72,14 @@ export default function P2PMarketplace() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-10 font-sans">
+    <div ref={scrollRef} className="min-h-screen bg-gray-50 pb-10 font-sans overflow-y-auto">
+      {isRefreshing && (
+        <div className="flex justify-center pt-4 pb-2">
+          <div className="flex items-center gap-2 bg-white rounded-full px-4 py-2 shadow-lg text-sm text-gray-600">
+            <RefreshCw className="w-4 h-4 animate-spin text-blue-500" /> Refreshing...
+          </div>
+        </div>
+      )}
       <div className="bg-gradient-to-br from-[#0f2a55] to-[#1e4480] text-white px-5 pt-12 pb-6">
         <button onClick={() => navigate('/p2p')} className="flex items-center gap-1 text-blue-300 text-sm mb-3">
           <ChevronLeft className="w-4 h-4" /> Back

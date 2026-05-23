@@ -1,7 +1,8 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -49,8 +50,44 @@ import P2PApply from './pages/P2PApply';
 import P2PMarketplace from './pages/P2PMarketplace';
 import AdminP2P from './pages/admin/AdminP2P';
 
+// Root paths get a fade transition; child paths slide in from the right
+const ROOT_PATHS = ['/', '/loans', '/savings', '/budget', '/profile', '/credit-score', '/invest', '/insurance', '/financial-health', '/notifications', '/p2p', '/savings-goals', '/savings-groups', '/savings-challenges', '/debt-payoff'];
+
+const slideVariants = {
+  initial: { opacity: 0, x: '100%' },
+  animate: { opacity: 1, x: 0, transition: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] } },
+  exit: { opacity: 0, x: '-30%', transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } },
+};
+
+const fadeVariants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0, transition: { duration: 0.15 } },
+};
+
+function AnimatedRoutes({ children }) {
+  const location = useLocation();
+  const isRoot = ROOT_PATHS.includes(location.pathname);
+  const variants = isRoot ? fadeVariants : slideVariants;
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={location.pathname}
+        variants={variants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        style={{ position: 'relative', width: '100%', overflowX: 'hidden' }}
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const location = useLocation();
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -76,7 +113,8 @@ const AuthenticatedApp = () => {
   return (
     <>
     <MobileHeader />
-    <Routes>
+    <AnimatedRoutes>
+    <Routes location={location}>
       {/* Add your page Route elements here */}
       <Route path="/" element={<><Dashboard /><BottomNav /></>} />
       <Route path="/loans" element={<><Loans /><BottomNav /></>} />
@@ -120,6 +158,7 @@ const AuthenticatedApp = () => {
       <Route path="/loans/pre-qualify" element={<><LoanPreQualify /><BottomNav /></>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    </AnimatedRoutes>
     </>
   );
 };

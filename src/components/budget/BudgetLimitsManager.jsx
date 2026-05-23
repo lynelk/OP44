@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Bell, Plus, Trash2 } from 'lucide-react';
 
 const CATEGORIES = ['food', 'transport', 'housing', 'health', 'education', 'entertainment', 'utilities', 'clothing'];
@@ -68,12 +69,14 @@ export default function BudgetLimitsManager({ userId, expenses }) {
       <CardContent className="space-y-3">
         {showAdd && (
           <div className="bg-orange-50 rounded-xl p-3 space-y-2">
-            <select
-              className="w-full h-9 rounded-md border border-input px-3 text-sm"
-              value={newCat}
-              onChange={e => setNewCat(e.target.value)}>
-              {CATEGORIES.map(c => <option key={c} value={c}>{c.replace('_', ' ')}</option>)}
-            </select>
+            <Select value={newCat} onValueChange={setNewCat}>
+              <SelectTrigger className="h-9 rounded-md bg-white text-sm">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map(c => <SelectItem key={c} value={c}>{c.replace('_', ' ')}</SelectItem>)}
+              </SelectContent>
+            </Select>
             <Input type="number" placeholder="Monthly limit (UGX)" value={newLimit} onChange={e => setNewLimit(e.target.value)} className="text-sm" />
             <Button size="sm" className="w-full bg-[#1a3a6b] text-white text-xs" onClick={handleAdd} disabled={saving}>
               {saving ? 'Saving...' : 'Add Alert'}
@@ -101,8 +104,11 @@ export default function BudgetLimitsManager({ userId, expenses }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-500">UGX {spent.toLocaleString()} / {budget.monthly_limit.toLocaleString()}</span>
-                  <button onClick={() => handleDelete(budget.id)}>
-                    <Trash2 className="w-3 h-3 text-gray-300 hover:text-red-400" />
+                  <button
+                    onClick={() => handleDelete(budget.id)}
+                    className="flex items-center justify-center min-w-[44px] min-h-[44px]"
+                  >
+                    <Trash2 className="w-4 h-4 text-gray-300 hover:text-red-400" />
                   </button>
                 </div>
               </div>

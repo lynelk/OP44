@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, CreditCard, Wallet, Users, User } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -11,10 +11,16 @@ const NAV_ITEMS = [
 
 export default function BottomNav() {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const handleClick = (path) => {
+  const handleClick = (e, path) => {
     if (location.pathname === path) {
+      // Already on root path — scroll to top
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (location.pathname.startsWith(path + '/')) {
+      // On a sub-path — navigate to root path
+      e.preventDefault();
+      navigate(path);
     }
   };
 
@@ -24,13 +30,13 @@ export default function BottomNav() {
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 4px)', paddingTop: '8px' }}
     >
       {NAV_ITEMS.map(({ path, icon: Icon, label }) => {
-        const active = location.pathname === path;
+        const active = location.pathname === path || (path !== '/' && location.pathname.startsWith(path + '/'));
         return (
           <Link
             key={path}
             to={path}
-            onClick={() => handleClick(path)}
-            className={`flex flex-col items-center gap-0.5 min-w-[52px] min-h-[44px] justify-center rounded-xl transition-all duration-150 ${
+            onClick={(e) => handleClick(e, path)}
+            className={`flex flex-col items-center gap-0.5 min-w-[52px] min-h-[44px] justify-center rounded-xl transition-all duration-150 select-none ${
               active ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
             }`}
           >

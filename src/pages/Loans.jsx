@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { CreditCard, FileText, ArrowUpCircle, TrendingDown, Zap, ChevronRight, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Banknote, RefreshCw, CalendarClock, Phone } from 'lucide-react';
+
 import LoanApplicationWizard from '@/components/loans/LoanApplicationWizard';
 import LoanRescheduleModal from '@/components/loans/LoanRescheduleModal';
 
@@ -23,6 +24,9 @@ export default function Loans() {
   const [rescheduleLoan, setRescheduleLoan] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const scrollRef = useRef(null);
+  const pullStartY = useRef(0);
 
   const load = async () => {
     const u = await base44.auth.me();
@@ -34,12 +38,37 @@ export default function Loans() {
 
   useEffect(() => { load(); }, []);
 
+  // Pull to refresh
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onTouchStart = (e) => { pullStartY.current = e.touches[0].clientY; };
+    const onTouchEnd = async (e) => {
+      const delta = e.changedTouches[0].clientY - pullStartY.current;
+      if (delta > 80 && el.scrollTop === 0) {
+        setIsRefreshing(true);
+        await load();
+        setTimeout(() => setIsRefreshing(false), 600);
+      }
+    };
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => { el.removeEventListener('touchstart', onTouchStart); el.removeEventListener('touchend', onTouchEnd); };
+  }, []);
+
   const activeLoans = loans.filter(l => ['active', 'disbursed'].includes(l.status));
   const totalOutstanding = activeLoans.reduce((s, l) => s + (l.outstanding_balance || 0), 0);
   const pendingLoans = loans.filter(l => ['submitted', 'under_review', 'approved'].includes(l.status));
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-28 font-sans">
+    <div ref={scrollRef} className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-28 font-sans overflow-y-auto">
+      {isRefreshing && (
+        <div className="flex justify-center pt-4 pb-2">
+          <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-full px-4 py-2 shadow-lg text-sm text-gray-600 dark:text-gray-300">
+            <RefreshCw className="w-4 h-4 animate-spin text-blue-500" /> Refreshing...
+          </div>
+        </div>
+      )}
       {/* Hero Header */}
       <div className="bg-gradient-to-br from-[#0f2a55] via-[#1a3a6b] to-[#1e4480] text-white px-5 pt-14 pb-6">
         <div className="flex items-center justify-between mb-4">

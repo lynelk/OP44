@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PiggyBank, Plus, Target, Zap, History, Users, X } from 'lucide-react';
+import { PiggyBank, Plus, Target, Zap, History, Users, X, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AutoSaveManager from '@/components/savings/AutoSaveManager';
 import AutoSaveHistory from '@/components/savings/AutoSaveHistory';
@@ -22,12 +22,35 @@ export default function Savings() {
   const [depositAmount, setDepositAmount] = useState({});
   const [saving, setSaving] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const scrollRef = useRef(null);
+  const pullStartY = useRef(0);
 
+  const loadData = async () => {
+    const u = await base44.auth.me();
+    setUser(u);
+    const data = await base44.entities.SavingsPocket.filter({});
+    setPockets(data);
+  };
+
+  useEffect(() => { loadData(); }, []);
+
+  // Pull to refresh
   useEffect(() => {
-    base44.auth.me().then(u => {
-      setUser(u);
-      base44.entities.SavingsPocket.filter({}).then(setPockets);
-    });
+    const el = scrollRef.current;
+    if (!el) return;
+    const onTouchStart = (e) => { pullStartY.current = e.touches[0].clientY; };
+    const onTouchEnd = async (e) => {
+      const delta = e.changedTouches[0].clientY - pullStartY.current;
+      if (delta > 80 && el.scrollTop === 0) {
+        setIsRefreshing(true);
+        await loadData();
+        setTimeout(() => setIsRefreshing(false), 600);
+      }
+    };
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => { el.removeEventListener('touchstart', onTouchStart); el.removeEventListener('touchend', onTouchEnd); };
   }, []);
 
   const handleCreate = async () => {
@@ -57,7 +80,14 @@ export default function Savings() {
   const totalSavings = pockets.reduce((sum, p) => sum + (p.current_balance || 0), 0);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-32">
+    <div ref={scrollRef} className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-32 overflow-y-auto">
+      {isRefreshing && (
+        <div className="flex justify-center pt-4 pb-2">
+          <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-full px-4 py-2 shadow-lg text-sm text-gray-600 dark:text-gray-300">
+            <RefreshCw className="w-4 h-4 animate-spin text-emerald-500" /> Refreshing...
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="bg-gradient-to-br from-[#0f2952] via-[#1a3a6b] to-[#1e4d8c] text-white px-5 pt-14 pb-8">
         <div className="flex items-center justify-between mb-1">
