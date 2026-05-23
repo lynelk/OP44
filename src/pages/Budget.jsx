@@ -7,6 +7,7 @@ import { PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer, Legen
 import { Link } from 'react-router-dom';
 import BudgetLimitsManager from '@/components/budget/BudgetLimitsManager';
 import ReceiptScanner from '@/components/budget/ReceiptScanner';
+import BudgetForecast from '@/components/budget/BudgetForecast';
 
 const CATEGORIES = ['food','transport','housing','health','education','entertainment','utilities','clothing','savings','loan_repayment','other'];
 const CATEGORY_COLORS = {
@@ -108,6 +109,9 @@ export default function Budget() {
         )}
 
         {user && <BudgetLimitsManager userId={user.id} expenses={expenses} />}
+
+        {/* AI Budget Forecast */}
+        <BudgetForecast />
 
         {byCategory.length > 0 && (
           <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 shadow-sm">

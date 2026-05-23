@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { TrendingDown, Zap, Target, AlertCircle, CheckCircle2, ArrowRight, PiggyBank } from 'lucide-react';
+import { TrendingDown, Zap, Target, AlertCircle, CheckCircle2, ArrowRight, PiggyBank, Trophy } from 'lucide-react';
+import MilestoneCelebration from '@/components/debt/MilestoneCelebration';
+import { useRef } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export default function DebtPayoff() {
@@ -14,6 +16,8 @@ export default function DebtPayoff() {
   const [loading, setLoading] = useState(false);
   const [redirecting, setRedirecting] = useState(null);
   const [redirectAmount, setRedirectAmount] = useState({});
+  const [milestone, setMilestone] = useState(null);
+  const prevTotalDebt = useRef(null);
 
   const fetchPlan = async (meth = method, extra = extraPayment) => {
     setLoading(true);
@@ -21,7 +25,22 @@ export default function DebtPayoff() {
       method: meth,
       extra_monthly_payment: extra ? parseFloat(extra) : 0,
     });
-    setPlan(res.data);
+    const newPlan = res.data;
+    // Check for milestones
+    if (newPlan && prevTotalDebt.current !== null) {
+      const prev = prevTotalDebt.current;
+      const curr = newPlan.total_debt || 0;
+      const pctPaid = prev > 0 ? ((prev - curr) / prev) * 100 : 0;
+      if (curr === 0) {
+        setMilestone({ emoji: '🎉', title: 'Completely Debt Free!', description: 'You\'ve paid off all your debts. Incredible!', badge: '🏆 Debt Slayer Badge' });
+      } else if (pctPaid >= 50) {
+        setMilestone({ emoji: '🏅', title: 'Halfway There!', description: 'You\'ve cleared over 50% of your debt!', badge: '⚡ Halfway Hero Badge' });
+      } else if (pctPaid >= 25) {
+        setMilestone({ emoji: '🎯', title: '25% Down!', description: 'A quarter of your debt is gone. Keep going!', badge: '✨ Momentum Builder Badge' });
+      }
+    }
+    if (newPlan) prevTotalDebt.current = newPlan.total_debt || 0;
+    setPlan(newPlan);
     setLoading(false);
   };
 
@@ -37,6 +56,7 @@ export default function DebtPayoff() {
       target_loan_id: loanId,
     });
     if (res.data?.redirect_result?.success) {
+      setMilestone({ emoji: '💸', title: 'Payment Made!', description: `UGX ${amt.toLocaleString()} redirected toward debt payoff!`, badge: '🎯 Power Payer Badge' });
       await fetchPlan();
     }
     setRedirecting(null);
@@ -48,6 +68,7 @@ export default function DebtPayoff() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
+      <MilestoneCelebration milestone={milestone} onDismiss={() => setMilestone(null)} />
       <div className="bg-[#1a3a6b] text-white px-4 pt-10 pb-6">
         <h1 className="text-2xl font-bold mb-1">Debt Payoff Manager</h1>
         <p className="text-blue-200 text-sm">Become debt-free faster with smart strategies</p>

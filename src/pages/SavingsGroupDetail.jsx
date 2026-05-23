@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Users, ArrowLeft, Copy, CheckCheck, PiggyBank, Receipt, LogOut, Crown } from 'lucide-react';
+import { Users, ArrowLeft, Copy, CheckCheck, PiggyBank, Receipt, LogOut, Crown, Trophy } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
+import GroupLeaderboard from '@/components/groups/GroupLeaderboard';
 
 export default function SavingsGroupDetail() {
   const { groupId } = useParams();
@@ -13,7 +14,7 @@ export default function SavingsGroupDetail() {
   const [group, setGroup] = useState(null);
   const [members, setMembers] = useState([]);
   const [contributions, setContributions] = useState([]);
-  const [tab, setTab] = useState('ledger');
+  const [tab, setTab] = useState('leaderboard');
   const [depositAmt, setDepositAmt] = useState('');
   const [depositNote, setDepositNote] = useState('');
   const [contributing, setContributing] = useState(false);
@@ -134,16 +135,26 @@ export default function SavingsGroupDetail() {
       )}
 
       {/* Tabs */}
-      <div className="flex border-b bg-white px-4 mt-4">
-        {['ledger', 'members'].map(t => (
+      <div className="flex border-b bg-white px-4 mt-4 overflow-x-auto scrollbar-hide">
+        {['leaderboard', 'ledger', 'members'].map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className={`flex-1 py-3 text-sm font-medium capitalize border-b-2 transition-colors ${tab === t ? 'border-[#1a3a6b] text-[#1a3a6b]' : 'border-transparent text-gray-500'}`}>
-            {t === 'ledger' ? `📋 Ledger (${contributions.length})` : `👥 Members (${members.length})`}
+            className={`flex-shrink-0 px-3 py-3 text-sm font-medium border-b-2 transition-colors ${tab === t ? 'border-[#1a3a6b] text-[#1a3a6b]' : 'border-transparent text-gray-500'}`}>
+            {t === 'leaderboard' ? `🏆 Leaderboard` : t === 'ledger' ? `📋 Ledger (${contributions.length})` : `👥 Members (${members.length})`}
           </button>
         ))}
       </div>
 
       <div className="px-4 mt-3 space-y-2">
+        {/* Leaderboard */}
+        {tab === 'leaderboard' && (
+          <GroupLeaderboard
+            members={members}
+            contributions={contributions}
+            currentUserId={user?.id}
+            groupTarget={group?.target_amount || 0}
+          />
+        )}
+
         {/* Ledger */}
         {tab === 'ledger' && (
           contributions.length === 0 ? (
