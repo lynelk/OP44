@@ -29,7 +29,7 @@ export default function Savings() {
   const loadData = async () => {
     const u = await base44.auth.me();
     setUser(u);
-    const data = await base44.entities.SavingsPocket.filter({});
+    const data = await base44.entities.SavingsPocket.filter({ user_id: u.id });
     setPockets(data);
   };
 

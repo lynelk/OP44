@@ -104,11 +104,15 @@ export const syncManager = {
   },
 
   async _pullAll() {
-    // Pull in batches to avoid overloading
-    const BATCH_SIZE = 5;
+    // Pull in small batches with a gap to stay well under rate limits
+    const BATCH_SIZE = 3;
+    const BATCH_DELAY_MS = 300;
     for (let i = 0; i < SYNC_ENTITIES.length; i += BATCH_SIZE) {
       const batch = SYNC_ENTITIES.slice(i, i + BATCH_SIZE);
       await Promise.all(batch.map(e => this._pullEntity(e)));
+      if (i + BATCH_SIZE < SYNC_ENTITIES.length) {
+        await new Promise(r => setTimeout(r, BATCH_DELAY_MS));
+      }
     }
   },
 

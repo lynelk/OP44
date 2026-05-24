@@ -82,8 +82,8 @@ Deno.serve(async (req) => {
               await base44.asServiceRole.entities.Notification.create({
                 user_id: userId,
                 title: '💰 Savings Circle Reminder',
-                message: `Don't forget your monthly contribution to "${g.name}"! Due by end of month.`,
-                type: 'savings_reminder',
+                body: `Don't forget your monthly contribution to "${g.name}"! Due by end of month.`,
+                type: 'rosca_contribution',
                 is_read: false,
                 action_url: `/savings-groups/${g.id}`,
               });
@@ -104,16 +104,16 @@ Deno.serve(async (req) => {
             await base44.asServiceRole.entities.Notification.create({
               user_id: userId,
               title: `🚨 Budget Exceeded: ${budget.category.replace('_', ' ')}`,
-              message: `You've spent UGX ${totalSpent.toLocaleString()} — ${Math.round(pct)}% of your ${budget.category.replace('_', ' ')} budget (UGX ${budget.monthly_limit.toLocaleString()}).`,
-              type: 'budget_alert', is_read: false, action_url: '/budget',
+              body: `You've spent UGX ${totalSpent.toLocaleString()} — ${Math.round(pct)}% of your ${budget.category.replace('_', ' ')} budget (UGX ${budget.monthly_limit.toLocaleString()}).`,
+              type: 'nudge', is_read: false, action_url: '/budget',
             });
             notificationsSent++;
           } else if (pct >= threshold) {
             await base44.asServiceRole.entities.Notification.create({
               user_id: userId,
               title: `⚠️ Budget Warning: ${budget.category.replace('_', ' ')}`,
-              message: `You've used ${Math.round(pct)}% of your ${budget.category.replace('_', ' ')} budget this month. UGX ${(budget.monthly_limit - totalSpent).toLocaleString()} remaining.`,
-              type: 'budget_warning', is_read: false, action_url: '/budget',
+              body: `You've used ${Math.round(pct)}% of your ${budget.category.replace('_', ' ')} budget this month. UGX ${(budget.monthly_limit - totalSpent).toLocaleString()} remaining.`,
+              type: 'nudge', is_read: false, action_url: '/budget',
             });
             notificationsSent++;
           }
@@ -127,8 +127,8 @@ Deno.serve(async (req) => {
             await base44.asServiceRole.entities.Notification.create({
               user_id: userId,
               title: '📊 Weekly Debt Payoff Check-in',
-              message: `You have ${activeLoans.length} active loan(s) with UGX ${totalOutstanding.toLocaleString()} outstanding. Check your debt payoff strategy!`,
-              type: 'debt_reminder', is_read: false, action_url: '/debt-payoff',
+              body: `You have ${activeLoans.length} active loan(s) with UGX ${totalOutstanding.toLocaleString()} outstanding. Check your debt payoff strategy!`,
+              type: 'nudge', is_read: false, action_url: '/debt-payoff',
             });
             notificationsSent++;
           }

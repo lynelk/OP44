@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { TrendingUp, Wallet, ShieldCheck, Star, Plus, ArrowRight, RefreshCw, AlertTriangle, CheckCircle2, Clock, Banknote, Users, BarChart3, Bell } from 'lucide-react';
 import LenderAlertPreferences from '@/components/p2p/LenderAlertPreferences';
 import { Button } from '@/components/ui/button';
-import BottomNav from '@/components/BottomNav';
+
 
 const TIER_CONFIG = {
   platinum: { color: 'bg-slate-800', text: 'text-white', label: 'Platinum', emoji: '💎' },
@@ -61,7 +61,6 @@ export default function P2PDashboard() {
       <Button onClick={() => navigate('/p2p/onboarding')} className="bg-[#006B3C] hover:bg-[#005530] gap-2">
         Get Started <ArrowRight className="w-4 h-4" />
       </Button>
-      <BottomNav />
     </div>
   );
 
@@ -383,7 +382,6 @@ export default function P2PDashboard() {
           </div>
         )}
       </div>
-      <BottomNav />
     </div>
   );
 }

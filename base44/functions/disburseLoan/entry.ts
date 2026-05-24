@@ -28,8 +28,8 @@ Deno.serve(async (req) => {
     await base44.asServiceRole.entities.Notification.create({
       user_id: loan.user_id,
       title: '🎉 Loan Approved!',
-      message: `Your loan of UGX ${loan.amount_requested?.toLocaleString()} has been approved! Disbursement is being processed.`,
-      type: 'loan',
+      body: `Your loan of UGX ${loan.amount_requested?.toLocaleString()} has been approved! Disbursement is being processed.`,
+      type: 'loan_approved',
       is_read: false,
     });
     return Response.json({ success: true, message: 'Loan approved' });
@@ -43,8 +43,8 @@ Deno.serve(async (req) => {
     await base44.asServiceRole.entities.Notification.create({
       user_id: loan.user_id,
       title: 'Loan Application Update',
-      message: `Your loan application was not approved at this time. ${rejection_reason || 'Please improve your credit score and try again.'}`,
-      type: 'loan',
+      body: `Your loan application was not approved at this time. ${rejection_reason || 'Please improve your credit score and try again.'}`,
+      type: 'loan_rejected',
       is_read: false,
     });
     return Response.json({ success: true, message: 'Loan rejected' });
@@ -90,10 +90,11 @@ Deno.serve(async (req) => {
     const insuranceCost = amount * 0.01;
     const netDisbursement = amount - disbursementFee - insuranceCost;
 
-    const totalRepayable = r === 0
-      ? amount
-      : amount * (r * Math.pow(1 + r, tenure)) / (Math.pow(1 + r, tenure) - 1) * tenure;
-    const monthly = totalRepayable / tenure;
+    // Proper amortization formula: M = P*r*(1+r)^n / ((1+r)^n - 1)
+    const monthly = r === 0
+      ? amount / tenure
+      : (amount * r * Math.pow(1 + r, tenure)) / (Math.pow(1 + r, tenure) - 1);
+    const totalRepayable = monthly * tenure;
 
     // Repayment schedule
     const repaymentSchedule = [];
@@ -131,8 +132,8 @@ Deno.serve(async (req) => {
     await base44.asServiceRole.entities.Notification.create({
       user_id: loan.user_id,
       title: '💸 Loan Disbursed!',
-      message: `UGX ${netDisbursement?.toLocaleString()} has been sent to your mobile money account. First repayment of UGX ${Math.round(monthly)?.toLocaleString()} due ${nextRepayDate.toLocaleDateString()}.${feeDiscount > 0 ? ` Loyalty discount of UGX ${feeDiscount.toLocaleString()} applied!` : ''}`,
-      type: 'loan',
+      body: `UGX ${netDisbursement?.toLocaleString()} has been sent to your mobile money account. First repayment of UGX ${Math.round(monthly)?.toLocaleString()} due ${nextRepayDate.toLocaleDateString()}.${feeDiscount > 0 ? ` Loyalty discount of UGX ${feeDiscount.toLocaleString()} applied!` : ''}`,
+      type: 'loan_approved',
       is_read: false,
     });
 

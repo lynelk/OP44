@@ -52,14 +52,17 @@ Deno.serve(async (req) => {
       const { referral_code } = body;
       if (!referral_code) return Response.json({ error: 'referral_code required' }, { status: 400 });
 
-      // Find referrer profile
-      const allProfiles = await base44.asServiceRole.entities.UserProfile.filter({});
-      const referrerProfile = allProfiles.find(p => p.referral_code === referral_code);
+      // Find referrer profile by referral_code (scoped query)
+      const [referrerProfiles, myProfiles] = await Promise.all([
+        base44.asServiceRole.entities.UserProfile.filter({ referral_code }),
+        base44.entities.UserProfile.filter({ user_id: user.id }),
+      ]);
+      const referrerProfile = referrerProfiles[0];
       if (!referrerProfile) return Response.json({ error: 'Invalid referral code' }, { status: 404 });
       if (referrerProfile.user_id === user.id) return Response.json({ error: 'Cannot refer yourself' }, { status: 400 });
 
       // Check not already registered
-      const myProfile = allProfiles.find(p => p.user_id === user.id);
+      const myProfile = myProfiles[0];
       if (myProfile?.referred_by) return Response.json({ error: 'Already registered via referral' }, { status: 400 });
 
       // Mark invitee's profile with referred_by
@@ -90,9 +93,12 @@ Deno.serve(async (req) => {
       if (!events.length) return Response.json({ success: true, message: 'No pending referral to award' });
 
       const event = events[0];
-      const allProfiles = await base44.asServiceRole.entities.UserProfile.filter({});
-      const referrerProfile = allProfiles.find(p => p.user_id === event.referrer_id);
-      const inviteeProfile = allProfiles.find(p => p.user_id === borrower_user_id);
+      const [referrerProfiles2, inviteeProfiles2] = await Promise.all([
+        base44.asServiceRole.entities.UserProfile.filter({ user_id: event.referrer_id }),
+        base44.asServiceRole.entities.UserProfile.filter({ user_id: borrower_user_id }),
+      ]);
+      const referrerProfile = referrerProfiles2[0];
+      const inviteeProfile = inviteeProfiles2[0];
 
       const now = new Date().toISOString();
 
@@ -105,8 +111,8 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.Notification.create({
           user_id: event.referrer_id,
           title: '🎉 Referral Reward Earned!',
-          message: `Your referral completed their first rental payment. You've earned ${REFERRER_POINTS} loyalty points!`,
-          type: 'reward',
+          body: `Your referral completed their first rental payment. You've earned ${REFERRER_POINTS} loyalty points!`,
+          type: 'gamification',
           is_read: false,
         });
       }
@@ -119,8 +125,8 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.Notification.create({
           user_id: borrower_user_id,
           title: '🎁 Welcome Bonus Points!',
-          message: `You've received ${INVITEE_POINTS} loyalty points for completing your first rental payment. Use them to reduce fees!`,
-          type: 'reward',
+          body: `You've received ${INVITEE_POINTS} loyalty points for completing your first rental payment. Use them to reduce fees!`,
+          type: 'gamification',
           is_read: false,
         });
       }
@@ -145,9 +151,12 @@ Deno.serve(async (req) => {
       if (!events.length) return Response.json({ success: true, message: 'No pending referral to award' });
 
       const event = events[0];
-      const allProfiles = await base44.asServiceRole.entities.UserProfile.filter({});
-      const referrerProfile = allProfiles.find(p => p.user_id === event.referrer_id);
-      const inviteeProfile = allProfiles.find(p => p.user_id === borrower_user_id);
+      const [referrerProfiles3, inviteeProfiles3] = await Promise.all([
+        base44.asServiceRole.entities.UserProfile.filter({ user_id: event.referrer_id }),
+        base44.asServiceRole.entities.UserProfile.filter({ user_id: borrower_user_id }),
+      ]);
+      const referrerProfile = referrerProfiles3[0];
+      const inviteeProfile = inviteeProfiles3[0];
 
       const now = new Date().toISOString();
 
@@ -160,8 +169,8 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.Notification.create({
           user_id: event.referrer_id,
           title: '🎉 Referral Reward Earned!',
-          message: `Your referral received their first loan disbursement. You've earned ${REFERRER_POINTS} loyalty points!`,
-          type: 'reward',
+          body: `Your referral received their first loan disbursement. You've earned ${REFERRER_POINTS} loyalty points!`,
+          type: 'gamification',
           is_read: false,
         });
       }
@@ -174,8 +183,8 @@ Deno.serve(async (req) => {
         await base44.asServiceRole.entities.Notification.create({
           user_id: borrower_user_id,
           title: '🎁 Welcome Bonus Points!',
-          message: `You've received ${INVITEE_POINTS} loyalty points as a referral bonus. Use them to reduce loan fees!`,
-          type: 'reward',
+          body: `You've received ${INVITEE_POINTS} loyalty points as a referral bonus. Use them to reduce loan fees!`,
+          type: 'gamification',
           is_read: false,
         });
       }
