@@ -1,0 +1,71 @@
+{
+  "name": "UserAsset",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "description": "Asset name (e.g., 'Land Plot in Kampala', 'Toyota Corolla 2020')"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "real_estate",
+        "vehicle",
+        "external_cash",
+        "jewelry",
+        "electronics",
+        "livestock",
+        "business_equipment",
+        "other"
+      ],
+      "description": "Category of asset"
+    },
+    "current_value": {
+      "type": "number",
+      "description": "Current estimated value in UGX"
+    },
+    "original_value": {
+      "type": "number",
+      "description": "Original purchase value in UGX"
+    },
+    "purchase_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of acquisition"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Additional details about the asset"
+    },
+    "is_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether supporting documents have been uploaded"
+    },
+    "verification_document_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs of uploaded verification documents (titles, receipts, etc.)"
+    },
+    "location": {
+      "type": "string",
+      "description": "Physical location (e.g., district, address)"
+    },
+    "last_updated_date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "name",
+    "type",
+    "current_value"
+  ]
+}

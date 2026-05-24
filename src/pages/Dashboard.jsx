@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import ReferralCard from '@/components/referral/ReferralCard';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity, Handshake, Vault } from 'lucide-react';
+import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity, Handshake, Vault, PieChart } from 'lucide-react';
 import MilestoneProgress from '@/components/milestones/MilestoneProgress';
 import ChallengesBoard from '@/components/dashboard/ChallengesBoard';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
@@ -83,6 +83,11 @@ export default function Dashboard() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
+  const formatCurrency = (amount) => {
+    if (!amount) return 'UGX 0';
+    return `UGX ${amount.toLocaleString('en-UG')}`;
+  };
+
   const QUICK_ACTIONS = [
     { icon: CreditCard, label: 'Apply Loan', path: '/loans/apply', color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' },
     { icon: Wallet, label: 'Save', path: '/savings', color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300' },
@@ -92,6 +97,7 @@ export default function Dashboard() {
     { icon: Users, label: 'Groups', path: '/savings-groups', color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300' },
     { icon: Activity, label: 'Health', path: '/financial-health', color: 'bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300' },
     { icon: Handshake, label: 'P2P', path: '/p2p', color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300' },
+    { icon: PieChart, label: 'Net Worth', path: '/net-worth', color: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-900/40 dark:text-cyan-300' },
   ];
 
   return (
@@ -151,7 +157,7 @@ export default function Dashboard() {
                 <p className="text-green-200 text-xs mb-1 font-medium">Available Credit</p>
                 <p className="text-2xl font-bold">
                   {creditScore?.max_loan_limit
-                    ? `UGX ${(creditScore.max_loan_limit / 1000).toFixed(0)}K`
+                    ? formatCurrency(creditScore.max_loan_limit)
                     : 'N/A'}
                 </p>
                 <Link to="/loans/apply" onClick={e => e.stopPropagation()}>
@@ -175,7 +181,7 @@ export default function Dashboard() {
               </div>
               <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Investments</span>
             </div>
-            <p className="text-xl font-bold text-gray-900 dark:text-white">UGX {(totalInvestments / 1000).toFixed(0)}K</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-white">{formatCurrency(totalInvestments)}</p>
             <p className="text-xs text-emerald-500 flex items-center gap-0.5 mt-1">
               <ArrowUpRight className="w-3 h-3" /> {savings.length} pockets
             </p>
@@ -191,7 +197,7 @@ export default function Dashboard() {
             {activeLoan ? (
               <>
                 <p className="text-xl font-bold text-gray-900 dark:text-white">
-                  UGX {((activeLoan.outstanding_balance || activeLoan.amount_approved || 0) / 1000).toFixed(0)}K
+                  {formatCurrency(activeLoan.outstanding_balance || activeLoan.amount_approved || 0)}
                 </p>
                 <p className="text-xs text-orange-500 flex items-center gap-0.5 mt-1">
                   <ArrowDownRight className="w-3 h-3" /> Outstanding
@@ -289,11 +295,11 @@ export default function Dashboard() {
                         <span className="text-xl">{pocket.icon || '🎯'}</span>
                         <div>
                           <p className="font-semibold text-sm text-gray-900 dark:text-white">{pocket.name}</p>
-                          <p className="text-xs text-gray-400">Goal: UGX {(pocket.goal_amount / 1000).toFixed(0)}K</p>
+                          <p className="text-xs text-gray-400">Goal: {formatCurrency(pocket.goal_amount)}</p>
                         </div>
                       </div>
                       <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                        UGX {(pocket.current_balance / 1000).toFixed(0)}K
+                        {formatCurrency(pocket.current_balance)}
                       </span>
                     </div>
                     <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">

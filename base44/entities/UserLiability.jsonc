@@ -1,0 +1,83 @@
+{
+  "name": "UserLiability",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string",
+      "description": "Liability name (e.g., 'Home Mortgage', 'Credit Card Debt')"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "mortgage",
+        "credit_card",
+        "personal_loan",
+        "business_loan",
+        "medical_debt",
+        "student_loan",
+        "other"
+      ],
+      "description": "Category of liability"
+    },
+    "outstanding_balance": {
+      "type": "number",
+      "description": "Current outstanding balance in UGX"
+    },
+    "original_amount": {
+      "type": "number",
+      "description": "Original loan amount in UGX"
+    },
+    "interest_rate": {
+      "type": "number",
+      "description": "Annual interest rate percentage"
+    },
+    "monthly_payment": {
+      "type": "number",
+      "description": "Required monthly payment in UGX"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Next payment due date or maturity date"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Loan start date"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 1000,
+      "description": "Additional details about the liability"
+    },
+    "is_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether supporting documents have been uploaded"
+    },
+    "verification_document_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs of uploaded verification documents (loan agreements, statements)"
+    },
+    "lender_name": {
+      "type": "string",
+      "description": "Name of the lending institution or creditor"
+    },
+    "last_updated_date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "user_id",
+    "name",
+    "type",
+    "outstanding_balance"
+  ]
+}
