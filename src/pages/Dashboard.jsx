@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity, Handshake, Vault } from 'lucide-react';
 import MilestoneProgress from '@/components/milestones/MilestoneProgress';
 import ChallengesBoard from '@/components/dashboard/ChallengesBoard';
+import UnlockRequirements from '@/components/kyc/UnlockRequirements';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const TIP_STYLES = {
@@ -304,6 +305,9 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+
+        {/* Unlock Requirements */}
+        <UnlockRequirements compact={true} />
 
         {/* Challenges & Milestones */}
         {user && (

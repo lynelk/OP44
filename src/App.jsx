@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 import Dashboard from './pages/Dashboard';
 import Loans from './pages/Loans';
 import Savings from './pages/Savings';
+import SavingsHub from './pages/SavingsHub';
 import Budget from './pages/Budget';
 import Profile from './pages/Profile';
 import SavingsGoals from './pages/SavingsGoals';
@@ -131,7 +132,8 @@ const AuthenticatedApp = () => {
       <Route path="/loans/apply" element={<><Loans /><BottomNav /></>} />
       <Route path="/loans/statement" element={<><LoanStatement /><BottomNav /></>} />
       <Route path="/loans/repay" element={<><RepayLoan /><BottomNav /></>} />
-      <Route path="/savings" element={<><Savings /><BottomNav /></>} />
+      <Route path="/savings" element={<><SavingsHub /><BottomNav /></>} />
+      <Route path="/savings/pockets" element={<><Savings /><BottomNav /></>} />
       <Route path="/budget" element={<><Budget /><BottomNav /></>} />
       <Route path="/profile" element={<><Profile /><BottomNav /></>} />
       <Route path="/credit-score" element={<><CreditScore /><BottomNav /></>} />

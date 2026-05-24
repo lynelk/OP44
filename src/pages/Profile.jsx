@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { Shield, Bell, LogOut, ChevronRight, Star, Award, ToggleLeft, LayoutDashboard, User, AlertCircle } from 'lucide-react';
 import AchievementHub from '@/components/profile/AchievementHub';
+import UnlockRequirements from '@/components/kyc/UnlockRequirements';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -74,6 +75,9 @@ export default function Profile() {
             <ChevronRight className="w-4 h-4 text-amber-400 shrink-0" />
           </div>
         )}
+
+        {/* KYC Unlock Requirements */}
+        <UnlockRequirements compact={false} />
 
         {/* Achievement Hub */}
         <AchievementHub />
