@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, TrendingUp, Info, ShieldCheck } from 'lucide-react';
+import { RefreshCw, TrendingUp, Info, ShieldCheck, Wallet } from 'lucide-react';
 import ScoreGauge from '@/components/credit/ScoreGauge';
 import ScoreBreakdown from '@/components/credit/ScoreBreakdown';
 import ReasonCodes from '@/components/credit/ReasonCodes';
@@ -43,6 +43,16 @@ export default function CreditScore() {
   const band = scoreData?.risk_band || user?.current_risk_band;
   const score = scoreData?.score || user?.current_credit_score;
   const config = riskBandConfig[band] || riskBandConfig['C'];
+  
+  const formatCurrency = (amount) => {
+    if (!amount) return 'UGX 0';
+    return `UGX ${amount.toLocaleString('en-UG')}`;
+  };
+  
+  const availableCredit = scoreData?.max_loan_limit || 0;
+  const creditUtilization = scoreData && availableCredit > 0 
+    ? ((scoreData.max_loan_limit - (scoreData.max_loan_limit * 0.3)) / scoreData.max_loan_limit * 100).toFixed(0)
+    : 0;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-28 font-sans">
@@ -88,10 +98,15 @@ export default function CreditScore() {
                   <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${config.pill}`}>
                     Band {band} — {config.label}
                   </span>
-                  {scoreData?.max_loan_limit > 0 && (
-                    <p className="text-xs text-gray-400 mt-2">
-                      Max loan: <span className="font-semibold text-gray-700 dark:text-gray-300">UGX {scoreData.max_loan_limit.toLocaleString()}</span>
-                    </p>
+                  {availableCredit > 0 && (
+                    <div className="mt-2 space-y-1">
+                      <p className="text-xs text-gray-400">
+                        Available credit: <span className="font-semibold text-[#006B3C]">{formatCurrency(availableCredit)}</span>
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Max loan: <span className="font-semibold text-gray-700 dark:text-gray-300">{formatCurrency(availableCredit)}</span>
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -99,6 +114,33 @@ export default function CreditScore() {
             </div>
 
             {scoreData?.score_breakdown && <ScoreBreakdown breakdown={scoreData.score_breakdown} />}
+
+            {/* Available Credit Card */}
+            {availableCredit > 0 && (
+              <div className="bg-gradient-to-r from-[#006B3C] to-[#007a44] text-white rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center">
+                      <Wallet className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold">Available Credit</p>
+                      <p className="text-2xl font-bold">{formatCurrency(availableCredit)}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-green-100">Based on Band {band}</p>
+                    <p className="text-xs text-green-100">Score: {score}</p>
+                  </div>
+                </div>
+                <div className="bg-white/20 rounded-full h-2 overflow-hidden">
+                  <div className="h-full bg-white rounded-full" style={{ width: `${Math.min(100, (score / 850) * 100)}%` }} />
+                </div>
+                <p className="text-xs text-green-100 mt-2">
+                  Higher credit scores unlock more available credit
+                </p>
+              </div>
+            )}
 
             {/* GnuGrid CRB Summary Card */}
             {scoreData?.crb_available && scoreData?.crb_summary && (
