@@ -6,22 +6,6 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Check for cached tips (5 min cache to avoid rate limits)
-    const cacheKey = `tips_cache_${user.id}`;
-    const cached = await base44.asServiceRole.entities.BusinessRule.filter({ rule_name: cacheKey });
-    const now = Date.now();
-    if (cached.length > 0 && cached[0].created_date) {
-      const cacheTime = new Date(cached[0].created_date).getTime();
-      if (now - cacheTime < 5 * 60 * 1000) {
-        try {
-          const cachedData = JSON.parse(cached[0].description || '{}');
-          if (cachedData.tips) {
-            return Response.json({ success: true, tips: cachedData.tips, cached: true });
-          }
-        } catch (e) { /* ignore invalid cache */ }
-      }
-    }
-
     const currentMonth = new Date().toISOString().slice(0, 7);
     const lastMonth = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().slice(0, 7);
 
@@ -182,29 +166,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const result = { success: true, tips: tips.slice(0, 4) };
-
-    // Cache the result for 5 minutes
-    try {
-      const cacheKey = `tips_cache_${user.id}`;
-      const existing = await base44.asServiceRole.entities.BusinessRule.filter({ rule_name: cacheKey });
-      if (existing.length > 0) {
-        await base44.asServiceRole.entities.BusinessRule.update(existing[0].id, {
-          description: JSON.stringify({ tips: tips.slice(0, 4) }),
-        });
-      } else {
-        await base44.asServiceRole.entities.BusinessRule.create({
-          rule_name: cacheKey,
-          description: JSON.stringify({ tips: tips.slice(0, 4) }),
-          priority: 0,
-          is_active: true,
-        });
-      }
-    } catch (cacheErr) {
-      /* ignore cache errors */
-    }
-
-    return Response.json(result);
+    return Response.json({ success: true, tips: tips.slice(0, 4) });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
