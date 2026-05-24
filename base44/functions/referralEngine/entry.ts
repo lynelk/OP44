@@ -80,7 +80,62 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, message: 'Referral registered. Points awarded when your first loan is disbursed.' });
     }
 
-    // ── AWARD POINTS ON DISBURSEMENT (called by disburseLoan internally) ───
+    // ── AWARD POINTS ON FIRST RENTAL PAYMENT ───────────────────────────────
+    if (action === 'award_on_rental_payment') {
+      const { rental_payment_id, borrower_user_id } = body;
+      if (!borrower_user_id) return Response.json({ error: 'borrower_user_id required' }, { status: 400 });
+
+      // Find pending referral for this invitee
+      const events = await base44.asServiceRole.entities.ReferralEvent.filter({ invitee_id: borrower_user_id, status: 'pending' });
+      if (!events.length) return Response.json({ success: true, message: 'No pending referral to award' });
+
+      const event = events[0];
+      const allProfiles = await base44.asServiceRole.entities.UserProfile.filter({});
+      const referrerProfile = allProfiles.find(p => p.user_id === event.referrer_id);
+      const inviteeProfile = allProfiles.find(p => p.user_id === borrower_user_id);
+
+      const now = new Date().toISOString();
+
+      // Credit referrer
+      if (referrerProfile) {
+        await base44.asServiceRole.entities.UserProfile.update(referrerProfile.id, {
+          loyalty_points: (referrerProfile.loyalty_points || 0) + REFERRER_POINTS,
+          successful_referrals_count: (referrerProfile.successful_referrals_count || 0) + 1,
+        });
+        await base44.asServiceRole.entities.Notification.create({
+          user_id: event.referrer_id,
+          title: '🎉 Referral Reward Earned!',
+          message: `Your referral completed their first rental payment. You've earned ${REFERRER_POINTS} loyalty points!`,
+          type: 'reward',
+          is_read: false,
+        });
+      }
+
+      // Credit invitee
+      if (inviteeProfile) {
+        await base44.asServiceRole.entities.UserProfile.update(inviteeProfile.id, {
+          loyalty_points: (inviteeProfile.loyalty_points || 0) + INVITEE_POINTS,
+        });
+        await base44.asServiceRole.entities.Notification.create({
+          user_id: borrower_user_id,
+          title: '🎁 Welcome Bonus Points!',
+          message: `You've received ${INVITEE_POINTS} loyalty points for completing your first rental payment. Use them to reduce fees!`,
+          type: 'reward',
+          is_read: false,
+        });
+      }
+
+      // Mark event as awarded
+      await base44.asServiceRole.entities.ReferralEvent.update(event.id, {
+        status: 'awarded',
+        loan_application_id: rental_payment_id,
+        awarded_date: now,
+      });
+
+      return Response.json({ success: true, referrer_points: REFERRER_POINTS, invitee_points: INVITEE_POINTS });
+    }
+
+    // ── AWARD POINTS ON LOAN DISBURSEMENT (legacy) ─────────────────────────
     if (action === 'award_on_disbursement') {
       const { loan_id, borrower_user_id } = body;
       if (!borrower_user_id) return Response.json({ error: 'borrower_user_id required' }, { status: 400 });

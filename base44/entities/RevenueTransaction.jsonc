@@ -2,66 +2,74 @@
   "name": "RevenueTransaction",
   "type": "object",
   "properties": {
-    "loan_id": {
-      "type": "string"
-    },
-    "repayment_id": {
-      "type": "string"
-    },
     "transaction_type": {
       "type": "string",
       "enum": [
-        "origination_fee",
-        "servicing_fee",
-        "interest_income",
-        "late_fee",
-        "recovery_commission",
-        "reserve_allocation",
-        "lender_payout"
+        "rental_fee",
+        "loan_disbursement_fee",
+        "p2p_investment_fee",
+        "insurance_premium",
+        "sms_fee",
+        "whatsapp_fee",
+        "crb_fee",
+        "validation_fee",
+        "transaction_fee",
+        "partner_fee",
+        "other"
       ]
     },
-    "gross_interest": {
+    "product_type": {
+      "type": "string",
+      "enum": [
+        "rental",
+        "loan",
+        "p2p_loan",
+        "insurance",
+        "savings",
+        "other"
+      ]
+    },
+    "amount": {
       "type": "number"
     },
-    "lender_share": {
-      "type": "number"
+    "currency": {
+      "type": "string",
+      "default": "UGX"
     },
-    "platform_share": {
-      "type": "number"
+    "partner_id": {
+      "type": "string",
+      "description": "lender_id or partner user_id"
     },
-    "reserve_share": {
-      "type": "number"
-    },
-    "lender_share_pct": {
-      "type": "number"
-    },
-    "platform_share_pct": {
-      "type": "number"
-    },
-    "reserve_share_pct": {
-      "type": "number"
+    "reference_id": {
+      "type": "string",
+      "description": "Links to rental_id, loan_id, etc."
     },
     "status": {
       "type": "string",
       "enum": [
         "pending",
-        "distributed",
-        "reversed"
+        "completed",
+        "failed",
+        "refunded"
       ],
-      "default": "pending"
+      "default": "completed"
     },
-    "distributed_at": {
+    "fee_breakdown_json": {
+      "type": "string",
+      "description": "JSON string with detailed fee breakdown"
+    },
+    "transaction_date": {
       "type": "string",
       "format": "date-time"
     },
     "description": {
-      "type": "string",
-      "maxLength": 500
+      "type": "string"
     }
   },
   "required": [
-    "loan_id",
     "transaction_type",
-    "gross_interest"
+    "product_type",
+    "amount",
+    "transaction_date"
   ]
 }

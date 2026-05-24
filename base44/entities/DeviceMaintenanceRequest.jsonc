@@ -1,0 +1,97 @@
+{
+  "name": "DeviceMaintenanceRequest",
+  "type": "object",
+  "properties": {
+    "device_id": {
+      "type": "string"
+    },
+    "lender_id": {
+      "type": "string"
+    },
+    "request_type": {
+      "type": "string",
+      "enum": [
+        "scheduled_service",
+        "repair",
+        "inspection",
+        "other"
+      ],
+      "default": "scheduled_service"
+    },
+    "trigger_reason": {
+      "type": "string",
+      "enum": [
+        "distance_threshold",
+        "time_based",
+        "manual",
+        "damage_report",
+        "other"
+      ],
+      "default": "distance_threshold"
+    },
+    "current_km_reading": {
+      "type": "number"
+    },
+    "last_service_km": {
+      "type": "number"
+    },
+    "km_since_last_service": {
+      "type": "number"
+    },
+    "service_interval_km": {
+      "type": "number",
+      "default": 5000
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "scheduled",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium"
+    },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "service_provider": {
+      "type": "string"
+    },
+    "service_cost": {
+      "type": "number"
+    },
+    "admin_notes": {
+      "type": "string"
+    },
+    "lender_notified": {
+      "type": "boolean",
+      "default": false
+    },
+    "notification_sent_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "device_id",
+    "lender_id",
+    "current_km_reading"
+  ]
+}

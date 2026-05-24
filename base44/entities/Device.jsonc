@@ -84,7 +84,8 @@
         "Rented",
         "Maintenance",
         "Pending Verification",
-        "Suspended"
+        "Suspended",
+        "Under Maintenance"
       ],
       "default": "Pending Verification"
     },
@@ -164,6 +165,24 @@
     },
     "insurance_premium_monthly": {
       "type": "number"
+    },
+    "service_interval_km": {
+      "type": "number",
+      "default": 5000,
+      "description": "Kilometers between scheduled maintenance"
+    },
+    "last_service_km_reading": {
+      "type": "number",
+      "description": "Kilometer reading at last service"
+    },
+    "last_service_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "total_km_traveled": {
+      "type": "number",
+      "default": 0,
+      "description": "Total kilometers from GPS tracking"
     },
     "description": {
       "type": "string"

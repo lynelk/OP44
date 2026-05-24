@@ -1,0 +1,48 @@
+{
+  "name": "AccountBalance",
+  "type": "object",
+  "properties": {
+    "account_name": {
+      "type": "string",
+      "enum": [
+        "MTN_Float",
+        "Airtel_Float",
+        "Escrow",
+        "Reserve_Fund",
+        "Operating_Account"
+      ]
+    },
+    "balance": {
+      "type": "number",
+      "default": 0
+    },
+    "currency": {
+      "type": "string",
+      "default": "UGX"
+    },
+    "last_synced_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "api_sync",
+        "manual_update",
+        "calculated"
+      ],
+      "default": "calculated"
+    },
+    "updated_by": {
+      "type": "string",
+      "description": "user_id who updated"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "account_name",
+    "balance"
+  ]
+}

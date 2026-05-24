@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import {
   Users, ShieldCheck, Settings, FileText, BarChart2, ChevronRight, Landmark,
   TrendingDown, TrendingUp, AlertTriangle, CheckCircle2, Banknote, PiggyBank,
-  Shield, Activity, RefreshCw, BarChart3, XCircle, Clock
+  Shield, Activity, RefreshCw, BarChart3, XCircle, Clock, Wrench, Wallet
 } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -16,9 +16,13 @@ const MODULES = [
   { path: '/admin/submissions', icon: FileText, label: 'Data Submissions', desc: 'Regulatory & CRB reports', color: 'bg-red-500' },
   { path: '/admin/loans', icon: BarChart2, label: 'Loan Management', desc: 'Review & approve loans', color: 'bg-indigo-500' },
   { path: '/admin/p2p', icon: TrendingUp, label: 'P2P Lending Engine', desc: 'Marketplace, profiles & revenue', color: 'bg-teal-600' },
+  { path: '/admin/revenue', icon: TrendingUp, label: 'Revenue Tracking', desc: 'Income lines, expenses & partner reports', color: 'bg-emerald-600' },
+  { path: '/admin/account-balances', icon: Wallet, label: 'Account Balances', desc: 'MTN, Airtel, Escrow & float management', color: 'bg-cyan-600' },
   { path: '/admin/reports', icon: BarChart3, label: 'Reports', desc: 'Download, filter & email reports', color: 'bg-rose-500' },
   { path: '/admin/portfolios', icon: Activity, label: 'Lender Portfolios', desc: 'Track individual lender returns', color: 'bg-cyan-600' },
   { path: '/admin/documents', icon: FileText, label: 'Document Review', desc: 'Verify IDs, payslips & statements', color: 'bg-emerald-600' },
+  { path: '/admin/device-maintenance', icon: Wrench, label: 'Device Maintenance', desc: 'Scheduled service & maintenance requests', color: 'bg-orange-500' },
+  { path: '/admin/device-verification', icon: ShieldCheck, label: 'Device Verification', desc: 'Review lender device submissions', color: 'bg-purple-500' },
 ];
 
 const COLORS = ['#1a3a6b', '#f97316', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
