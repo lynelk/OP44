@@ -3,77 +3,78 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import { useEffect } from 'react';
-// Add page imports here
-import Dashboard from './pages/Dashboard';
-import Loans from './pages/Loans';
-import Savings from './pages/Savings';
-import SavingsHub from './pages/SavingsHub';
-import Budget from './pages/Budget';
-import Profile from './pages/Profile';
-import SavingsGoals from './pages/SavingsGoals';
-import LoanPreQualify from './pages/LoanPreQualify';
-import BottomNav from './components/BottomNav';
-import CreditScore from './pages/CreditScore';
-import Invest from './pages/Invest';
-import ConsentManager from './pages/ConsentManager';
-import USSDMonitor from './pages/USSDMonitor';
-import Insurance from './pages/Insurance';
-import FinancialHealth from './pages/FinancialHealth';
-import LoanStatement from './pages/LoanStatement';
-import RepayLoan from './pages/RepayLoan';
-import Claims from './pages/Claims';
-import ExpenseInsights from './pages/ExpenseInsights';
-import RepaymentPlanner from './pages/RepaymentPlanner';
-import FutureHealthProjection from './pages/FutureHealthProjection';
-import SavingsChallenges from './pages/SavingsChallenges';
-import DebtPayoff from './pages/DebtPayoff';
-import Notifications from './pages/Notifications';
-import SavingsGroups from './pages/SavingsGroups';
-import SavingsGroupDetail from './pages/SavingsGroupDetail';
-import LandingPage from './pages/LandingPage';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminUsers from './pages/admin/AdminUsers';
-import AdminProducts from './pages/admin/AdminProducts';
-import AdminRules from './pages/admin/AdminRules';
-import AdminCRB from './pages/admin/AdminCRB';
-import AdminSubmissions from './pages/admin/AdminSubmissions';
-import AdminLoans from './pages/admin/AdminLoans';
-import AdminRescheduleRequests from './pages/admin/AdminRescheduleRequests';
-import USSDSimulator from './pages/USSDSimulator';
-import MobileHeader from './components/MobileHeader';
-import GroupChallenges from './pages/GroupChallenges';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import P2POnboarding from './pages/P2POnboarding';
-import P2PDashboard from './pages/P2PDashboard';
-import P2PApply from './pages/P2PApply';
-import P2PMarketplace from './pages/P2PMarketplace';
-import AdminP2P from './pages/admin/AdminP2P';
-import AdminDocumentReview from './pages/admin/AdminDocumentReview';
-import AdminReports from './pages/admin/AdminReports';
-import AdminPortfolios from './pages/admin/AdminPortfolios';
-import PrivacyPolicy from './pages/PrivacyPolicy';
-import TermsOfService from './pages/TermsOfService';
-import DataRights from './pages/DataRights';
-import AccessibilityStatement from './pages/AccessibilityStatement';
 import ErrorBoundary from './components/ErrorBoundary';
-import Benchmarking from './pages/Benchmarking';
-import CollectionsMonitor from './pages/CollectionsMonitor';
 import AdminRoute from './components/AdminRoute';
-import GPSTrackingDashboard from './pages/GPSTrackingDashboard';
-import DeviceVerificationQueue from './pages/admin/DeviceVerificationQueue';
-import RentalDisputeCenter from './pages/RentalDisputeCenter';
-import AdminRevenue from './pages/admin/AdminRevenue';
-import AdminAccountBalances from './pages/admin/AdminAccountBalances';
-import DeviceMaintenance from './pages/admin/DeviceMaintenance';
-import DeviceMarketplace from './pages/DeviceMarketplace';
-import LenderAnalytics from './pages/LenderAnalytics';
-import NetWorthCalculator from './pages/NetWorthCalculator';
-import DeleteAccount from './pages/DeleteAccount';
+import BottomNav from './components/BottomNav';
+import MobileHeader from './components/MobileHeader';
+import { useEffect, lazy, Suspense } from 'react';
+import PageNotFound from './lib/PageNotFound';
+
+// Lazy-loaded pages
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Loans = lazy(() => import('./pages/Loans'));
+const Savings = lazy(() => import('./pages/Savings'));
+const SavingsHub = lazy(() => import('./pages/SavingsHub'));
+const Budget = lazy(() => import('./pages/Budget'));
+const Profile = lazy(() => import('./pages/Profile'));
+const SavingsGoals = lazy(() => import('./pages/SavingsGoals'));
+const LoanPreQualify = lazy(() => import('./pages/LoanPreQualify'));
+const CreditScore = lazy(() => import('./pages/CreditScore'));
+const Invest = lazy(() => import('./pages/Invest'));
+const ConsentManager = lazy(() => import('./pages/ConsentManager'));
+const USSDMonitor = lazy(() => import('./pages/USSDMonitor'));
+const Insurance = lazy(() => import('./pages/Insurance'));
+const FinancialHealth = lazy(() => import('./pages/FinancialHealth'));
+const LoanStatement = lazy(() => import('./pages/LoanStatement'));
+const RepayLoan = lazy(() => import('./pages/RepayLoan'));
+const Claims = lazy(() => import('./pages/Claims'));
+const ExpenseInsights = lazy(() => import('./pages/ExpenseInsights'));
+const RepaymentPlanner = lazy(() => import('./pages/RepaymentPlanner'));
+const FutureHealthProjection = lazy(() => import('./pages/FutureHealthProjection'));
+const SavingsChallenges = lazy(() => import('./pages/SavingsChallenges'));
+const DebtPayoff = lazy(() => import('./pages/DebtPayoff'));
+const Notifications = lazy(() => import('./pages/Notifications'));
+const SavingsGroups = lazy(() => import('./pages/SavingsGroups'));
+const SavingsGroupDetail = lazy(() => import('./pages/SavingsGroupDetail'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const AdminProducts = lazy(() => import('./pages/admin/AdminProducts'));
+const AdminRules = lazy(() => import('./pages/admin/AdminRules'));
+const AdminCRB = lazy(() => import('./pages/admin/AdminCRB'));
+const AdminSubmissions = lazy(() => import('./pages/admin/AdminSubmissions'));
+const AdminLoans = lazy(() => import('./pages/admin/AdminLoans'));
+const AdminRescheduleRequests = lazy(() => import('./pages/admin/AdminRescheduleRequests'));
+const USSDSimulator = lazy(() => import('./pages/USSDSimulator'));
+const GroupChallenges = lazy(() => import('./pages/GroupChallenges'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const P2POnboarding = lazy(() => import('./pages/P2POnboarding'));
+const P2PDashboard = lazy(() => import('./pages/P2PDashboard'));
+const P2PApply = lazy(() => import('./pages/P2PApply'));
+const P2PMarketplace = lazy(() => import('./pages/P2PMarketplace'));
+const AdminP2P = lazy(() => import('./pages/admin/AdminP2P'));
+const AdminDocumentReview = lazy(() => import('./pages/admin/AdminDocumentReview'));
+const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
+const AdminPortfolios = lazy(() => import('./pages/admin/AdminPortfolios'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const DataRights = lazy(() => import('./pages/DataRights'));
+const AccessibilityStatement = lazy(() => import('./pages/AccessibilityStatement'));
+const Benchmarking = lazy(() => import('./pages/Benchmarking'));
+const CollectionsMonitor = lazy(() => import('./pages/CollectionsMonitor'));
+const GPSTrackingDashboard = lazy(() => import('./pages/GPSTrackingDashboard'));
+const DeviceVerificationQueue = lazy(() => import('./pages/admin/DeviceVerificationQueue'));
+const RentalDisputeCenter = lazy(() => import('./pages/RentalDisputeCenter'));
+const AdminRevenue = lazy(() => import('./pages/admin/AdminRevenue'));
+const AdminAccountBalances = lazy(() => import('./pages/admin/AdminAccountBalances'));
+const DeviceMaintenance = lazy(() => import('./pages/admin/DeviceMaintenance'));
+const DeviceMarketplace = lazy(() => import('./pages/DeviceMarketplace'));
+const LenderAnalytics = lazy(() => import('./pages/LenderAnalytics'));
+const NetWorthCalculator = lazy(() => import('./pages/NetWorthCalculator'));
+const DeleteAccount = lazy(() => import('./pages/DeleteAccount'));
 
 // Root paths get a fade transition; child paths slide in from the right
 const ROOT_PATHS = ['/', '/loans', '/savings', '/budget', '/profile', '/credit-score', '/invest', '/insurance', '/financial-health', '/notifications', '/p2p', '/savings-goals', '/savings-groups', '/savings-challenges', '/group-challenges', '/debt-payoff', '/about', '/contact', '/privacy', '/terms', '/accessibility'];
@@ -139,6 +140,7 @@ const AuthenticatedApp = () => {
     <>
     <MobileHeader />
     <AnimatedRoutes>
+    <Suspense fallback={<div className="fixed inset-0 flex items-center justify-center"><div className="w-8 h-8 border-4 border-green-100 border-t-[#006B3C] rounded-full animate-spin"></div></div>}>
     <Routes location={location}>
       {/* Add your page Route elements here */}
       <Route path="/" element={<><Dashboard /><BottomNav /></>} />
@@ -206,6 +208,7 @@ const AuthenticatedApp = () => {
       <Route path="/delete-account" element={<DeleteAccount />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
+    </Suspense>
     </AnimatedRoutes>
     </>
   );
