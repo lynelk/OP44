@@ -11,6 +11,8 @@ import BottomNav from './components/BottomNav';
 import MobileHeader from './components/MobileHeader';
 import { useEffect, lazy, Suspense } from 'react';
 import PageNotFound from './lib/PageNotFound';
+import { SyncProvider } from './lib/SyncContext';
+import OfflineStatusBar from './components/OfflineStatusBar';
 
 // Lazy-loaded pages
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -231,10 +233,13 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <QueryClientProvider client={queryClientInstance}>
-          <Router>
-            <AuthenticatedApp />
-          </Router>
-          <Toaster />
+          <SyncProvider>
+            <Router>
+              <OfflineStatusBar />
+              <AuthenticatedApp />
+            </Router>
+            <Toaster />
+          </SyncProvider>
         </QueryClientProvider>
       </AuthProvider>
     </ErrorBoundary>
