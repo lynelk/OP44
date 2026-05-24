@@ -223,6 +223,48 @@
     "description": {
       "type": "string",
       "maxLength": 1000
+    },
+    "preferred_risk_bands": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ]
+      },
+      "description": "Lender's preferred risk bands for investment alerts"
+    },
+    "lender_notify_in_app": {
+      "type": "boolean",
+      "default": true,
+      "description": "Receive in-app notifications for new matching loans"
+    },
+    "lender_min_investment": {
+      "type": "number",
+      "description": "Minimum loan amount the lender is interested in (UGX)"
+    },
+    "lender_max_investment": {
+      "type": "number",
+      "description": "Maximum single loan amount the lender is interested in (UGX)"
+    },
+    "lender_notify_purpose_categories": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "business",
+          "education",
+          "medical",
+          "agriculture",
+          "housing",
+          "personal",
+          "other"
+        ]
+      },
+      "description": "Preferred loan purpose categories for notifications"
     }
   },
   "required": [

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link, useNavigate } from 'react-router-dom';
-import { TrendingUp, Wallet, ShieldCheck, Star, Plus, ArrowRight, RefreshCw, AlertTriangle, CheckCircle2, Clock, Banknote, Users, BarChart3 } from 'lucide-react';
+import { TrendingUp, Wallet, ShieldCheck, Star, Plus, ArrowRight, RefreshCw, AlertTriangle, CheckCircle2, Clock, Banknote, Users, BarChart3, Bell } from 'lucide-react';
+import LenderAlertPreferences from '@/components/p2p/LenderAlertPreferences';
 import { Button } from '@/components/ui/button';
 import BottomNav from '@/components/BottomNav';
 
@@ -289,6 +290,10 @@ export default function P2PDashboard() {
         {/* INVEST TAB */}
         {activeTab === 'invest' && (
           <div className="space-y-3">
+            {/* Lender Alert Preferences — shown to lenders/both */}
+            {(profile.account_type === 'lender' || profile.account_type === 'both') && (
+              <LenderAlertPreferences profile={profile} onSaved={load} />
+            )}
             <div className="bg-gradient-to-br from-emerald-600 to-teal-600 text-white rounded-2xl p-4">
               <p className="text-sm font-bold mb-3">Your Investment Portfolio</p>
               <div className="grid grid-cols-3 gap-2 text-center">

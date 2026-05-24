@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Filter, TrendingUp, Shield, Clock, AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
+import { ChevronLeft, TrendingUp, Shield, AlertCircle, CheckCircle2, RefreshCw, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import EscrowStatusBadge from '@/components/p2p/EscrowStatusBadge';
@@ -29,11 +29,20 @@ export default function P2PMarketplace() {
   const scrollRef = useRef(null);
   const pullStartY = useRef(0);
 
+  // Deep-link: ?loan=<id> opens invest modal for that specific loan
+  const deepLinkLoanId = new URLSearchParams(window.location.search).get('loan');
+
   const load = async () => {
     setLoading(true);
-    const res = await base44.asServiceRole?.entities?.P2PLoan?.filter({ status: 'awaiting_funding' }).catch(() => []);
-    setLoans(res || []);
+    const res = await base44.entities.P2PLoan.filter({ status: 'awaiting_funding' }).catch(() => []);
+    const loanList = res || [];
+    setLoans(loanList);
     setLoading(false);
+    // If deep-link loan ID exists, auto-open its modal
+    if (deepLinkLoanId) {
+      const target = loanList.find(l => l.id === deepLinkLoanId);
+      if (target) { setSelectedLoan(target); setFundAmount(''); setError(''); setSuccess(null); }
+    }
   };
 
   useEffect(() => { load(); }, []);
@@ -125,8 +134,14 @@ export default function P2PMarketplace() {
           filtered.map(loan => {
             const pctFunded = loan.amount_approved > 0 ? Math.min(100, ((loan.amount_funded || 0) / loan.amount_approved) * 100) : 0;
             const tierCfg = TIER_CONFIG[loan.risk_tier] || TIER_CONFIG.bronze;
+            const isDeepLinked = loan.id === deepLinkLoanId;
             return (
-              <div key={loan.id} className="bg-white rounded-2xl shadow-sm overflow-hidden">
+              <div key={loan.id} className={`bg-white rounded-2xl shadow-sm overflow-hidden ${isDeepLinked ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}>
+                {isDeepLinked && (
+                  <div className="bg-blue-600 text-white text-xs font-bold px-4 py-1.5 flex items-center gap-1.5">
+                    <Bell className="w-3 h-3" /> Loan from your alert — tap below to invest
+                  </div>
+                )}
                 <div className="p-4">
                   <div className="flex items-start justify-between mb-2">
                     <div>
