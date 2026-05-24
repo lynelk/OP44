@@ -90,17 +90,17 @@ export default function P2PMarketplace() {
           </div>
         </div>
       )}
-      <div className="bg-gradient-to-br from-[#0f2a55] to-[#1e4480] text-white px-5 pt-12 pb-6">
-        <button onClick={() => navigate('/p2p')} className="flex items-center gap-1 text-blue-300 text-sm mb-3">
+      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-12 pb-6">
+        <button onClick={() => navigate('/p2p')} className="flex items-center gap-1 text-green-200 text-sm mb-3">
           <ChevronLeft className="w-4 h-4" /> Back
         </button>
         <h1 className="text-2xl font-black">Loan Marketplace</h1>
         <p className="text-blue-300 text-sm mt-1">Fund vetted borrowers, earn competitive returns</p>
 
         <div className="bg-white/10 rounded-2xl p-3 mt-3 grid grid-cols-3 text-center text-sm">
-          <div><p className="text-blue-300 text-xs">Band A Returns</p><p className="font-bold">{BAND_RETURN.A} pa</p></div>
-          <div className="border-x border-white/20"><p className="text-blue-300 text-xs">Band B Returns</p><p className="font-bold">{BAND_RETURN.B} pa</p></div>
-          <div><p className="text-blue-300 text-xs">Band C Returns</p><p className="font-bold">{BAND_RETURN.C} pa</p></div>
+          <div><p className="text-green-200 text-xs">Band A Returns</p><p className="font-bold">{BAND_RETURN.A} pa</p></div>
+          <div className="border-x border-white/20"><p className="text-green-200 text-xs">Band B Returns</p><p className="font-bold">{BAND_RETURN.B} pa</p></div>
+          <div><p className="text-green-200 text-xs">Band C Returns</p><p className="font-bold">{BAND_RETURN.C} pa</p></div>
         </div>
       </div>
 
@@ -110,7 +110,7 @@ export default function P2PMarketplace() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${filter === f ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'}`}
+            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${filter === f ? 'bg-[#006B3C] text-white' : 'bg-gray-100 text-gray-600'}`}
           >
             {f === 'all' ? 'All Bands' : `Band ${f}`}
           </button>
@@ -138,7 +138,7 @@ export default function P2PMarketplace() {
             return (
               <div key={loan.id} className={`bg-white rounded-2xl shadow-sm overflow-hidden ${isDeepLinked ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}>
                 {isDeepLinked && (
-                  <div className="bg-blue-600 text-white text-xs font-bold px-4 py-1.5 flex items-center gap-1.5">
+                  <div className="bg-[#006B3C] text-white text-xs font-bold px-4 py-1.5 flex items-center gap-1.5">
                     <Bell className="w-3 h-3" /> Loan from your alert — tap below to invest
                   </div>
                 )}
@@ -175,7 +175,7 @@ export default function P2PMarketplace() {
 
                   <button
                     onClick={() => { setSelectedLoan(loan); setFundAmount(''); setError(''); setSuccess(null); }}
-                    className="w-full py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 transition-colors"
+                    className="w-full py-2.5 rounded-xl bg-[#006B3C] text-white text-sm font-bold hover:bg-[#005530] transition-colors"
                   >
                     Fund This Loan →
                   </button>
@@ -224,7 +224,7 @@ export default function P2PMarketplace() {
                   <Shield className="w-4 h-4 text-blue-500 flex-shrink-0" />
                   <span>15% of your interest earnings go to the Reserve Fund for lender protection.</span>
                 </div>
-                <Button onClick={handleFund} disabled={!fundAmount || funding} className="w-full bg-blue-600 hover:bg-blue-700 font-bold h-12">
+                <Button onClick={handleFund} disabled={!fundAmount || funding} className="w-full bg-[#006B3C] hover:bg-[#005530] font-bold h-12">
                   {funding ? 'Processing...' : `Invest UGX ${parseFloat(fundAmount || 0).toLocaleString()}`}
                 </Button>
               </>

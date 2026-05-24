@@ -5,10 +5,9 @@ module.exports = {
   theme: {
   	extend: {
       fontFamily: {
-        sans: ['Poppins', 'Nunito', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Inter', 'Poppins', 'system-ui', '-apple-system', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
         poppins: ['Poppins', 'sans-serif'],
-        nunito: ['Nunito', 'sans-serif'],
-        quicksand: ['Quicksand', 'sans-serif'],
       },
   		borderRadius: {
   			lg: 'var(--radius)',

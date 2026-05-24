@@ -109,7 +109,7 @@ export default function Dashboard() {
       <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-20">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <p className="text-blue-200 text-sm font-medium">{greeting},</p>
+            <p className="text-green-200 text-sm font-medium">{greeting},</p>
             <h1 className="text-2xl font-bold tracking-tight">{user?.full_name?.split(' ')[0] || 'Welcome'} 👋</h1>
           </div>
           <Link to="/notifications" className="relative w-11 h-11 bg-white/10 rounded-full flex items-center justify-center">
@@ -127,7 +127,7 @@ export default function Dashboard() {
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-200 text-xs font-medium mb-0.5">Your Credit Score</p>
+                <p className="text-green-200 text-xs font-medium mb-0.5">Your Credit Score</p>
                 <div className="flex items-end gap-2">
                   <span className="text-4xl font-bold tracking-tight">
                     {creditScore?.score ?? '—'}
@@ -143,12 +143,12 @@ export default function Dashboard() {
                     </span>
                   )}
                 </div>
-                <p className="text-blue-200 text-xs mt-1 opacity-80">
+                <p className="text-green-200 text-xs mt-1 opacity-80">
                   {creditScore ? 'Tap to view full report' : 'Tap to calculate your score'}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-blue-200 text-xs mb-1 font-medium">Available Credit</p>
+                <p className="text-green-200 text-xs mb-1 font-medium">Available Credit</p>
                 <p className="text-2xl font-bold">
                   {creditScore?.max_loan_limit
                     ? `UGX ${(creditScore.max_loan_limit / 1000).toFixed(0)}K`
@@ -227,7 +227,7 @@ export default function Dashboard() {
             <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-purple-500" /> Your Insights
             </h2>
-            <button onClick={handleRefresh} className="text-blue-500 text-xs font-medium flex items-center gap-1">
+            <button onClick={handleRefresh} className="text-[#006B3C] text-xs font-medium flex items-center gap-1">
               <RefreshCw className="w-3 h-3" /> Refresh
             </button>
           </div>
@@ -267,7 +267,7 @@ export default function Dashboard() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">My Savings</h2>
-            <Link to="/savings" className="text-blue-500 text-xs font-medium flex items-center gap-0.5">
+            <Link to="/savings" className="text-[#006B3C] text-xs font-medium flex items-center gap-0.5">
               View all <ChevronRight className="w-3 h-3" />
             </Link>
           </div>

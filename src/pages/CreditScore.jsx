@@ -46,11 +46,11 @@ export default function CreditScore() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-28 font-sans">
-      <div className="bg-gradient-to-br from-gray-900 via-slate-800 to-slate-700 text-white px-5 pt-14 pb-8">
+      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight mb-1">Credit Score</h1>
-            <p className="text-slate-300 text-sm">Your financial health at a glance</p>
+            <p className="text-green-200 text-sm">Your financial health at a glance</p>
           </div>
           <button onClick={recalculate} disabled={calculating}
             className="flex items-center gap-1.5 h-9 px-3 bg-white/10 hover:bg-white/20 text-white text-sm font-medium rounded-full transition-colors disabled:opacity-50">
@@ -71,7 +71,7 @@ export default function CreditScore() {
             <p className="text-gray-700 dark:text-gray-300 font-semibold mb-2">No credit score yet</p>
             <p className="text-gray-400 text-sm mb-4">Calculate your score to understand your borrowing power.</p>
             <button onClick={recalculate} disabled={calculating}
-              className="h-11 px-6 bg-[#1a3a6b] text-white font-semibold rounded-xl disabled:opacity-50 flex items-center gap-2 mx-auto">
+              className="h-11 px-6 bg-[#006B3C] text-white font-semibold rounded-xl disabled:opacity-50 flex items-center gap-2 mx-auto">
               <RefreshCw className={`w-4 h-4 ${calculating ? 'animate-spin' : ''}`} /> Calculate Now
             </button>
           </div>

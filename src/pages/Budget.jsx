@@ -53,20 +53,20 @@ export default function Budget() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-28 font-sans">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#451a03] via-[#78350f] to-[#92400e] text-white px-5 pt-14 pb-8">
+      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-8">
         <h1 className="text-2xl font-bold tracking-tight mb-1">Budget & Expenses</h1>
-        <p className="text-amber-200 text-sm">Total spent: <span className="font-bold text-white">UGX {totalSpend.toLocaleString()}</span></p>
+        <p className="text-green-200 text-sm">Total spent: <span className="font-bold text-white">UGX {totalSpend.toLocaleString()}</span></p>
       </div>
 
       <div className="px-4 mt-4 space-y-3">
         {/* Action Buttons */}
         <div className="flex gap-2">
           <button onClick={() => setShowAdd(!showAdd)}
-            className="flex items-center gap-1.5 h-10 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 rounded-full transition-colors">
+            className="flex items-center gap-1.5 h-10 bg-[#006B3C] hover:bg-[#005530] text-white text-sm font-semibold px-4 rounded-full transition-colors">
             <Plus className="w-4 h-4" /> Add Expense
           </button>
           <button onClick={() => setShowScanner(true)}
-            className="flex items-center gap-1.5 h-10 bg-[#1a3a6b] text-white text-sm font-medium px-4 rounded-full">
+            className="flex items-center gap-1.5 h-10 bg-[#F4B400] text-[#006B3C] text-sm font-medium px-4 rounded-full">
             <Camera className="w-4 h-4" /> Scan Receipt
           </button>
           <Link to="/budget/insights">
@@ -103,7 +103,7 @@ export default function Budget() {
               <Input placeholder="Description (optional)" value={description} onChange={e => setDescription(e.target.value)} className="h-11 rounded-xl" />
               <Input type="date" value={date} onChange={e => setDate(e.target.value)} className="h-11 rounded-xl" />
               <button onClick={handleAdd} disabled={adding || !amount || !category}
-                className="w-full h-11 bg-[#1a3a6b] disabled:opacity-50 text-white font-semibold rounded-xl">
+                className="w-full h-11 bg-[#006B3C] disabled:opacity-50 text-white font-semibold rounded-xl">
                 {adding ? 'Adding...' : 'Add Expense'}
               </button>
             </div>
