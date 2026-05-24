@@ -51,14 +51,14 @@ export default function Invest() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-28 font-sans">
-      <div className="bg-gradient-to-br from-[#0f2a55] via-[#1a3a6b] to-[#1e4480] text-white px-5 pt-14 pb-8">
+      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-8">
         <div className="flex items-center justify-between mb-1">
           <h1 className="text-2xl font-bold tracking-tight">Invest & Earn</h1>
           <button onClick={() => setTab('risk_profile')} className="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center">
             <SlidersHorizontal className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-blue-300 text-sm mb-5">{profile ? `${profile.risk_level} portfolio · ${pools.length} pools open` : 'Set up your risk profile to begin'}</p>
+        <p className="text-green-200 text-sm mb-5">{profile ? `${profile.risk_level} portfolio · ${pools.length} pools open` : 'Set up your risk profile to begin'}</p>
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white/10 rounded-2xl p-3">
             <p className="text-xs text-slate-300 mb-0.5">Total Invested</p>
@@ -77,7 +77,7 @@ export default function Invest() {
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             className={`flex-1 py-3 text-xs font-medium whitespace-nowrap transition-colors ${
-              tab === t.id ? 'text-[#1a3a6b] dark:text-blue-400 border-b-2 border-[#1a3a6b] dark:border-blue-400' : 'text-gray-400'
+              tab === t.id ? 'text-[#006B3C] dark:text-[#7BC943] border-b-2 border-[#006B3C] dark:border-[#7BC943]' : 'text-gray-400'
             }`}>
             {t.icon} {t.label}
           </button>
@@ -92,11 +92,11 @@ export default function Invest() {
         ) : tab === 'portfolio' ? (
           !profile ? (
             <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 text-center shadow-sm">
-              <BarChart2 className="w-12 h-12 text-[#1a3a6b] mx-auto mb-3 opacity-40" />
+              <BarChart2 className="w-12 h-12 text-[#006B3C] mx-auto mb-3 opacity-40" />
               <p className="font-semibold text-gray-700 dark:text-gray-300 mb-2">No risk profile set</p>
               <p className="text-sm text-gray-400 mb-4">Set your risk appetite to get personalised portfolio allocation</p>
               <button onClick={() => setTab('risk_profile')}
-                className="h-11 px-6 bg-[#1a3a6b] text-white font-semibold rounded-xl">
+                className="h-11 px-6 bg-[#006B3C] text-white font-semibold rounded-xl">
                 Set Up Profile
               </button>
             </div>

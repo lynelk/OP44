@@ -269,16 +269,16 @@ export default function P2POnboarding() {
   return (
     <div className="min-h-screen bg-gray-50 pb-10 font-sans">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#0f2a55] to-[#1e4480] text-white px-5 pt-12 pb-6">
+      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-12 pb-6">
         <h1 className="text-2xl font-black tracking-tight">P2P Lending Setup</h1>
-        <p className="text-blue-300 text-sm mt-1">Connect with borrowers & lenders</p>
+        <p className="text-green-200 text-sm mt-1">Connect with borrowers & lenders</p>
         {/* Progress */}
         <div className="flex gap-1.5 mt-4">
           {STEPS.map((s, i) => (
-            <div key={s.id} className={`h-1.5 flex-1 rounded-full transition-all ${i <= step ? 'bg-orange-400' : 'bg-white/20'}`} />
+            <div key={s.id} className={`h-1.5 flex-1 rounded-full transition-all ${i <= step ? 'bg-[#F4B400]' : 'bg-white/20'}`} />
           ))}
         </div>
-        <p className="text-blue-300 text-xs mt-2">Step {step + 1} of {STEPS.length}: {STEPS[step]?.label}</p>
+        <p className="text-green-200 text-xs mt-2">Step {step + 1} of {STEPS.length}: {STEPS[step]?.label}</p>
       </div>
 
       <div className="px-4 mt-6 max-w-md mx-auto">
@@ -298,7 +298,7 @@ export default function P2POnboarding() {
               <Button
                 onClick={() => setStep(s => s + 1)}
                 disabled={!canProceed()}
-                className="flex-1 gap-1 bg-orange-500 hover:bg-orange-600"
+                className="flex-1 gap-1 bg-[#F4B400] hover:bg-yellow-500 text-[#006B3C]"
               >
                 Next <ChevronRight className="w-4 h-4" />
               </Button>
