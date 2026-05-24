@@ -73,6 +73,7 @@ import DeviceMaintenance from './pages/admin/DeviceMaintenance';
 import DeviceMarketplace from './pages/DeviceMarketplace';
 import LenderAnalytics from './pages/LenderAnalytics';
 import NetWorthCalculator from './pages/NetWorthCalculator';
+import DeleteAccount from './pages/DeleteAccount';
 
 // Root paths get a fade transition; child paths slide in from the right
 const ROOT_PATHS = ['/', '/loans', '/savings', '/budget', '/profile', '/credit-score', '/invest', '/insurance', '/financial-health', '/notifications', '/p2p', '/savings-goals', '/savings-groups', '/savings-challenges', '/group-challenges', '/debt-payoff', '/about', '/contact', '/privacy', '/terms', '/accessibility'];
@@ -202,6 +203,7 @@ const AuthenticatedApp = () => {
       <Route path="/savings-goals" element={<><SavingsGoals /><BottomNav /></>} />
       <Route path="/loans/pre-qualify" element={<><LoanPreQualify /><BottomNav /></>} />
       <Route path="/net-worth" element={<><NetWorthCalculator /><BottomNav /></>} />
+      <Route path="/delete-account" element={<DeleteAccount />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </AnimatedRoutes>
