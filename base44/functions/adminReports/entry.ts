@@ -148,6 +148,108 @@ Deno.serve(async (req) => {
         };
         records = [summary];
 
+      } else if (report_type === 'lender_rental_performance') {
+        // ── LENDER RENTAL PERFORMANCE REPORT ───────────────────────────────
+        const [rentals, rentalTx, trackers, devices] = await Promise.all([
+          base44.asServiceRole.entities.RentalAgreement.list('-created_date', 500),
+          base44.asServiceRole.entities.RentalPaymentTransaction.list('-initiated_at', 500),
+          base44.asServiceRole.entities.GPSTracker.list('-last_updated_at', 200),
+          base44.asServiceRole.entities.Device.list('-created_date', 500),
+        ]);
+
+        const filteredRentals = rentals.filter(r => inPeriod(r.start_date) || inPeriod(r.created_date));
+
+        // Group by lender
+        const byLender = {};
+        for (const rental of rentals) {
+          if (!byLender[rental.lender_id]) {
+            byLender[rental.lender_id] = {
+              lender_id: rental.lender_id,
+              total_rentals: 0,
+              active_rentals: 0,
+              completed_rentals: 0,
+              disputed_rentals: 0,
+              total_earnings: 0,
+              collected_payments: 0,
+              overdue_payments: 0,
+              overdue_amount: 0,
+              outstanding_balance: 0,
+              devices: new Set(),
+              trackers_active: 0,
+            };
+          }
+          const l = byLender[rental.lender_id];
+          l.total_rentals++;
+          if (rental.status === 'Active') l.active_rentals++;
+          if (rental.status === 'Completed') l.completed_rentals++;
+          if (rental.status === 'Disputed') l.disputed_rentals++;
+          l.total_earnings += (rental.total_rental_fee || 0);
+          l.outstanding_balance += (rental.outstanding_balance || 0);
+          l.overdue_payments += (rental.overdue_count || 0);
+          if (rental.device_id) l.devices.add(rental.device_id);
+          // Overdue amount
+          const sched = rental.payment_schedule || [];
+          l.overdue_amount += sched.filter(s=>s.status==='Overdue').reduce((sum,s)=>sum+(s.amount||0),0);
+        }
+
+        // Add collected payments from transactions
+        for (const tx of rentalTx) {
+          if (tx.status === 'Successful' && byLender[tx.lender_id]) {
+            byLender[tx.lender_id].collected_payments += (tx.amount || 0);
+          }
+        }
+
+        // Compute device utilisation & GPS coverage
+        for (const lenderId of Object.keys(byLender)) {
+          const lData = byLender[lenderId];
+          const lenderDevices = devices.filter(d => d.lender_id === lenderId);
+          const lenderTrackers = trackers.filter(t => t.lender_id === lenderId && t.is_active);
+          lData.total_devices = lenderDevices.length;
+          lData.devices_with_gps = lenderTrackers.length;
+          const rentedDevices = new Set(rentals.filter(r=>r.lender_id===lenderId&&r.status==='Active').map(r=>r.device_id));
+          lData.utilisation_rate = lenderDevices.length > 0 ? (rentedDevices.size / lenderDevices.length) * 100 : 0;
+          lData.payment_health_rate = lData.total_earnings > 0 ? ((lData.total_earnings - lData.overdue_amount) / lData.total_earnings) * 100 : 100;
+          // Average days device was idle (approx: devices available - active)
+          const idleDevices = lenderDevices.filter(d=>d.status==='Available').length;
+          lData.avg_idle_devices = idleDevices;
+        }
+
+        const lenderEntries = Object.values(byLender);
+
+        // Enrich with user names
+        records = lenderEntries.map(l => {
+          const u = users.find(u=>u.id===l.lender_id) || {};
+          return {
+            lender_id: l.lender_id.slice(-8),
+            lender_name: u.full_name || 'N/A',
+            email: u.email || '',
+            total_rentals: l.total_rentals,
+            active_rentals: l.active_rentals,
+            completed_rentals: l.completed_rentals,
+            disputed_rentals: l.disputed_rentals,
+            total_devices: l.total_devices || 0,
+            utilisation_rate_pct: l.utilisation_rate?.toFixed(1) || '0',
+            avg_idle_devices: l.avg_idle_devices || 0,
+            devices_with_gps: l.devices_with_gps || 0,
+            total_earnings_ugx: l.total_earnings,
+            collected_ugx: l.collected_payments,
+            outstanding_ugx: l.outstanding_balance,
+            overdue_amount_ugx: l.overdue_amount,
+            payment_health_pct: l.payment_health_rate?.toFixed(1) || '100',
+          };
+        }).sort((a,b)=>b.total_earnings_ugx - a.total_earnings_ugx);
+
+        summary = {
+          total_lenders: lenderEntries.length,
+          total_rentals: rentals.length,
+          active_rentals: rentals.filter(r=>r.status==='Active').length,
+          total_rental_earnings: rentals.reduce((s,r)=>s+(r.total_rental_fee||0),0),
+          total_collected: rentalTx.filter(t=>t.status==='Successful').reduce((s,t)=>s+(t.amount||0),0),
+          total_outstanding: rentals.reduce((s,r)=>s+(r.outstanding_balance||0),0),
+          avg_utilisation_rate: lenderEntries.length>0 ? (lenderEntries.reduce((s,l)=>s+(l.utilisation_rate||0),0)/lenderEntries.length).toFixed(1) : '0',
+          gps_tracked_devices: trackers.filter(t=>t.is_active).length,
+        };
+
       } else if (report_type === 'collections') {
         const overdue = loans.filter(l => (l.days_overdue > 0) || l.status === 'defaulted' || l.status === 'overdue');
         summary = {
@@ -244,6 +346,197 @@ Deno.serve(async (req) => {
       });
 
       return Response.json({ success: true });
+    }
+
+    // ── LENDER RENTAL REPORTS ───────────────────────────────────────────────────
+    if (action === 'lender_rental_report') {
+      const { lender_id } = body;
+
+      const [rentals, trackers, devices, users] = await Promise.all([
+        base44.asServiceRole.entities.RentalAgreement.list('-created_date', 500),
+        base44.asServiceRole.entities.GPSTracker.list('-created_date', 500),
+        base44.asServiceRole.entities.Device.list('-created_date', 500),
+        base44.asServiceRole.entities.User.list('-created_date', 500),
+      ]);
+
+      // Filter to specific lender or all lenders
+      const targetRentals = lender_id
+        ? rentals.filter(r => r.lender_id === lender_id)
+        : rentals;
+
+      // Group by lender
+      const byLender = {};
+      for (const rental of targetRentals) {
+        if (!byLender[rental.lender_id]) {
+          byLender[rental.lender_id] = {
+            lender_id: rental.lender_id,
+            total_rentals: 0,
+            active_rentals: 0,
+            completed_rentals: 0,
+            disputed_rentals: 0,
+            total_earnings: 0,
+            outstanding_balance: 0,
+            overdue_count: 0,
+            overdue_value: 0,
+            paid_installments: 0,
+            total_installments: 0,
+            devices_rented: new Set(),
+            rental_days: 0,
+            rentals: [],
+          };
+        }
+        const p = byLender[rental.lender_id];
+        p.total_rentals++;
+        p.rentals.push(rental);
+
+        if (rental.status === 'Active') p.active_rentals++;
+        if (rental.status === 'Completed') p.completed_rentals++;
+        if (rental.status === 'Disputed' || rental.dispute_status === 'Open') p.disputed_rentals++;
+
+        // Earnings: sum of paid installments
+        const schedule = rental.payment_schedule || [];
+        const paid = schedule.filter(s => s.status === 'Paid');
+        const overdue = schedule.filter(s => s.status === 'Overdue');
+        p.paid_installments += paid.length;
+        p.total_installments += schedule.length;
+        p.total_earnings += paid.reduce((s, i) => s + (i.amount || 0), 0);
+        p.outstanding_balance += rental.outstanding_balance || 0;
+        p.overdue_count += overdue.length;
+        p.overdue_value += overdue.reduce((s, i) => s + (i.amount || 0), 0);
+
+        if (rental.device_id) p.devices_rented.add(rental.device_id);
+
+        // Rental duration in days
+        if (rental.start_date && rental.end_date) {
+          const days = Math.ceil((new Date(rental.end_date) - new Date(rental.start_date)) / (1000 * 60 * 60 * 24));
+          p.rental_days += days;
+        }
+      }
+
+      // Attach GPS / device utilisation metrics
+      const lenderReports = Object.values(byLender).map(p => {
+        const lenderUser = users.find(u => u.id === p.lender_id) || {};
+        const lenderDevices = devices.filter(d => d.lender_id === p.lender_id);
+        const lenderTrackers = trackers.filter(t => t.lender_id === p.lender_id);
+
+        // Asset utilisation: proportion of lender's devices currently rented
+        const totalDevices = lenderDevices.length || 1;
+        const rentedDevices = lenderDevices.filter(d => d.status === 'Rented').length;
+        const utilisation_rate = ((rentedDevices / totalDevices) * 100).toFixed(1);
+
+        // Average GPS downtime: devices with no GPS update in >24h
+        const now = Date.now();
+        const staleTrackers = lenderTrackers.filter(t => {
+          if (!t.last_updated_at) return true;
+          return (now - new Date(t.last_updated_at).getTime()) > 24 * 60 * 60 * 1000;
+        }).length;
+        const avg_device_downtime_pct = lenderTrackers.length > 0
+          ? ((staleTrackers / lenderTrackers.length) * 100).toFixed(1)
+          : '0';
+
+        // Payment health: pct of installments paid on time
+        const payment_health_pct = p.total_installments > 0
+          ? ((p.paid_installments / p.total_installments) * 100).toFixed(1)
+          : '100';
+
+        return {
+          lender_id:              p.lender_id,
+          lender_name:            lenderUser.full_name || lenderUser.email || 'N/A',
+          lender_email:           lenderUser.email || '',
+          total_rentals:          p.total_rentals,
+          active_rentals:         p.active_rentals,
+          completed_rentals:      p.completed_rentals,
+          disputed_rentals:       p.disputed_rentals,
+          total_earnings_ugx:     p.total_earnings,
+          outstanding_balance:    p.outstanding_balance,
+          overdue_installments:   p.overdue_count,
+          overdue_value_ugx:      p.overdue_value,
+          payment_health_pct:     parseFloat(payment_health_pct),
+          total_devices:          totalDevices,
+          rented_devices:         rentedDevices,
+          utilisation_rate_pct:   parseFloat(utilisation_rate),
+          gps_trackers:           lenderTrackers.length,
+          stale_trackers:         staleTrackers,
+          avg_device_downtime_pct: parseFloat(avg_device_downtime_pct),
+          unique_devices_rented:  p.devices_rented.size,
+          total_rental_days:      p.rental_days,
+        };
+      }).sort((a, b) => b.total_earnings_ugx - a.total_earnings_ugx);
+
+      // Overall platform summary
+      const summary = {
+        total_lenders:        lenderReports.length,
+        total_rentals:        lenderReports.reduce((s, r) => s + r.total_rentals, 0),
+        active_rentals:       lenderReports.reduce((s, r) => s + r.active_rentals, 0),
+        total_earnings_ugx:   lenderReports.reduce((s, r) => s + r.total_earnings_ugx, 0),
+        total_outstanding:    lenderReports.reduce((s, r) => s + r.outstanding_balance, 0),
+        avg_utilisation_pct:  lenderReports.length > 0
+          ? (lenderReports.reduce((s, r) => s + r.utilisation_rate_pct, 0) / lenderReports.length).toFixed(1)
+          : 0,
+        avg_payment_health_pct: lenderReports.length > 0
+          ? (lenderReports.reduce((s, r) => s + r.payment_health_pct, 0) / lenderReports.length).toFixed(1)
+          : 0,
+      };
+
+      // CSV export
+      let csv = '';
+      if (lenderReports.length > 0) {
+        const headers = Object.keys(lenderReports[0]);
+        const rows = lenderReports.map(r => headers.map(h => JSON.stringify(r[h] ?? '')).join(','));
+        csv = [headers.join(','), ...rows].join('\n');
+      }
+
+      // Optionally send email report
+      if (body.email_to && lenderReports.length > 0) {
+        const topLenders = lenderReports.slice(0, 5).map(r =>
+          `<tr>
+            <td style="padding:6px 8px">${r.lender_name}</td>
+            <td style="padding:6px 8px;text-align:right">UGX ${r.total_earnings_ugx.toLocaleString()}</td>
+            <td style="padding:6px 8px;text-align:right">${r.utilisation_rate_pct}%</td>
+            <td style="padding:6px 8px;text-align:right">${r.payment_health_pct}%</td>
+            <td style="padding:6px 8px;text-align:right">${r.active_rentals}</td>
+            <td style="padding:6px 8px;text-align:right">${r.avg_device_downtime_pct}%</td>
+          </tr>`
+        ).join('');
+
+        const emailBody = `
+          <div style="font-family:sans-serif;max-width:700px;margin:0 auto">
+            <div style="background:#006B3C;color:white;padding:24px;border-radius:8px 8px 0 0">
+              <h2 style="margin:0">🏦 Lender Rental Performance Report</h2>
+              <p style="margin:4px 0 0;opacity:0.8;font-size:13px">Generated: ${new Date().toLocaleString('en-UG',{timeZone:'Africa/Kampala'})}</p>
+            </div>
+            <div style="background:white;padding:24px;border:1px solid #e5e7eb;border-top:none">
+              <h3 style="color:#006B3C">Platform Summary</h3>
+              <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+                <tr><td style="padding:4px 8px;color:#555">Total Lenders</td><td style="padding:4px 8px;font-weight:bold">${summary.total_lenders}</td></tr>
+                <tr><td style="padding:4px 8px;color:#555">Active Rentals</td><td style="padding:4px 8px;font-weight:bold">${summary.active_rentals}</td></tr>
+                <tr><td style="padding:4px 8px;color:#555">Total Earnings</td><td style="padding:4px 8px;font-weight:bold">UGX ${summary.total_earnings_ugx.toLocaleString()}</td></tr>
+                <tr><td style="padding:4px 8px;color:#555">Avg Asset Utilisation</td><td style="padding:4px 8px;font-weight:bold">${summary.avg_utilisation_pct}%</td></tr>
+                <tr><td style="padding:4px 8px;color:#555">Avg Payment Health</td><td style="padding:4px 8px;font-weight:bold">${summary.avg_payment_health_pct}%</td></tr>
+              </table>
+              <h3 style="color:#006B3C">Top Lenders by Earnings</h3>
+              <table style="width:100%;border-collapse:collapse;font-size:13px">
+                <thead><tr style="background:#f3f4f6">
+                  <th style="padding:6px 8px;text-align:left">Lender</th>
+                  <th style="padding:6px 8px;text-align:right">Earnings</th>
+                  <th style="padding:6px 8px;text-align:right">Utilisation</th>
+                  <th style="padding:6px 8px;text-align:right">Payment Health</th>
+                  <th style="padding:6px 8px;text-align:right">Active</th>
+                  <th style="padding:6px 8px;text-align:right">Downtime</th>
+                </tr></thead>
+                <tbody>${topLenders}</tbody>
+              </table>
+            </div>
+          </div>`;
+
+        await base44.asServiceRole.integrations.Core.SendEmail({
+          to: body.email_to,
+          subject: `Pipiya Lender Rental Report — ${new Date().toLocaleDateString('en-UG',{timeZone:'Africa/Kampala'})}`,
+          body: emailBody,
+        }).catch(() => null);
+      }
+
+      return Response.json({ summary, lender_reports: lenderReports, csv });
     }
 
     return Response.json({ error: 'Unknown action' }, { status: 400 });
