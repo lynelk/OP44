@@ -32,18 +32,28 @@ export default function Dashboard() {
   const loadData = async () => {
     const me = await base44.auth.me();
     setUser(me);
-    const [l, s, n, b, scores, lenderInv, pockets, policies] = await Promise.all([
-      base44.entities.LoanApplication.filter({}),
-      base44.entities.SavingsPocket.filter({}),
-      base44.entities.Notification.filter({ is_read: false }),
-      base44.entities.GamificationBadge.filter({}),
+
+    // Batch 1: core data
+    const [l, n, scores] = await Promise.all([
+      base44.entities.LoanApplication.filter({ user_id: me.id }),
+      base44.entities.Notification.filter({ user_id: me.id, is_read: false }),
       base44.entities.CreditScore.filter({ user_id: me.id }, '-calculated_at', 1),
-      base44.entities.LenderInvestment.filter({ lender_id: me.id }),
+    ]);
+    setLoans(l); setNotifications(n);
+    if (scores.length > 0) setCreditScore(scores[0]);
+
+    // Batch 2: secondary data (staggered to avoid rate limits)
+    const [pockets, b] = await Promise.all([
       base44.entities.SavingsPocket.filter({ user_id: me.id }),
+      base44.entities.GamificationBadge.filter({ user_id: me.id }),
+    ]);
+    setSavings(pockets); setBadges(b);
+
+    // Batch 3: investment totals
+    const [lenderInv, policies] = await Promise.all([
+      base44.entities.LenderInvestment.filter({ lender_id: me.id }),
       base44.entities.InsurancePolicy.filter({ user_id: me.id }),
     ]);
-    setLoans(l); setSavings(s); setNotifications(n); setBadges(b);
-    if (scores.length > 0) setCreditScore(scores[0]);
     const p2pTotal = lenderInv.reduce((sum, i) => sum + (i.amount_invested || 0), 0);
     const savingsTotal = pockets.reduce((sum, p) => sum + (p.current_balance || 0), 0);
     const insuranceTotal = policies.reduce((sum, p) => sum + (p.total_premiums_paid || 0), 0);
