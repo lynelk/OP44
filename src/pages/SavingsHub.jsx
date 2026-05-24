@@ -50,7 +50,7 @@ export default function SavingsHub() {
       base44.entities.SavingsPocket.filter({ user_id: u.id }),
       base44.entities.SavingsGoal.filter({ user_id: u.id }),
       base44.entities.UserSavingsChallenge.filter({ user_id: u.id }),
-      base44.entities.SavingsGroup.filter({}),
+      base44.entities.SavingsGroup.filter({ created_by: u.email }),
     ]);
     setPockets(p);
     setGoals(g);

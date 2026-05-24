@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import ReferralCard from '@/components/referral/ReferralCard';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity, Handshake, Vault, GitCompare } from 'lucide-react';
+import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity, Handshake, Vault } from 'lucide-react';
 import MilestoneProgress from '@/components/milestones/MilestoneProgress';
 import ChallengesBoard from '@/components/dashboard/ChallengesBoard';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
@@ -86,14 +86,12 @@ export default function Dashboard() {
   const QUICK_ACTIONS = [
     { icon: CreditCard, label: 'Apply Loan', path: '/loans/apply', color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' },
     { icon: Wallet, label: 'Save', path: '/savings', color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300' },
-    { icon: Target, label: 'Budget', path: '/budget', color: 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-300' },
     { icon: Shield, label: 'Insure', path: '/insurance', color: 'bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-300' },
+    { icon: TrendingUp, label: 'Invest', path: '/invest', color: 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-300' },
     { icon: TrendingDown, label: 'Debt', path: '/debt-payoff', color: 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300' },
     { icon: Users, label: 'Groups', path: '/savings-groups', color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300' },
     { icon: Activity, label: 'Health', path: '/financial-health', color: 'bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300' },
-    { icon: Target, label: 'Goals', path: '/savings-goals', color: 'bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-300' },
     { icon: Handshake, label: 'P2P', path: '/p2p', color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300' },
-    { icon: GitCompare, label: 'Benchmark', path: '/benchmarking', color: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-900/40 dark:text-cyan-300' },
   ];
 
   return (
@@ -315,31 +313,21 @@ export default function Dashboard() {
         {/* Referral Card */}
         <ReferralCard />
 
-        {/* Daily Wellness Journey */}
-        {user && <DailyWellnessJourney userId={user.id} />}
-
-        {/* Challenges & Milestones */}
-        {user && (
-          <>
-            <div><ChallengesBoard userId={user.id} /></div>
-            <div><MilestoneProgress userId={user.id} /></div>
-          </>
-        )}
-
-        {/* Badges */}
-        {badges.length > 0 && (
-          <div>
-            <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm mb-3">Achievements</h2>
-            <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-hide">
-              {badges.map(badge => (
-                <div key={badge.id} className="flex-shrink-0 bg-white dark:bg-gray-800 rounded-2xl p-3 shadow-sm text-center w-20">
-                  <div className="text-2xl mb-1">🏆</div>
-                  <p className="text-[10px] text-gray-600 dark:text-gray-400 leading-tight">{badge.badge_name}</p>
-                </div>
-              ))}
+        {/* Journey teaser — tap to explore more */}
+        <Link to="/profile">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-purple-50 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                <Activity className="w-5 h-5 text-purple-500" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm text-gray-900 dark:text-white">My Journey</p>
+                <p className="text-xs text-gray-400">Challenges, milestones & badges</p>
+              </div>
             </div>
+            <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600" />
           </div>
-        )}
+        </Link>
       </div>
     </div>
   );

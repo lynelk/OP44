@@ -63,6 +63,7 @@ import AccessibilityStatement from './pages/AccessibilityStatement';
 import ErrorBoundary from './components/ErrorBoundary';
 import Benchmarking from './pages/Benchmarking';
 import CollectionsMonitor from './pages/CollectionsMonitor';
+import AdminRoute from './components/AdminRoute';
 
 // Root paths get a fade transition; child paths slide in from the right
 const ROOT_PATHS = ['/', '/loans', '/savings', '/budget', '/profile', '/credit-score', '/invest', '/insurance', '/financial-health', '/notifications', '/p2p', '/savings-goals', '/savings-groups', '/savings-challenges', '/group-challenges', '/debt-payoff', '/about', '/contact', '/privacy', '/terms', '/accessibility'];
@@ -156,22 +157,22 @@ const AuthenticatedApp = () => {
       <Route path="/financial-health" element={<><FinancialHealth /><BottomNav /></>} />
       <Route path="/invest" element={<><Invest /><BottomNav /></>} />
       <Route path="/landing" element={<LandingPage />} />
-      <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/admin/users" element={<AdminUsers />} />
-      <Route path="/admin/products" element={<AdminProducts />} />
-      <Route path="/admin/rules" element={<AdminRules />} />
-      <Route path="/admin/crb" element={<AdminCRB />} />
-      <Route path="/admin/submissions" element={<AdminSubmissions />} />
-      <Route path="/admin/loans" element={<AdminLoans />} />
-      <Route path="/admin/loans/reschedule" element={<AdminRescheduleRequests />} />
+      <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+      <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+      <Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
+      <Route path="/admin/rules" element={<AdminRoute><AdminRules /></AdminRoute>} />
+      <Route path="/admin/crb" element={<AdminRoute><AdminCRB /></AdminRoute>} />
+      <Route path="/admin/submissions" element={<AdminRoute><AdminSubmissions /></AdminRoute>} />
+      <Route path="/admin/loans" element={<AdminRoute><AdminLoans /></AdminRoute>} />
+      <Route path="/admin/loans/reschedule" element={<AdminRoute><AdminRescheduleRequests /></AdminRoute>} />
       <Route path="/ussd" element={<USSDSimulator />} />
       <Route path="/p2p" element={<><P2PDashboard /><BottomNav /></>} />
       <Route path="/p2p/onboarding" element={<P2POnboarding />} />
       <Route path="/p2p/apply" element={<P2PApply />} />
       <Route path="/p2p/marketplace" element={<P2PMarketplace />} />
-      <Route path="/admin/p2p" element={<AdminP2P />} />
-      <Route path="/admin/reports" element={<AdminReports />} />
-      <Route path="/admin/portfolios" element={<AdminPortfolios />} />
+      <Route path="/admin/p2p" element={<AdminRoute><AdminP2P /></AdminRoute>} />
+      <Route path="/admin/reports" element={<AdminRoute><AdminReports /></AdminRoute>} />
+      <Route path="/admin/portfolios" element={<AdminRoute><AdminPortfolios /></AdminRoute>} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -179,8 +180,8 @@ const AuthenticatedApp = () => {
       <Route path="/data-rights" element={<><DataRights /><BottomNav /></>} />
       <Route path="/accessibility" element={<AccessibilityStatement />} />
       <Route path="/benchmarking" element={<><Benchmarking /><BottomNav /></>} />
-      <Route path="/admin/collections" element={<CollectionsMonitor />} />
-      <Route path="/admin/documents" element={<AdminDocumentReview />} />
+      <Route path="/admin/collections" element={<AdminRoute><CollectionsMonitor /></AdminRoute>} />
+      <Route path="/admin/documents" element={<AdminRoute><AdminDocumentReview /></AdminRoute>} />
       <Route path="/savings-goals" element={<><SavingsGoals /><BottomNav /></>} />
       <Route path="/loans/pre-qualify" element={<><LoanPreQualify /><BottomNav /></>} />
       <Route path="*" element={<PageNotFound />} />

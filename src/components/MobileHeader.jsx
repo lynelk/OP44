@@ -23,11 +23,22 @@ const PAGE_TITLES = {
   '/notifications': 'Notifications',
   '/consent': 'Privacy & Consent',
   '/debt-payoff': 'Debt Payoff',
-  '/savings-challenges': 'Challenges',
+  '/savings-challenges': 'Savings Challenges',
+  '/group-challenges': 'Group Challenges',
   '/data-rights': 'My Data Rights',
+  '/p2p': 'P2P Marketplace',
+  '/p2p/onboarding': 'P2P Setup',
+  '/p2p/apply': 'Apply for P2P Loan',
+  '/p2p/marketplace': 'Loan Marketplace',
+  '/savings-groups': 'Savings Groups',
+  '/benchmarking': 'Benchmarking',
+  '/health/projection': 'Health Projection',
+  '/budget/insights': 'Budget Insights',
+  '/ussd': 'USSD Simulator',
+  '/ussd-monitor': 'USSD Monitor',
 };
 
-const ROOT_PATHS = ['/', '/loans', '/savings', '/invest', '/profile'];
+const ROOT_PATHS = ['/', '/loans', '/savings', '/invest', '/profile', '/budget', '/p2p', '/savings-groups', '/savings-challenges', '/group-challenges', '/notifications', '/debt-payoff', '/benchmarking'];
 
 export default function MobileHeader() {
   const location = useLocation();

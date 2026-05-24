@@ -6,6 +6,9 @@ import { Link } from 'react-router-dom';
 import { Shield, Bell, LogOut, ChevronRight, Star, Award, ToggleLeft, LayoutDashboard, User, AlertCircle } from 'lucide-react';
 import AchievementHub from '@/components/profile/AchievementHub';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
+import DailyWellnessJourney from '@/components/wellness/DailyWellnessJourney';
+import ChallengesBoard from '@/components/dashboard/ChallengesBoard';
+import MilestoneProgress from '@/components/milestones/MilestoneProgress';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
@@ -79,17 +82,22 @@ export default function Profile() {
         {/* KYC Unlock Requirements */}
         <UnlockRequirements compact={false} />
 
+        {/* Journey: Wellness, Challenges, Milestones */}
+        {user && <DailyWellnessJourney userId={user.id} />}
+        {user && <ChallengesBoard userId={user.id} />}
+        {user && <MilestoneProgress userId={user.id} />}
+
         {/* Achievement Hub */}
         <AchievementHub />
 
         {/* Settings Menu */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
           {[
-            { icon: Shield, label: 'Identity & KYC', sub: kycApproved ? 'Verified' : 'Action needed', to: null, iconBg: 'bg-blue-100 dark:bg-blue-900/40', iconColor: 'text-blue-600 dark:text-blue-400' },
+            { icon: Shield, label: 'Identity & KYC', sub: kycApproved ? 'Verified' : 'Action needed', to: '/credit-score', iconBg: 'bg-blue-100 dark:bg-blue-900/40', iconColor: 'text-blue-600 dark:text-blue-400' },
             { icon: Bell, label: 'Notifications', sub: 'Manage alerts', to: '/notifications', iconBg: 'bg-red-100 dark:bg-red-900/40', iconColor: 'text-red-500' },
             { icon: ToggleLeft, label: 'Data & Consent', sub: 'Manage your consents', to: '/consent', iconBg: 'bg-purple-100 dark:bg-purple-900/40', iconColor: 'text-purple-600 dark:text-purple-400' },
             { icon: Shield, label: 'My Data Rights', sub: 'Access, export or delete your data', to: '/data-rights', iconBg: 'bg-green-100 dark:bg-green-900/40', iconColor: 'text-green-600 dark:text-green-400' },
-            { icon: User, label: 'Account Settings', sub: 'Profile & preferences', to: null, iconBg: 'bg-gray-100 dark:bg-gray-700', iconColor: 'text-gray-600 dark:text-gray-400' },
+            { icon: User, label: 'Account Settings', sub: 'Edit profile & preferences', to: '/p2p/onboarding', iconBg: 'bg-gray-100 dark:bg-gray-700', iconColor: 'text-gray-600 dark:text-gray-400' },
           ].map(({ icon: Icon, label, sub, to, iconBg, iconColor }, idx, arr) => {
             const inner = (
               <div className={`flex items-center justify-between px-4 py-3.5 min-h-[60px] ${idx < arr.length - 1 ? 'border-b border-gray-50 dark:border-gray-700' : ''}`}>
