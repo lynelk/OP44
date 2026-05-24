@@ -67,10 +67,11 @@ import AdminRoute from './components/AdminRoute';
 import GPSTrackingDashboard from './pages/GPSTrackingDashboard';
 import DeviceVerificationQueue from './pages/admin/DeviceVerificationQueue';
 import RentalDisputeCenter from './pages/RentalDisputeCenter';
-import DeviceMarketplace from './pages/DeviceMarketplace';
 import AdminRevenue from './pages/admin/AdminRevenue';
 import AdminAccountBalances from './pages/admin/AdminAccountBalances';
 import DeviceMaintenance from './pages/admin/DeviceMaintenance';
+import DeviceMarketplace from './pages/DeviceMarketplace';
+import LenderAnalytics from './pages/LenderAnalytics';
 
 // Root paths get a fade transition; child paths slide in from the right
 const ROOT_PATHS = ['/', '/loans', '/savings', '/budget', '/profile', '/credit-score', '/invest', '/insurance', '/financial-health', '/notifications', '/p2p', '/savings-goals', '/savings-groups', '/savings-challenges', '/group-challenges', '/debt-payoff', '/about', '/contact', '/privacy', '/terms', '/accessibility'];
@@ -196,6 +197,7 @@ const AuthenticatedApp = () => {
       <Route path="/gps-tracker" element={<><GPSTrackingDashboard /><BottomNav /></>} />
       <Route path="/disputes" element={<><RentalDisputeCenter /><BottomNav /></>} />
       <Route path="/marketplace" element={<><DeviceMarketplace /><BottomNav /></>} />
+      <Route path="/lender-analytics" element={<><LenderAnalytics /><BottomNav /></>} />
       <Route path="/savings-goals" element={<><SavingsGoals /><BottomNav /></>} />
       <Route path="/loans/pre-qualify" element={<><LoanPreQualify /><BottomNav /></>} />
       <Route path="*" element={<PageNotFound />} />

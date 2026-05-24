@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { Shield, Bell, LogOut, ChevronRight, Star, Award, ToggleLeft, LayoutDashboard, User, AlertCircle } from 'lucide-react';
+import { Shield, Bell, LogOut, ChevronRight, Star, Award, ToggleLeft, LayoutDashboard, User, AlertCircle, TrendingUp } from 'lucide-react';
 import AchievementHub from '@/components/profile/AchievementHub';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
 import DailyWellnessJourney from '@/components/wellness/DailyWellnessJourney';
@@ -16,11 +16,13 @@ import {
 
 export default function Profile() {
   const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [kyc, setKyc] = useState([]);
   const [badges, setBadges] = useState([]);
 
   useEffect(() => {
     base44.auth.me().then(setUser);
+    base44.entities.UserProfile.filter({}).then(r => setUserProfile(r[0] || null));
     base44.entities.KYCDocument.filter({}).then(setKyc);
     base44.entities.GamificationBadge.filter({}).then(setBadges);
   }, []);
@@ -89,6 +91,22 @@ export default function Profile() {
 
         {/* Achievement Hub */}
         <AchievementHub />
+
+        {/* Lender Analytics Link */}
+        {userProfile?.account_type === 'lender' && (
+          <Link to="/lender-analytics">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-100 dark:border-purple-800 mb-4">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm text-gray-900 dark:text-white">Lender Analytics</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Track your rental performance</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </div>
+          </Link>
+        )}
 
         {/* Settings Menu */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">

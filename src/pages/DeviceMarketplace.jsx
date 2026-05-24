@@ -1,230 +1,310 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { MapPin, Search, SlidersHorizontal, ChevronLeft, Star, Shield, Zap, Tag, X } from 'lucide-react';
+import { Search, Filter, MapPin, DollarSign, Calendar, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Link } from 'react-router-dom';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { toast } from 'sonner';
 
-const DEVICE_TYPE_EMOJI = {
-  Motorcycle: '🏍️', Car: '🚗', Phone: '📱', Laptop: '💻',
-  'Agro Input': '🌾', Fuel: '⛽', 'Solar Item': '☀️', Other: '📦'
-};
-
-const FINANCING_COLOR = {
-  'Daily Hire': 'bg-blue-100 text-blue-700',
-  'Weekly Hire': 'bg-purple-100 text-purple-700',
-  'Monthly Hire': 'bg-teal-100 text-teal-700',
-  'Hire Purchase': 'bg-amber-100 text-amber-700',
-  'Outright Purchase': 'bg-green-100 text-green-700'
-};
+const DEVICE_TYPES = ['Motorcycle', 'Car', 'Phone', 'Laptop', 'Agro Input', 'Fuel', 'Solar Item', 'Other'];
+const FINANCING_OPTIONS = ['Daily Hire', 'Weekly Hire', 'Monthly Hire', 'Hire Purchase'];
 
 export default function DeviceMarketplace() {
-  const [devices, setDevices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
-  const [filterType, setFilterType] = useState('All');
-  const [filterFinancing, setFilterFinancing] = useState('All');
-  const [filterDistrict, setFilterDistrict] = useState('');
-  const [selectedDevice, setSelectedDevice] = useState(null);
+    const [devices, setDevices] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedType, setSelectedType] = useState('all');
+    const [priceRange, setPriceRange] = useState([0, 1000000]);
+    const [selectedDevice, setSelectedDevice] = useState(null);
+    const [rentalDialogOpen, setRentalDialogOpen] = useState(false);
+    const [rentalData, setRentalData] = useState({
+        start_date: '',
+        end_date: '',
+        financing_type: 'Daily Hire',
+    });
+    const [requesting, setRequesting] = useState(false);
+    const [user, setUser] = useState(null);
 
-  const load = async () => {
-    setLoading(true);
-    const res = await base44.entities.Device.filter({ is_listed_on_marketplace: true, admin_verification_status: 'Approved' });
-    setDevices(res || []);
-    setLoading(false);
-  };
+    useEffect(() => {
+        fetchDevices();
+        checkAuth();
+    }, []);
 
-  useEffect(() => { load(); }, []);
+    const checkAuth = async () => {
+        try {
+            const currentUser = await base44.auth.me();
+            setUser(currentUser);
+        } catch {
+            setUser(null);
+        }
+    };
 
-  const filtered = devices.filter(d => {
-    const matchSearch = !search || `${d.make} ${d.model} ${d.device_type} ${d.district}`.toLowerCase().includes(search.toLowerCase());
-    const matchType = filterType === 'All' || d.device_type === filterType;
-    const matchFinancing = filterFinancing === 'All' || d.financing_options?.includes(filterFinancing);
-    const matchDistrict = !filterDistrict || d.district?.toLowerCase().includes(filterDistrict.toLowerCase());
-    return matchSearch && matchType && matchFinancing && matchDistrict;
-  });
+    const fetchDevices = async () => {
+        setLoading(true);
+        try {
+            const allDevices = await base44.entities.Device.filter({});
+            const availableDevices = allDevices.filter(d => 
+                d.status === 'Available' && 
+                d.admin_verification_status === 'Approved' &&
+                d.is_listed_on_marketplace === true
+            );
+            setDevices(availableDevices);
+        } catch (error) {
+            console.error('Error fetching devices:', error);
+            toast.error('Failed to load devices');
+        }
+        setLoading(false);
+    };
 
-  const deviceTypes = ['All', 'Motorcycle', 'Car', 'Phone', 'Laptop', 'Agro Input', 'Fuel', 'Solar Item'];
+    const filteredDevices = devices.filter(device => {
+        const matchesSearch = (device.make?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            device.model?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            device.location_address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            device.district?.toLowerCase().includes(searchTerm.toLowerCase()));
+        const matchesType = selectedType === 'all' || device.device_type === selectedType;
+        const matchesPrice = device.daily_rate >= priceRange[0] && device.daily_rate <= priceRange[1];
+        return matchesSearch && matchesType && matchesPrice;
+    });
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-6">
-        <Link to="/" className="flex items-center gap-1 text-green-200 text-sm mb-3">
-          <ChevronLeft className="w-4 h-4" /> Home
-        </Link>
-        <h1 className="text-xl font-black">Asset Marketplace</h1>
-        <p className="text-green-200 text-xs mt-0.5">{filtered.length} verified assets available</p>
+    const handleRequestRental = async () => {
+        if (!user) {
+            toast.error('Please login to request a rental');
+            return;
+        }
+        if (!rentalData.start_date || !rentalData.end_date) {
+            toast.error('Please select start and end dates');
+            return;
+        }
 
-        <div className="flex gap-2 mt-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Search by type, make, district..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="pl-9 bg-white text-gray-800 border-none"
-            />
-          </div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${showFilters ? 'bg-white text-[#006B3C]' : 'bg-white/20 text-white'}`}
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-          </button>
+        setRequesting(true);
+        try {
+            const userProfile = await base44.entities.UserProfile.filter({ user_id: user.id }).then(r => r[0]);
+            if (!userProfile) {
+                toast.error('Please complete your profile first');
+                setRequesting(false);
+                return;
+            }
+
+            const startDate = new Date(rentalData.start_date);
+            const endDate = new Date(rentalData.end_date);
+            const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+            
+            let totalFee = 0;
+            if (rentalData.financing_type === 'Daily Hire') {
+                totalFee = selectedDevice.daily_rate * days;
+            } else if (rentalData.financing_type === 'Weekly Hire') {
+                totalFee = (selectedDevice.weekly_rate || selectedDevice.daily_rate * 7) * Math.ceil(days / 7);
+            } else if (rentalData.financing_type === 'Monthly Hire') {
+                totalFee = (selectedDevice.monthly_rate || selectedDevice.daily_rate * 30) * Math.ceil(days / 30);
+            }
+
+            const rentalRef = `RA-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+            
+            await base44.entities.RentalAgreement.create({
+                device_id: selectedDevice.id,
+                borrower_id: user.id,
+                lender_id: selectedDevice.lender_id,
+                rental_ref: rentalRef,
+                start_date: rentalData.start_date,
+                end_date: rentalData.end_date,
+                financing_type: rentalData.financing_type,
+                total_rental_fee: totalFee,
+                payment_method: 'MTN Mobile Money',
+                status: 'Requested',
+                delivery_method: 'Pickup',
+                description: `Rental request for ${selectedDevice.make} ${selectedDevice.model}`,
+            });
+
+            toast.success('Rental request submitted! Lender will review soon.');
+            setRentalDialogOpen(false);
+            setRentalData({ start_date: '', end_date: '', financing_type: 'Daily Hire' });
+        } catch (error) {
+            console.error('Error creating rental:', error);
+            toast.error('Failed to submit rental request');
+        }
+        setRequesting(false);
+    };
+
+    return (
+        <div className="min-h-screen bg-gray-50 pb-24">
+            <div className="bg-[#006B3C] text-white px-4 pt-10 pb-6">
+                <h1 className="text-2xl font-bold">Device Marketplace</h1>
+                <p className="text-green-100 text-sm mt-1">Rent verified devices from trusted lenders</p>
+            </div>
+
+            <div className="px-4 mt-4 space-y-4">
+                <Card>
+                    <CardContent className="p-4 space-y-3">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                            <Input
+                                placeholder="Search by make, model, or location..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-10"
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <Select value={selectedType} onValueChange={setSelectedType}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Device Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Types</SelectItem>
+                                    {DEVICE_TYPES.map(type => (
+                                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Select value={String(priceRange[1])} onValueChange={(v) => setPriceRange([0, Number(v)])}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Max Price" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="100000">UGX 100K</SelectItem>
+                                    <SelectItem value="500000">UGX 500K</SelectItem>
+                                    <SelectItem value="1000000">UGX 1M</SelectItem>
+                                    <SelectItem value="2000000">UGX 2M</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {loading ? (
+                    <div className="flex justify-center py-12">
+                        <div className="w-8 h-8 border-4 border-green-100 border-t-[#006B3C] rounded-full animate-spin"></div>
+                    </div>
+                ) : filteredDevices.length === 0 ? (
+                    <Card>
+                        <CardContent className="py-12 text-center text-gray-500">
+                            <AlertCircle className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                            <p>No devices found matching your criteria</p>
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {filteredDevices.map(device => (
+                            <Card key={device.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                                <CardHeader className="p-0">
+                                    {device.image_urls?.[0] ? (
+                                        <img src={device.image_urls[0]} alt={`${device.make} ${device.model}`} className="w-full h-48 object-cover" />
+                                    ) : (
+                                        <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                                            <span className="text-gray-400 text-4xl">📷</span>
+                                        </div>
+                                    )}
+                                </CardHeader>
+                                <CardContent className="p-4 space-y-3">
+                                    <div>
+                                        <h3 className="font-bold text-lg">{device.make} {device.model}</h3>
+                                        <p className="text-sm text-gray-500">{device.device_type}</p>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                                        <MapPin className="w-4 h-4" />
+                                        <span className="truncate">{device.district || device.location_address || 'Location not specified'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <DollarSign className="w-4 h-4 text-[#006B3C]" />
+                                        <span className="font-semibold text-[#006B3C]">UGX {device.daily_rate?.toLocaleString()}/day</span>
+                                    </div>
+                                    {device.condition_type && (
+                                        <div className="flex items-center gap-2">
+                                            <CheckCircle className="w-4 h-4 text-green-600" />
+                                            <span className="text-xs text-gray-600">{device.condition_type} condition</span>
+                                        </div>
+                                    )}
+                                    <Dialog open={rentalDialogOpen && selectedDevice?.id === device.id} onOpenChange={(open) => {
+                                        setRentalDialogOpen(open);
+                                        if (!open) setSelectedDevice(null);
+                                    }}>
+                                        <DialogTrigger asChild>
+                                            <Button 
+                                                className="w-full bg-[#006B3C] hover:bg-[#005a32]"
+                                                onClick={() => setSelectedDevice(device)}
+                                            >
+                                                Request Rental
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="max-w-md">
+                                            <DialogHeader>
+                                                <DialogTitle>Request Rental</DialogTitle>
+                                                <DialogDescription>
+                                                    {selectedDevice?.make} {selectedDevice?.model}
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <div className="space-y-4 py-4">
+                                                <div>
+                                                    <Label>Start Date</Label>
+                                                    <Input 
+                                                        type="date" 
+                                                        value={rentalData.start_date}
+                                                        onChange={(e) => setRentalData({...rentalData, start_date: e.target.value})}
+                                                        min={new Date().toISOString().split('T')[0]}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>End Date</Label>
+                                                    <Input 
+                                                        type="date" 
+                                                        value={rentalData.end_date}
+                                                        onChange={(e) => setRentalData({...rentalData, end_date: e.target.value})}
+                                                        min={rentalData.start_date || new Date().toISOString().split('T')[0]}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <Label>Financing Type</Label>
+                                                    <Select 
+                                                        value={rentalData.financing_type}
+                                                        onValueChange={(v) => setRentalData({...rentalData, financing_type: v})}
+                                                    >
+                                                        <SelectTrigger>
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {FINANCING_OPTIONS.map(opt => (
+                                                                <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                {rentalData.start_date && rentalData.end_date && (
+                                                    <div className="bg-gray-50 p-3 rounded-lg">
+                                                        <p className="text-sm text-gray-600">
+                                                            Estimated Total: <span className="font-bold text-[#006B3C]">
+                                                                UGX {(() => {
+                                                                    const days = Math.ceil((new Date(rentalData.end_date) - new Date(rentalData.start_date)) / (1000 * 60 * 60 * 24));
+                                                                    if (rentalData.financing_type === 'Daily Hire') return (selectedDevice?.daily_rate * days)?.toLocaleString();
+                                                                    if (rentalData.financing_type === 'Weekly Hire') return ((selectedDevice?.weekly_rate || selectedDevice?.daily_rate * 7) * Math.ceil(days / 7))?.toLocaleString();
+                                                                    if (rentalData.financing_type === 'Monthly Hire') return ((selectedDevice?.monthly_rate || selectedDevice?.daily_rate * 30) * Math.ceil(days / 30))?.toLocaleString();
+                                                                    return '0';
+                                                                })()}
+                                                            </span>
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <DialogFooter>
+                                                <Button variant="outline" onClick={() => setRentalDialogOpen(false)}>Cancel</Button>
+                                                <Button 
+                                                    className="bg-[#006B3C] hover:bg-[#005a32]"
+                                                    onClick={handleRequestRental}
+                                                    disabled={requesting}
+                                                >
+                                                    {requesting ? 'Submitting...' : 'Submit Request'}
+                                                </Button>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
-
-        {showFilters && (
-          <div className="bg-white/10 rounded-2xl p-4 mt-3 space-y-3">
-            <div>
-              <p className="text-xs text-green-200 mb-2 font-semibold">Device Type</p>
-              <div className="flex flex-wrap gap-1.5">
-                {deviceTypes.map(t => (
-                  <button key={t} onClick={() => setFilterType(t)} className={`px-2.5 py-1 rounded-full text-xs font-semibold ${filterType === t ? 'bg-white text-[#006B3C]' : 'bg-white/15 text-white'}`}>{t}</button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p className="text-xs text-green-200 mb-2 font-semibold">Financing Option</p>
-              <div className="flex flex-wrap gap-1.5">
-                {['All', 'Daily Hire', 'Weekly Hire', 'Monthly Hire', 'Hire Purchase', 'Outright Purchase'].map(f => (
-                  <button key={f} onClick={() => setFilterFinancing(f)} className={`px-2.5 py-1 rounded-full text-xs font-semibold ${filterFinancing === f ? 'bg-white text-[#006B3C]' : 'bg-white/15 text-white'}`}>{f}</button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p className="text-xs text-green-200 mb-1 font-semibold">District</p>
-              <Input placeholder="e.g. Kampala, Entebbe..." value={filterDistrict} onChange={e => setFilterDistrict(e.target.value)} className="bg-white/20 border-none text-white placeholder:text-green-200 text-sm" />
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Type scroll bar */}
-      <div className="flex gap-2 px-4 py-3 overflow-x-auto scrollbar-hide bg-white border-b border-gray-100">
-        {deviceTypes.map(t => (
-          <button key={t} onClick={() => setFilterType(t)} className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${filterType === t ? 'bg-[#006B3C] text-white' : 'bg-gray-100 text-gray-600'}`}>
-            {t !== 'All' ? DEVICE_TYPE_EMOJI[t] : ''} {t}
-          </button>
-        ))}
-      </div>
-
-      <div className="px-4 py-4 pb-24 space-y-3">
-        {loading ? (
-          [1, 2, 3].map(i => <div key={i} className="bg-white rounded-2xl h-36 animate-pulse" />)
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
-            <Search className="w-10 h-10 mx-auto mb-2 opacity-20" />
-            <p className="text-sm font-medium">No assets found</p>
-            <p className="text-xs mt-1">Try adjusting your filters</p>
-          </div>
-        ) : filtered.map(device => (
-          <button key={device.id} onClick={() => setSelectedDevice(device)} className="w-full bg-white rounded-2xl overflow-hidden shadow-sm text-left hover:shadow-md transition-shadow">
-            {device.image_urls?.[0] && (
-              <img src={device.image_urls[0]} alt={`${device.make} ${device.model}`} className="w-full h-40 object-cover" />
-            )}
-            <div className="p-4">
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <p className="font-black text-base">{DEVICE_TYPE_EMOJI[device.device_type]} {device.make} {device.model}</p>
-                  <p className="text-xs text-gray-500">{device.year || ''} · {device.condition_type}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-black text-lg text-[#006B3C]">UGX {device.daily_rate?.toLocaleString()}</p>
-                  <p className="text-xs text-gray-400">per day</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1.5 mb-3 flex-wrap">
-                {device.financing_options?.slice(0, 3).map(f => (
-                  <span key={f} className={`text-xs font-semibold px-2 py-0.5 rounded-full ${FINANCING_COLOR[f] || 'bg-gray-100 text-gray-600'}`}>{f}</span>
-                ))}
-              </div>
-
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{device.district || device.location_address || 'Location N/A'}</span>
-                <div className="flex items-center gap-2">
-                  {device.has_gps_tracker && <span className="flex items-center gap-0.5 text-green-600 font-semibold"><Zap className="w-3 h-3" />GPS</span>}
-                  {device.insurance_status === 'Insured' && <span className="flex items-center gap-0.5 text-blue-600 font-semibold"><Shield className="w-3 h-3" />Insured</span>}
-                </div>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-
-      {/* Device Detail Modal */}
-      {selectedDevice && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-end">
-          <div className="bg-white w-full rounded-t-3xl max-h-[85vh] overflow-y-auto">
-            <div className="relative">
-              {selectedDevice.image_urls?.[0] ? (
-                <img src={selectedDevice.image_urls[0]} alt="" className="w-full h-48 object-cover rounded-t-3xl" />
-              ) : (
-                <div className="w-full h-20 bg-gray-100 rounded-t-3xl" />
-              )}
-              <button onClick={() => setSelectedDevice(null)} className="absolute top-3 right-3 bg-white/80 w-8 h-8 rounded-full flex items-center justify-center">
-                <X className="w-4 h-4 text-gray-700" />
-              </button>
-            </div>
-            <div className="p-5 space-y-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h2 className="font-black text-xl">{selectedDevice.make} {selectedDevice.model}</h2>
-                  <p className="text-sm text-gray-500">{selectedDevice.device_type} · {selectedDevice.year} · {selectedDevice.condition_type}</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-black text-xl text-[#006B3C]">UGX {selectedDevice.daily_rate?.toLocaleString()}</p>
-                  <p className="text-xs text-gray-400">/day</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                {[
-                  ['Weekly Rate', selectedDevice.weekly_rate ? `UGX ${selectedDevice.weekly_rate?.toLocaleString()}` : 'N/A'],
-                  ['Monthly Rate', selectedDevice.monthly_rate ? `UGX ${selectedDevice.monthly_rate?.toLocaleString()}` : 'N/A'],
-                  ['Location', selectedDevice.district || selectedDevice.location_address || 'N/A'],
-                  ['Min. Rental', `${selectedDevice.min_rental_days || 1} day(s)`],
-                  ['Insurance', selectedDevice.insurance_status],
-                  ['GPS Tracker', selectedDevice.has_gps_tracker ? 'Yes ✓' : 'No'],
-                ].map(([label, val]) => (
-                  <div key={label} className="bg-gray-50 rounded-xl p-2.5">
-                    <p className="text-gray-400 text-xs">{label}</p>
-                    <p className="font-semibold text-sm">{val}</p>
-                  </div>
-                ))}
-              </div>
-
-              {selectedDevice.description && (
-                <div className="bg-gray-50 rounded-xl p-3 text-sm">
-                  <p className="text-gray-400 text-xs mb-1">Description</p>
-                  <p className="text-gray-700">{selectedDevice.description}</p>
-                </div>
-              )}
-
-              {selectedDevice.financing_options?.length > 0 && (
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 mb-2">Financing Options</p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedDevice.financing_options.map(f => (
-                      <span key={f} className={`text-xs font-semibold px-3 py-1 rounded-full ${FINANCING_COLOR[f] || 'bg-gray-100 text-gray-600'}`}>{f}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-amber-700">
-                <p className="font-bold mb-0.5">💡 Insurance Note</p>
-                <p>All rentals include auto-calculated insurance. If not bundled, both device and individual insurance will be auto-allocated.</p>
-              </div>
-
-              <Button className="w-full bg-[#006B3C] hover:bg-[#005530] font-bold h-12 text-base">
-                Request This Device
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    );
 }
