@@ -66,8 +66,8 @@ export default function Invest() {
           </div>
           <div className="bg-white/10 rounded-2xl p-3">
             <p className="text-xs text-slate-300 mb-0.5">Returns Earned</p>
-            <p className="text-xl font-bold text-emerald-400">UGX {(totalReturns / 1000).toFixed(0)}K</p>
-            {totalInvested > 0 && <p className="text-xs text-emerald-300 mt-0.5 flex items-center gap-0.5"><ArrowUpRight className="w-3 h-3" />{((totalReturns / totalInvested) * 100).toFixed(1)}% ROI</p>}
+            <p className="text-xl font-bold text-[#F4B400]">UGX {(totalReturns / 1000).toFixed(0)}K</p>
+            {totalInvested > 0 && <p className="text-xs text-[#F4B400]/80 mt-0.5 flex items-center gap-0.5"><ArrowUpRight className="w-3 h-3" />{((totalReturns / totalInvested) * 100).toFixed(1)}% ROI</p>}
           </div>
         </div>
       </div>
@@ -136,7 +136,7 @@ export default function Invest() {
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-center mb-3">
                       {[
-                        { label: 'Return', value: `${pool.interest_rate_offered}%`, color: 'text-emerald-600 dark:text-emerald-400' },
+                        { label: 'Return', value: `${pool.interest_rate_offered}%`, color: 'text-[#006B3C] dark:text-[#7BC943]' },
                         { label: 'Duration', value: `${pool.loan_duration_months}mo`, color: 'text-gray-800 dark:text-white' },
                         { label: 'Min.', value: `${(pool.min_investment_per_investor / 1000).toFixed(0)}K`, color: 'text-gray-800 dark:text-white' },
                       ].map(({ label, value, color }) => (
@@ -152,7 +152,7 @@ export default function Invest() {
                         <span>UGX {(pool.current_amount_raised || 0).toLocaleString()}</span>
                       </div>
                       <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full">
-                        <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${fundingPct}%` }} />
+                        <div className="h-full bg-gradient-to-r from-[#006B3C] to-[#7BC943] rounded-full transition-all" style={{ width: `${fundingPct}%` }} />
                       </div>
                     </div>
                   </div>

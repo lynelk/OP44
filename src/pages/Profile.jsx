@@ -95,8 +95,8 @@ export default function Profile() {
         {/* Lender Analytics Link */}
         {userProfile?.account_type === 'lender' && (
           <Link to="/lender-analytics">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-100 dark:border-purple-800 mb-4">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center flex-shrink-0">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-[#006B3C]/10 to-[#7BC943]/10 dark:from-[#006B3C]/20 dark:to-[#7BC943]/20 border border-[#006B3C]/20 dark:border-[#006B3C]/30 mb-4">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#006B3C] to-[#7BC943] flex items-center justify-center flex-shrink-0">
                 <TrendingUp className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1 min-w-0">
@@ -111,10 +111,10 @@ export default function Profile() {
         {/* Settings Menu */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
           {[
-            { icon: Shield, label: 'Identity & KYC', sub: kycApproved ? 'Verified' : 'Action needed', to: '/credit-score', iconBg: 'bg-blue-100 dark:bg-blue-900/40', iconColor: 'text-blue-600 dark:text-blue-400' },
-            { icon: Bell, label: 'Notifications', sub: 'Manage alerts', to: '/notifications', iconBg: 'bg-red-100 dark:bg-red-900/40', iconColor: 'text-red-500' },
-            { icon: ToggleLeft, label: 'Data & Consent', sub: 'Manage your consents', to: '/consent', iconBg: 'bg-purple-100 dark:bg-purple-900/40', iconColor: 'text-purple-600 dark:text-purple-400' },
-            { icon: Shield, label: 'My Data Rights', sub: 'Access, export or delete your data', to: '/data-rights', iconBg: 'bg-green-100 dark:bg-green-900/40', iconColor: 'text-green-600 dark:text-green-400' },
+            { icon: Shield, label: 'Identity & KYC', sub: kycApproved ? 'Verified' : 'Action needed', to: '/credit-score', iconBg: 'bg-[#006B3C]/10 dark:bg-[#006B3C]/20', iconColor: 'text-[#006B3C] dark:text-[#7BC943]' },
+            { icon: Bell, label: 'Notifications', sub: 'Manage alerts', to: '/notifications', iconBg: 'bg-[#F4B400]/10 dark:bg-[#F4B400]/20', iconColor: 'text-[#F4B400]' },
+            { icon: ToggleLeft, label: 'Data & Consent', sub: 'Manage your consents', to: '/consent', iconBg: 'bg-[#7BC943]/10 dark:bg-[#7BC943]/20', iconColor: 'text-[#7BC943]' },
+            { icon: Shield, label: 'My Data Rights', sub: 'Access, export or delete your data', to: '/data-rights', iconBg: 'bg-[#006B3C]/10 dark:bg-[#006B3C]/20', iconColor: 'text-[#006B3C] dark:text-[#7BC943]' },
             { icon: User, label: 'Account Settings', sub: 'Edit profile & preferences', to: '/p2p/onboarding', iconBg: 'bg-gray-100 dark:bg-gray-700', iconColor: 'text-gray-600 dark:text-gray-400' },
           ].map(({ icon: Icon, label, sub, to, iconBg, iconColor }, idx, arr) => {
             const inner = (

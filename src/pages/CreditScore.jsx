@@ -34,10 +34,10 @@ export default function CreditScore() {
   };
 
   const riskBandConfig = {
-    A: { label: 'Excellent', color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20', pill: 'bg-emerald-100 text-emerald-700' },
-    B: { label: 'Good',      color: 'text-blue-600',    bg: 'bg-blue-50 dark:bg-blue-900/20',       pill: 'bg-blue-100 text-blue-700' },
-    C: { label: 'Fair',      color: 'text-amber-600',   bg: 'bg-amber-50 dark:bg-amber-900/20',     pill: 'bg-amber-100 text-amber-700' },
-    D: { label: 'Needs Work',color: 'text-red-600',     bg: 'bg-red-50 dark:bg-red-900/20',         pill: 'bg-red-100 text-red-700' },
+    A: { label: 'Excellent', color: 'text-[#006B3C]',  bg: 'bg-[#006B3C]/10 dark:bg-[#006B3C]/20', pill: 'bg-[#7BC943]/20 text-[#006B3C]' },
+    B: { label: 'Good',      color: 'text-[#7BC943]',  bg: 'bg-[#7BC943]/10 dark:bg-[#7BC943]/20', pill: 'bg-[#7BC943]/20 text-[#006B3C]' },
+    C: { label: 'Fair',      color: 'text-[#F4B400]',  bg: 'bg-[#F4B400]/10 dark:bg-[#F4B400]/20', pill: 'bg-[#F4B400]/20 text-[#006B3C]' },
+    D: { label: 'Needs Work',color: 'text-red-600',    bg: 'bg-red-50 dark:bg-red-900/20',          pill: 'bg-red-100 text-red-700' },
   };
 
   const band = scoreData?.risk_band || user?.current_risk_band;
@@ -150,33 +150,33 @@ export default function CreditScore() {
                 </p>
                 <div className="grid grid-cols-3 gap-3">
                   {scoreData.crb_summary.crb_score && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-center">
+                    <div className="bg-[#006B3C]/10 dark:bg-[#006B3C]/20 rounded-xl p-3 text-center">
                       <p className="text-xs text-gray-400 mb-1">CRB Score</p>
-                      <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{scoreData.crb_summary.crb_score}</p>
+                      <p className="text-lg font-bold text-[#006B3C] dark:text-[#7BC943]">{scoreData.crb_summary.crb_score}</p>
                     </div>
                   )}
                   {scoreData.crb_summary.crb_band && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-center">
+                    <div className="bg-[#006B3C]/10 dark:bg-[#006B3C]/20 rounded-xl p-3 text-center">
                       <p className="text-xs text-gray-400 mb-1">CRB Band</p>
-                      <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{scoreData.crb_summary.crb_band}</p>
+                      <p className="text-lg font-bold text-[#006B3C] dark:text-[#7BC943]">{scoreData.crb_summary.crb_band}</p>
                     </div>
                   )}
                   {scoreData.crb_summary.crb_rating && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-center">
+                    <div className="bg-[#006B3C]/10 dark:bg-[#006B3C]/20 rounded-xl p-3 text-center">
                       <p className="text-xs text-gray-400 mb-1">Rating</p>
-                      <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{scoreData.crb_summary.crb_rating}</p>
+                      <p className="text-lg font-bold text-[#006B3C] dark:text-[#7BC943]">{scoreData.crb_summary.crb_rating}</p>
                     </div>
                   )}
                   {scoreData.crb_summary.mno_score && (
-                    <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 text-center">
+                    <div className="bg-[#F4B400]/10 dark:bg-[#F4B400]/20 rounded-xl p-3 text-center">
                       <p className="text-xs text-gray-400 mb-1">MNO Score</p>
-                      <p className="text-lg font-bold text-purple-700 dark:text-purple-300">{scoreData.crb_summary.mno_score}</p>
+                      <p className="text-lg font-bold text-[#006B3C] dark:text-[#F4B400]">{scoreData.crb_summary.mno_score}</p>
                     </div>
                   )}
                   {scoreData.crb_summary.mno_band && (
-                    <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 text-center">
+                    <div className="bg-[#F4B400]/10 dark:bg-[#F4B400]/20 rounded-xl p-3 text-center">
                       <p className="text-xs text-gray-400 mb-1">MNO Band</p>
-                      <p className="text-lg font-bold text-purple-700 dark:text-purple-300">{scoreData.crb_summary.mno_band}</p>
+                      <p className="text-lg font-bold text-[#006B3C] dark:text-[#F4B400]">{scoreData.crb_summary.mno_band}</p>
                     </div>
                   )}
                 </div>
@@ -213,12 +213,12 @@ export default function CreditScore() {
               </div>
             )}
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-2xl p-4">
+            <div className="bg-[#006B3C]/10 dark:bg-[#006B3C]/20 border border-[#006B3C]/20 rounded-2xl p-4">
               <div className="flex gap-3">
-                <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                <Info className="w-5 h-5 text-[#006B3C] flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-1">Improve your score</p>
-                  <ul className="text-xs text-blue-700 dark:text-blue-400 space-y-1">
+                  <p className="text-sm font-semibold text-[#006B3C] dark:text-[#7BC943] mb-1">Improve your score</p>
+                  <ul className="text-xs text-[#006B3C]/80 dark:text-[#7BC943]/80 space-y-1">
                     <li>• Complete KYC verification</li>
                     <li>• Repay loans on or before due dates</li>
                     <li>• Maintain active savings pockets</li>

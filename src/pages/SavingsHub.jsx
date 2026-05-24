@@ -274,13 +274,13 @@ export default function SavingsHub() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">UGX {pocket.current_balance?.toLocaleString()}</p>
+                        <p className="text-sm font-bold text-[#006B3C] dark:text-[#7BC943]">UGX {pocket.current_balance?.toLocaleString()}</p>
                         <p className="text-xs text-gray-400">{progress.toFixed(0)}%</p>
                       </div>
                     </div>
                     <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
                       <div
-                        className="bg-gradient-to-r from-emerald-400 to-[#7BC943] h-2 rounded-full transition-all duration-500"
+                        className="bg-gradient-to-r from-[#006B3C] to-[#7BC943] h-2 rounded-full transition-all duration-500"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
@@ -339,7 +339,7 @@ export default function SavingsHub() {
         {tab === 'Challenges' && (
           <div className="space-y-3">
             <Link to="/savings-challenges">
-              <button className="w-full flex items-center justify-between h-11 bg-gradient-to-r from-amber-400 to-orange-400 text-white rounded-2xl px-4 text-sm font-semibold active:scale-95 transition-transform">
+              <button className="w-full flex items-center justify-between h-11 bg-gradient-to-r from-[#F4B400] to-[#006B3C] text-white rounded-2xl px-4 text-sm font-semibold active:scale-95 transition-transform">
                 <span className="flex items-center gap-2"><Trophy className="w-4 h-4" /> Browse Challenges</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -357,15 +357,15 @@ export default function SavingsHub() {
                       <span className="text-xl">{c.badge_emoji || '🏆'}</span>
                       <p className="text-sm font-semibold text-gray-900 dark:text-white">{c.challenge_title}</p>
                     </div>
-                    <div className="flex items-center gap-1 text-xs text-orange-500 font-semibold">
-                      <Flame className="w-3.5 h-3.5" />{c.current_streak || 0} streak
+                    <div className="flex items-center gap-1 text-xs text-[#F4B400] font-semibold">
+                    <Flame className="w-3.5 h-3.5" />{c.current_streak || 0} streak
                     </div>
                   </div>
                   {c.target_amount > 0 && (
                     <>
                       <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 mt-2 mb-1">
                         <div
-                          className="bg-orange-400 h-2 rounded-full transition-all duration-500"
+                          className="bg-gradient-to-r from-[#F4B400] to-[#006B3C] h-2 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min(100, ((c.total_saved_in_challenge || 0) / c.target_amount) * 100)}%` }}
                         />
                       </div>
@@ -384,7 +384,7 @@ export default function SavingsHub() {
         {tab === 'Groups' && (
           <div className="space-y-3">
             <Link to="/savings-groups">
-              <button className="w-full flex items-center justify-between h-11 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-2xl px-4 text-sm font-semibold active:scale-95 transition-transform">
+              <button className="w-full flex items-center justify-between h-11 bg-gradient-to-r from-[#006B3C] to-[#7BC943] text-white rounded-2xl px-4 text-sm font-semibold active:scale-95 transition-transform">
                 <span className="flex items-center gap-2"><Users className="w-4 h-4" /> Manage Groups</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -398,7 +398,7 @@ export default function SavingsHub() {
               groups.slice(0, 6).map(g => (
                 <Link key={g.id} to={`/savings-groups/${g.id}`}>
                   <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 rounded-xl flex items-center justify-center text-xl">
+                    <div className="w-10 h-10 bg-[#006B3C]/10 dark:bg-[#006B3C]/20 rounded-xl flex items-center justify-center text-xl">
                       {g.icon || '👥'}
                     </div>
                     <div className="flex-1 min-w-0">

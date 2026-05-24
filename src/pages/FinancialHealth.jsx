@@ -42,7 +42,7 @@ export default function FinancialHealth() {
       <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-12 pb-8">
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-emerald-400" />
+            <Activity className="w-5 h-5 text-[#7BC943]" />
             <h1 className="text-xl font-bold">Financial Health</h1>
           </div>
           {report && (
@@ -60,7 +60,7 @@ export default function FinancialHealth() {
         </div>
         {lastUpdated && <p className="text-green-200 text-xs">Last updated {lastUpdated}</p>}
         <Link to="/health/projection" className="mt-3 flex items-center gap-2 bg-white/10 rounded-xl px-3 py-2 text-sm text-white w-fit">
-          <TrendingUp className="w-4 h-4 text-emerald-400" /> Future Health Projection
+          <TrendingUp className="w-4 h-4 text-[#F4B400]" /> Future Health Projection
         </Link>
 
         {/* Score ring */}

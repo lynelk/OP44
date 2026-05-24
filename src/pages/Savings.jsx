@@ -194,12 +194,12 @@ export default function Savings() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-base font-bold text-emerald-600 dark:text-emerald-400">UGX {pocket.current_balance?.toLocaleString()}</p>
+                      <p className="text-base font-bold text-[#006B3C] dark:text-[#7BC943]">UGX {pocket.current_balance?.toLocaleString()}</p>
                       <p className="text-xs text-gray-400">{progress.toFixed(0)}% reached</p>
                     </div>
                   </div>
                   <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 mb-3">
-                    <div className="bg-emerald-500 h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                    <div className="bg-gradient-to-r from-[#006B3C] to-[#7BC943] h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
                   </div>
                   <div className="flex gap-2 mb-3">
                     <Input

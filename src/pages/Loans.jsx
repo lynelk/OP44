@@ -10,10 +10,10 @@ const STATUS_CONFIG = {
   draft:        { label: 'Draft',        color: 'bg-gray-100 text-gray-600', icon: Clock },
   submitted:    { label: 'Submitted',    color: 'bg-blue-100 text-blue-700', icon: Clock },
   under_review: { label: 'Under Review', color: 'bg-amber-100 text-amber-700', icon: Clock },
-  approved:     { label: 'Approved',     color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle2 },
+  approved:     { label: 'Approved',     color: 'bg-[#7BC943]/20 text-[#006B3C]', icon: CheckCircle2 },
   rejected:     { label: 'Rejected',     color: 'bg-red-100 text-red-700', icon: XCircle },
-  disbursed:    { label: 'Disbursed',    color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle2 },
-  active:       { label: 'Active',       color: 'bg-blue-100 text-blue-700', icon: CheckCircle2 },
+  disbursed:    { label: 'Disbursed',    color: 'bg-[#7BC943]/20 text-[#006B3C]', icon: CheckCircle2 },
+  active:       { label: 'Active',       color: 'bg-[#006B3C]/10 text-[#006B3C]', icon: CheckCircle2 },
   closed:       { label: 'Paid Off',     color: 'bg-gray-100 text-gray-500', icon: CheckCircle2 },
   defaulted:    { label: 'Defaulted',    color: 'bg-red-100 text-red-700', icon: AlertTriangle },
 };
@@ -116,12 +116,12 @@ export default function Loans() {
             </div>
           </Link>
           <Link to="/loans/repay" className="flex-shrink-0">
-            <div className="flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-emerald-300 text-emerald-700 dark:text-emerald-400 text-sm font-medium px-4 h-10 rounded-full">
+            <div className="flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-[#006B3C] text-[#006B3C] dark:text-[#7BC943] text-sm font-medium px-4 h-10 rounded-full">
               <ArrowUpCircle className="w-4 h-4" /> Repay
             </div>
           </Link>
           <Link to="/loans/planner" className="flex-shrink-0">
-            <div className="flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-violet-200 text-violet-700 dark:text-violet-400 text-sm font-medium px-4 h-10 rounded-full">
+            <div className="flex items-center gap-1.5 bg-white dark:bg-gray-900 border border-[#F4B400] text-[#F4B400] text-sm font-medium px-4 h-10 rounded-full">
               <TrendingDown className="w-4 h-4" /> Planner
             </div>
           </Link>
@@ -225,7 +225,7 @@ export default function Loans() {
                         </div>
                         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all"
+                            className="h-full bg-gradient-to-r from-[#006B3C] to-[#7BC943] rounded-full transition-all"
                             style={{ width: `${progress}%` }}
                           />
                         </div>
@@ -264,7 +264,7 @@ export default function Loans() {
 
                   {loan.status === 'approved' && (
                     <div className="px-4 pb-4">
-                      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5 text-xs text-emerald-700 font-medium text-center">
+                      <div className="bg-[#006B3C]/10 border border-[#006B3C]/20 rounded-xl p-2.5 text-xs text-[#006B3C] font-medium text-center">
                         ✅ Approved — Disbursement in progress
                       </div>
                     </div>
