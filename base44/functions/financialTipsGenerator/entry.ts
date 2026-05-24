@@ -110,18 +110,40 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Tip: active loan repayment advice
+    // Tip: active loan repayment advice + DTI analysis
     const activeLoans = loans.filter(l => l.status === 'active' || l.status === 'disbursed');
-    if (activeLoans.length > 0 && totalThisMonth > 0) {
+    if (activeLoans.length > 0) {
       const totalRepayments = activeLoans.reduce((s, l) => s + (l.monthly_installment || 0), 0);
-      const debtRatio = totalRepayments / (user.monthly_income || 1);
-      if (user.monthly_income && debtRatio > 0.4) {
-        tips.push({
-          icon: '🔴',
-          type: 'warning',
-          title: 'High debt-to-income ratio',
-          body: `Your loan repayments (UGX ${totalRepayments.toLocaleString()}/mo) exceed 40% of declared income. Avoid new loans until balance is reduced.`,
-        });
+
+      // Fetch profile for income
+      const profiles = await base44.entities.UserProfile.filter({ user_id: user.id });
+      const profile = profiles[0];
+      const income = profile?.monthly_income || 0;
+
+      if (income > 0) {
+        const dti = totalRepayments / income;
+        if (dti > 0.5) {
+          tips.push({
+            icon: '🔴',
+            type: 'warning',
+            title: 'Debt-to-income ratio critical',
+            body: `Your DTI is ${(dti * 100).toFixed(0)}% — UGX ${totalRepayments.toLocaleString()}/mo in repayments vs UGX ${income.toLocaleString()} income. Target below 40% for healthy credit.`,
+          });
+        } else if (dti > 0.35) {
+          tips.push({
+            icon: '🟡',
+            type: 'warning',
+            title: 'Elevated debt-to-income ratio',
+            body: `Your DTI is ${(dti * 100).toFixed(0)}%. You're repaying UGX ${totalRepayments.toLocaleString()}/mo. Consider reducing discretionary spending to stay ahead.`,
+          });
+        } else if (dti < 0.2 && activeLoans.length > 0) {
+          tips.push({
+            icon: '✅',
+            type: 'positive',
+            title: 'Healthy debt-to-income ratio',
+            body: `Your DTI is only ${(dti * 100).toFixed(0)}% — well within safe limits. Keep it up and your credit score will keep improving.`,
+          });
+        }
       }
     }
 

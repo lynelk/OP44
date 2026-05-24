@@ -5,6 +5,8 @@ import { ChevronLeft, Calculator, CheckCircle2, AlertCircle, Info } from 'lucide
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import LoanDocumentUploader from '@/components/loans/LoanDocumentUploader';
+import LoyaltyPointsToggle from '@/components/loans/LoyaltyPointsToggle';
 
 const PURPOSES = [
   { value: 'business', label: '🏪 Business / Trade' },
@@ -19,6 +21,8 @@ const PURPOSES = [
 export default function P2PApply() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ amount: '', tenure_months: '3', purpose: '', purpose_category: 'personal', description: '' });
+  const [docs, setDocs] = useState({});
+  const [applyPoints, setApplyPoints] = useState(false);
   const [scoring, setScoring] = useState(null);
   const [offer, setOffer] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -59,7 +63,11 @@ export default function P2PApply() {
       tenure_months: parseInt(form.tenure_months),
       purpose: form.purpose || 'General',
       purpose_category: form.purpose_category,
-      description: form.description
+      description: form.description,
+      payslip_urls: docs.payslip_urls || [],
+      national_id_urls: docs.national_id_urls || [],
+      bank_statement_urls: docs.bank_statement_urls || [],
+      apply_loyalty_points: applyPoints,
     });
     setSubmitting(false);
     if (res.data?.error) { setError(res.data.error); return; }
@@ -165,6 +173,20 @@ export default function P2PApply() {
             <Input value={form.purpose} onChange={e => set('purpose', e.target.value)} placeholder="e.g. Stock for my hardware shop" />
           </div>
         </div>
+
+        {/* Document Uploads */}
+        <div className="bg-white rounded-2xl shadow-sm p-5">
+          <LoanDocumentUploader value={docs} onChange={setDocs} />
+        </div>
+
+        {/* Loyalty Points Toggle */}
+        {form.amount && parseFloat(form.amount) > 0 && (
+          <LoyaltyPointsToggle
+            loanAmount={parseFloat(form.amount)}
+            enabled={applyPoints}
+            onToggle={setApplyPoints}
+          />
+        )}
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-2xl p-3 flex items-center gap-2">

@@ -53,6 +53,7 @@ import P2PDashboard from './pages/P2PDashboard';
 import P2PApply from './pages/P2PApply';
 import P2PMarketplace from './pages/P2PMarketplace';
 import AdminP2P from './pages/admin/AdminP2P';
+import AdminDocumentReview from './pages/admin/AdminDocumentReview';
 import AdminReports from './pages/admin/AdminReports';
 import AdminPortfolios from './pages/admin/AdminPortfolios';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -179,6 +180,7 @@ const AuthenticatedApp = () => {
       <Route path="/accessibility" element={<AccessibilityStatement />} />
       <Route path="/benchmarking" element={<><Benchmarking /><BottomNav /></>} />
       <Route path="/admin/collections" element={<CollectionsMonitor />} />
+      <Route path="/admin/documents" element={<AdminDocumentReview />} />
       <Route path="/savings-goals" element={<><SavingsGoals /><BottomNav /></>} />
       <Route path="/loans/pre-qualify" element={<><LoanPreQualify /><BottomNav /></>} />
       <Route path="*" element={<PageNotFound />} />

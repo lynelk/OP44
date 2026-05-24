@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import ReferralCard from '@/components/referral/ReferralCard';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity, Handshake, Vault, GitCompare } from 'lucide-react';
@@ -310,6 +311,9 @@ export default function Dashboard() {
 
         {/* Unlock Requirements */}
         <UnlockRequirements compact={true} />
+
+        {/* Referral Card */}
+        <ReferralCard />
 
         {/* Daily Wellness Journey */}
         {user && <DailyWellnessJourney userId={user.id} />}
