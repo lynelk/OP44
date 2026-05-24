@@ -24,9 +24,14 @@ Deno.serve(async (req) => {
       return Response.json(report);
     }
 
-    if (action === 'get_summary') {
+    if (action === 'get_summary' || action === 'get_revenue_summary') {
       const summary = await getRevenueSummary(base44, { date_from, date_to });
       return Response.json(summary);
+    }
+
+    if (action === 'get_dashboard') {
+      const summary = await getRevenueSummary(base44, { date_from, date_to });
+      return Response.json({ success: true, ...summary });
     }
 
     return Response.json({ error: 'Invalid action' }, { status: 400 });

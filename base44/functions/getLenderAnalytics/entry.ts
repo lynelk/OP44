@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
         }
 
         const userProfile = await base44.entities.UserProfile.filter({ user_id: user.id }).then(r => r[0]);
-        if (!userProfile || userProfile.account_type !== 'lender') {
+        if (!userProfile || (userProfile.account_type !== 'lender' && userProfile.account_type !== 'both')) {
             return Response.json({ error: 'Only lenders can access analytics' }, { status: 403 });
         }
 

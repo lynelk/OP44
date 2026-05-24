@@ -199,6 +199,24 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, referrer_points: REFERRER_POINTS, invitee_points: INVITEE_POINTS });
     }
 
+    // ── GET DASHBOARD (summary for UI) ───────────────────────────────────────
+    if (action === 'get_dashboard') {
+      const profiles = await base44.entities.UserProfile.filter({ user_id: user.id });
+      const profile = profiles[0];
+      const events = await base44.asServiceRole.entities.ReferralEvent.filter({ referrer_id: user.id });
+      const awarded = events.filter(e => e.status === 'awarded');
+      const pending = events.filter(e => e.status === 'pending');
+
+      return Response.json({
+        success: true,
+        referral_code: profile?.referral_code || null,
+        loyalty_points: profile?.loyalty_points || 0,
+        successful_referrals: profile?.successful_referrals_count || 0,
+        pending_referrals: pending.length,
+        awarded_referrals: awarded.length,
+      });
+    }
+
     // ── CALCULATE POINTS VALUE ───────────────────────────────────────────────
     if (action === 'calculate_redemption') {
       const { points_to_redeem, loan_amount } = body;

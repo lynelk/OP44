@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
       const updated = await base44.asServiceRole.entities.User.update(id, data);
       return Response.json({ user: updated });
     }
-    if (action === 'get_stats') {
+    if (action === 'get_stats' || action === 'get_dashboard_stats') {
       const users = await base44.asServiceRole.entities.User.list();
       const loans = await base44.asServiceRole.entities.LoanApplication.list();
       const savings = await base44.asServiceRole.entities.SavingsPocket.list();
