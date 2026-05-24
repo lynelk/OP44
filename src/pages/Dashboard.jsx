@@ -100,15 +100,15 @@ export default function Dashboard() {
   };
 
   const QUICK_ACTIONS = [
-    { icon: CreditCard, label: 'Apply Loan', path: '/loans/apply', color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300' },
-    { icon: Wallet, label: 'Save', path: '/savings', color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300' },
-    { icon: Shield, label: 'Insure', path: '/insurance', color: 'bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-300' },
-    { icon: TrendingUp, label: 'Invest', path: '/invest', color: 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-300' },
+    { icon: CreditCard, label: 'Apply Loan', path: '/loans/apply', color: 'bg-[#006B3C]/10 text-[#006B3C] dark:bg-[#006B3C]/20 dark:text-[#7BC943]' },
+    { icon: Wallet, label: 'Save', path: '/savings', color: 'bg-[#7BC943]/10 text-[#7BC943] dark:bg-[#7BC943]/20 dark:text-[#7BC943]' },
+    { icon: Shield, label: 'Insure', path: '/insurance', color: 'bg-[#F4B400]/10 text-[#F4B400] dark:bg-[#F4B400]/20 dark:text-[#F4B400]' },
+    { icon: TrendingUp, label: 'Invest', path: '/invest', color: 'bg-[#006B3C]/10 text-[#006B3C] dark:bg-[#006B3C]/20 dark:text-[#7BC943]' },
     { icon: TrendingDown, label: 'Debt', path: '/debt-payoff', color: 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300' },
-    { icon: Users, label: 'Groups', path: '/savings-groups', color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-300' },
-    { icon: Activity, label: 'Health', path: '/financial-health', color: 'bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300' },
-    { icon: Handshake, label: 'P2P', path: '/p2p', color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300' },
-    { icon: PieChart, label: 'Net Worth', path: '/net-worth', color: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-900/40 dark:text-cyan-300' },
+    { icon: Users, label: 'Groups', path: '/savings-groups', color: 'bg-[#006B3C]/10 text-[#006B3C] dark:bg-[#006B3C]/20 dark:text-[#7BC943]' },
+    { icon: Activity, label: 'Health', path: '/financial-health', color: 'bg-[#7BC943]/10 text-[#7BC943] dark:bg-[#7BC943]/20 dark:text-[#7BC943]' },
+    { icon: Handshake, label: 'P2P', path: '/p2p', color: 'bg-[#006B3C]/10 text-[#006B3C] dark:bg-[#006B3C]/20 dark:text-[#7BC943]' },
+    { icon: PieChart, label: 'Net Worth', path: '/net-worth', color: 'bg-[#F4B400]/10 text-[#F4B400] dark:bg-[#F4B400]/20 dark:text-[#F4B400]' },
   ];
 
   return (
@@ -188,21 +188,21 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <div className="w-8 h-8 bg-[#7BC943]/10 dark:bg-[#7BC943]/20 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-[#7BC943] dark:text-[#7BC943]" />
               </div>
               <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Investments</span>
             </div>
             <p className="text-xl font-bold text-gray-900 dark:text-white">{formatCurrency(totalInvestments)}</p>
-            <p className="text-xs text-emerald-500 flex items-center gap-0.5 mt-1">
+            <p className="text-xs text-[#7BC943] flex items-center gap-0.5 mt-1">
               <ArrowUpRight className="w-3 h-3" /> {savings.length} pockets
             </p>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/40 rounded-xl flex items-center justify-center">
-                <CreditCard className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+              <div className="w-8 h-8 bg-[#F4B400]/10 dark:bg-[#F4B400]/20 rounded-xl flex items-center justify-center">
+                <CreditCard className="w-4 h-4 text-[#F4B400] dark:text-[#F4B400]" />
               </div>
               <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Active Loan</span>
             </div>
@@ -211,7 +211,7 @@ export default function Dashboard() {
                 <p className="text-xl font-bold text-gray-900 dark:text-white">
                   {formatCurrency(activeLoan.outstanding_balance || activeLoan.amount_approved || 0)}
                 </p>
-                <p className="text-xs text-orange-500 flex items-center gap-0.5 mt-1">
+                <p className="text-xs text-[#F4B400] flex items-center gap-0.5 mt-1">
                   <ArrowDownRight className="w-3 h-3" /> Outstanding
                 </p>
               </>
@@ -245,7 +245,7 @@ export default function Dashboard() {
             <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-purple-500" /> Your Insights
             </h2>
-            <button onClick={handleRefresh} className="text-[#006B3C] text-xs font-medium flex items-center gap-1">
+            <button onClick={handleRefresh} className="text-[#7BC943] text-xs font-bold flex items-center gap-1 hover:text-[#006B3C] transition-colors">
               <RefreshCw className="w-3 h-3" /> Refresh
             </button>
           </div>
@@ -310,12 +310,12 @@ export default function Dashboard() {
                           <p className="text-xs text-gray-400">Goal: {formatCurrency(pocket.goal_amount)}</p>
                         </div>
                       </div>
-                      <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                      <span className="text-sm font-bold text-[#006B3C] dark:text-[#7BC943]">
                         {formatCurrency(pocket.current_balance)}
                       </span>
                     </div>
                     <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
-                      <div className="bg-emerald-500 h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                      <div className="bg-gradient-to-r from-[#006B3C] to-[#7BC943] h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
                     </div>
                     <p className="text-xs text-gray-400 mt-1">{progress.toFixed(0)}% of goal</p>
                   </div>
