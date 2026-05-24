@@ -9,10 +9,23 @@ export function SyncProvider({ children }) {
   const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
-    // Boot sync after auth
-    base44.auth.me().then(user => {
-      if (user) syncManager.init(user.id);
-    }).catch(() => {});
+    // Boot sync after auth resolves — retry a few times if user not yet available
+    let attempts = 0;
+    const tryInit = () => {
+      base44.auth.me()
+        .then(user => {
+          if (user) {
+            syncManager.init(user.id);
+          } else if (attempts < 5) {
+            attempts++;
+            setTimeout(tryInit, 1500);
+          }
+        })
+        .catch(() => {
+          if (attempts < 3) { attempts++; setTimeout(tryInit, 2000); }
+        });
+    };
+    tryInit();
 
     const unsub = syncManager.subscribe((state) => {
       setSyncState(state);

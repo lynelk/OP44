@@ -57,6 +57,7 @@ const SYNC_ENTITIES = [
 let _userId = null;
 let _syncing = false;
 let _listeners = [];
+let _listenersRegistered = false;
 
 export const syncManager = {
   // Subscribe to sync state changes
@@ -71,8 +72,12 @@ export const syncManager = {
 
   async init(userId) {
     _userId = userId;
-    window.addEventListener('online', () => this.syncAll());
-    window.addEventListener('offline', () => this._emit({ status: 'offline' }));
+    // Guard: only register window listeners once to prevent accumulation
+    if (!_listenersRegistered) {
+      _listenersRegistered = true;
+      window.addEventListener('online', () => syncManager.syncAll());
+      window.addEventListener('offline', () => syncManager._emit({ status: 'offline' }));
+    }
     if (navigator.onLine) await this.syncAll();
     else this._emit({ status: 'offline' });
   },

@@ -160,11 +160,12 @@ export default function Dashboard() {
                     ? formatCurrency(creditScore.max_loan_limit)
                     : 'N/A'}
                 </p>
-                <Link to="/loans/apply" onClick={e => e.stopPropagation()}>
-                  <button className="mt-2 bg-[#F4B400] hover:bg-yellow-500 text-[#006B3C] text-xs font-semibold rounded-xl px-4 py-2 transition-colors">
-                    Apply Now
-                  </button>
-                </Link>
+                <button
+                  className="mt-2 bg-[#F4B400] hover:bg-yellow-500 text-[#006B3C] text-xs font-semibold rounded-xl px-4 py-2 transition-colors"
+                  onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = '/loans/apply'; }}
+                >
+                  Apply Now
+                </button>
               </div>
             </div>
           </div>
