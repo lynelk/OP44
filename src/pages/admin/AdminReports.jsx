@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, Download, Mail, RefreshCw, FileText, TrendingUp, Users, Banknote, Filter, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, Download, Mail, RefreshCw, FileText, TrendingUp, Users, Banknote, Filter, CheckCircle2, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,7 +13,8 @@ const REPORT_TYPES = [
   { id: 'investment_returns', label: 'Investment Returns',           icon: TrendingUp, desc: 'Lender earnings, P2P returns & reserve fund' },
   { id: 'crb_monthly',        label: 'CRB Monthly Submission',       icon: FileText,   desc: 'Formatted for Credit Reference Bureau submission' },
   { id: 'regulatory_summary', label: 'Regulatory Summary',           icon: FileText,   desc: 'Compliance report for regulatory bodies' },
-  { id: 'collections',        label: 'Collections & Overdue Report', icon: Banknote,   desc: 'Overdue loans, collections, write-offs' },
+  { id: 'collections',              label: 'Collections & Overdue Report',    icon: Banknote,   desc: 'Overdue loans, collections, write-offs' },
+  { id: 'lender_rental_performance', label: 'Lender Rental Performance',        icon: Truck,      desc: 'Earnings, utilisation rates, device downtime & payment health' },
 ];
 
 export default function AdminReports() {
