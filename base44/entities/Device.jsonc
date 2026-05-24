@@ -1,0 +1,178 @@
+{
+  "name": "Device",
+  "type": "object",
+  "properties": {
+    "lender_id": {
+      "type": "string",
+      "description": "User ID of the lender/owner"
+    },
+    "device_type": {
+      "type": "string",
+      "enum": [
+        "Motorcycle",
+        "Car",
+        "Phone",
+        "Laptop",
+        "Agro Input",
+        "Fuel",
+        "Solar Item",
+        "Other"
+      ]
+    },
+    "make": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "year": {
+      "type": "number"
+    },
+    "serial_number": {
+      "type": "string",
+      "description": "VIN / IMEI / Serial"
+    },
+    "condition_type": {
+      "type": "string",
+      "enum": [
+        "New",
+        "Used",
+        "Refurbished"
+      ]
+    },
+    "condition_description": {
+      "type": "string"
+    },
+    "image_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "location_address": {
+      "type": "string"
+    },
+    "location_lat": {
+      "type": "number"
+    },
+    "location_lon": {
+      "type": "number"
+    },
+    "district": {
+      "type": "string"
+    },
+    "daily_rate": {
+      "type": "number"
+    },
+    "weekly_rate": {
+      "type": "number"
+    },
+    "monthly_rate": {
+      "type": "number"
+    },
+    "min_rental_days": {
+      "type": "number",
+      "default": 1
+    },
+    "max_rental_days": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Available",
+        "Rented",
+        "Maintenance",
+        "Pending Verification",
+        "Suspended"
+      ],
+      "default": "Pending Verification"
+    },
+    "financing_options": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "Daily Hire",
+          "Weekly Hire",
+          "Monthly Hire",
+          "Hire Purchase",
+          "Outright Purchase"
+        ]
+      }
+    },
+    "has_gps_tracker": {
+      "type": "boolean",
+      "default": false
+    },
+    "gps_tracker_id": {
+      "type": "string"
+    },
+    "ownership_document_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "condition_report_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "admin_verification_status": {
+      "type": "string",
+      "enum": [
+        "Pending",
+        "Under Review",
+        "Approved",
+        "Rejected",
+        "Needs Revision"
+      ],
+      "default": "Pending"
+    },
+    "admin_verified_by": {
+      "type": "string"
+    },
+    "admin_verification_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "admin_verification_notes": {
+      "type": "string"
+    },
+    "revision_requested_fields": {
+      "type": "string",
+      "description": "Admin notes on what to revise"
+    },
+    "is_listed_on_marketplace": {
+      "type": "boolean",
+      "default": false
+    },
+    "insurance_status": {
+      "type": "string",
+      "enum": [
+        "Insured",
+        "Uninsured",
+        "Self-Insured",
+        "Platform Allocated"
+      ],
+      "default": "Uninsured"
+    },
+    "insurance_policy_id": {
+      "type": "string"
+    },
+    "insurance_premium_monthly": {
+      "type": "number"
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "lender_id",
+    "device_type",
+    "make",
+    "model"
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "name": "RentalAgreement",
+  "type": "object",
+  "properties": {
+    "device_id": {
+      "type": "string"
+    },
+    "borrower_id": {
+      "type": "string"
+    },
+    "lender_id": {
+      "type": "string"
+    },
+    "rental_ref": {
+      "type": "string",
+      "description": "Human readable ref e.g. RA-2026-00001"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "financing_type": {
+      "type": "string",
+      "enum": [
+        "Daily Hire",
+        "Weekly Hire",
+        "Monthly Hire",
+        "Hire Purchase",
+        "Outright Purchase"
+      ]
+    },
+    "total_rental_fee": {
+      "type": "number"
+    },
+    "initial_deposit_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "MTN Mobile Money",
+        "Airtel Money",
+        "Bank Transfer",
+        "Cash"
+      ]
+    },
+    "payment_schedule": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "installment_id": {
+            "type": "string"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Scheduled",
+              "Requested",
+              "Paid",
+              "Overdue",
+              "Waived"
+            ]
+          },
+          "paid_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "transaction_ref": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "next_payment_due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "outstanding_balance": {
+      "type": "number",
+      "default": 0
+    },
+    "overdue_count": {
+      "type": "number",
+      "default": 0
+    },
+    "last_payment_reminder_sent": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "insurance_bundled": {
+      "type": "boolean",
+      "default": false
+    },
+    "insurance_policy_id": {
+      "type": "string"
+    },
+    "insurance_premium_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "borrower_insurance_policy_id": {
+      "type": "string"
+    },
+    "borrower_insurance_premium": {
+      "type": "number",
+      "default": 0
+    },
+    "total_insurance_cost": {
+      "type": "number",
+      "default": 0
+    },
+    "insurance_auto_allocated": {
+      "type": "boolean",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Requested",
+        "Approved",
+        "Active",
+        "Completed",
+        "Cancelled",
+        "Disputed",
+        "Terminated"
+      ],
+      "default": "Draft"
+    },
+    "delivery_method": {
+      "type": "string",
+      "enum": [
+        "Pickup",
+        "Delivery"
+      ]
+    },
+    "dispute_status": {
+      "type": "string",
+      "enum": [
+        "None",
+        "Open",
+        "Under Mediation",
+        "Resolved",
+        "Escalated"
+      ],
+      "default": "None"
+    },
+    "dispute_opened_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dispute_opened_by": {
+      "type": "string",
+      "description": "user_id of initiator"
+    },
+    "dispute_reason": {
+      "type": "string"
+    },
+    "dispute_description": {
+      "type": "string"
+    },
+    "dispute_resolved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dispute_resolution_notes": {
+      "type": "string"
+    },
+    "dispute_resolved_by": {
+      "type": "string"
+    },
+    "dispute_outcome": {
+      "type": "string",
+      "enum": [
+        "Pending",
+        "Favour Borrower",
+        "Favour Lender",
+        "Compromise",
+        "No Action"
+      ]
+    },
+    "admin_notes": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "device_id",
+    "borrower_id",
+    "lender_id",
+    "start_date",
+    "end_date",
+    "financing_type"
+  ]
+}

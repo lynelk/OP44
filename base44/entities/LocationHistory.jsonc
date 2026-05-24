@@ -1,0 +1,60 @@
+{
+  "name": "LocationHistory",
+  "type": "object",
+  "properties": {
+    "tracker_id": {
+      "type": "string",
+      "description": "Links to GPSTracker entity"
+    },
+    "device_id": {
+      "type": "string"
+    },
+    "rental_id": {
+      "type": "string",
+      "description": "Active rental at time of log"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "speed_kph": {
+      "type": "number",
+      "default": 0
+    },
+    "heading_degrees": {
+      "type": "number"
+    },
+    "altitude_m": {
+      "type": "number"
+    },
+    "accuracy_m": {
+      "type": "number"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "Periodic",
+        "Speeding",
+        "GeofenceEntry",
+        "GeofenceExit",
+        "Ignition On",
+        "Ignition Off",
+        "Hard Braking",
+        "Manual"
+      ],
+      "default": "Periodic"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "tracker_id",
+    "latitude",
+    "longitude",
+    "timestamp"
+  ]
+}

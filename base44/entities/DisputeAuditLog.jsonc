@@ -1,0 +1,55 @@
+{
+  "name": "DisputeAuditLog",
+  "type": "object",
+  "properties": {
+    "rental_agreement_id": {
+      "type": "string"
+    },
+    "actor_user_id": {
+      "type": "string"
+    },
+    "actor_role": {
+      "type": "string",
+      "enum": [
+        "Borrower",
+        "Lender",
+        "Admin",
+        "System"
+      ]
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "Dispute Opened",
+        "Evidence Submitted",
+        "Mediation Requested",
+        "Admin Assigned",
+        "Status Updated",
+        "Resolution Applied",
+        "Dispute Closed",
+        "Escalated",
+        "Comment Added"
+      ]
+    },
+    "previous_status": {
+      "type": "string"
+    },
+    "new_status": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "rental_agreement_id",
+    "actor_user_id",
+    "actor_role",
+    "action",
+    "timestamp"
+  ]
+}

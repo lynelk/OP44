@@ -1,0 +1,71 @@
+{
+  "name": "GPSTracker",
+  "type": "object",
+  "properties": {
+    "device_id": {
+      "type": "string",
+      "description": "Links to Device entity"
+    },
+    "lender_id": {
+      "type": "string"
+    },
+    "tracker_id_external": {
+      "type": "string",
+      "description": "IMEI or external tracker ID"
+    },
+    "tracker_label": {
+      "type": "string"
+    },
+    "last_location_lat": {
+      "type": "number"
+    },
+    "last_location_lon": {
+      "type": "number"
+    },
+    "last_updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "battery_level_percent": {
+      "type": "number"
+    },
+    "current_speed_kph": {
+      "type": "number",
+      "default": 0
+    },
+    "speed_limit_kph": {
+      "type": "number",
+      "default": 80
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "is_moving": {
+      "type": "boolean",
+      "default": false
+    },
+    "geofence_status": {
+      "type": "string",
+      "enum": [
+        "Inside",
+        "Outside",
+        "Unknown"
+      ],
+      "default": "Unknown"
+    },
+    "active_rental_id": {
+      "type": "string"
+    },
+    "sim_number": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "device_id",
+    "lender_id"
+  ]
+}

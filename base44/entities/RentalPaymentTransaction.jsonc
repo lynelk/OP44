@@ -1,0 +1,85 @@
+{
+  "name": "RentalPaymentTransaction",
+  "type": "object",
+  "properties": {
+    "rental_agreement_id": {
+      "type": "string"
+    },
+    "installment_id": {
+      "type": "string",
+      "description": "Links to payment_schedule item"
+    },
+    "borrower_id": {
+      "type": "string"
+    },
+    "lender_id": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "MTN Mobile Money",
+        "Airtel Money",
+        "Bank Transfer",
+        "Cash"
+      ]
+    },
+    "mobile_number": {
+      "type": "string"
+    },
+    "transaction_reference": {
+      "type": "string"
+    },
+    "provider_reference": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Pending",
+        "Processing",
+        "Successful",
+        "Failed",
+        "Refunded",
+        "Cancelled"
+      ],
+      "default": "Pending"
+    },
+    "failure_reason": {
+      "type": "string"
+    },
+    "retry_count": {
+      "type": "number",
+      "default": 0
+    },
+    "initiated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_overdue_payment": {
+      "type": "boolean",
+      "default": false
+    },
+    "days_overdue_at_payment": {
+      "type": "number",
+      "default": 0
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "rental_agreement_id",
+    "borrower_id",
+    "lender_id",
+    "amount",
+    "payment_method"
+  ]
+}

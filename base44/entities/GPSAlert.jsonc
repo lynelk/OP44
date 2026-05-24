@@ -1,0 +1,71 @@
+{
+  "name": "GPSAlert",
+  "type": "object",
+  "properties": {
+    "tracker_id": {
+      "type": "string"
+    },
+    "device_id": {
+      "type": "string"
+    },
+    "lender_id": {
+      "type": "string"
+    },
+    "rental_id": {
+      "type": "string"
+    },
+    "alert_type": {
+      "type": "string",
+      "enum": [
+        "Speeding",
+        "GeofenceEntry",
+        "GeofenceExit",
+        "LowBattery",
+        "DeviceMovement",
+        "IgnitionOn",
+        "IgnitionOff",
+        "HardBraking"
+      ]
+    },
+    "message": {
+      "type": "string"
+    },
+    "location_lat": {
+      "type": "number"
+    },
+    "location_lon": {
+      "type": "number"
+    },
+    "speed_kph": {
+      "type": "number"
+    },
+    "geofence_id": {
+      "type": "string"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "default": "Medium"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "tracker_id",
+    "device_id",
+    "alert_type",
+    "message",
+    "timestamp"
+  ]
+}

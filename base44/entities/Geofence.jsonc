@@ -1,0 +1,62 @@
+{
+  "name": "Geofence",
+  "type": "object",
+  "properties": {
+    "lender_id": {
+      "type": "string"
+    },
+    "device_id": {
+      "type": "string",
+      "description": "Optional: specific device, or applies to all lender devices"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "Circle",
+        "Polygon"
+      ],
+      "default": "Circle"
+    },
+    "center_lat": {
+      "type": "number"
+    },
+    "center_lon": {
+      "type": "number"
+    },
+    "radius_meters": {
+      "type": "number",
+      "default": 500
+    },
+    "polygon_coordinates_json": {
+      "type": "string",
+      "description": "JSON array of [lat,lon] pairs for polygon"
+    },
+    "alert_on_entry": {
+      "type": "boolean",
+      "default": true
+    },
+    "alert_on_exit": {
+      "type": "boolean",
+      "default": true
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "color": {
+      "type": "string",
+      "default": "#006B3C"
+    }
+  },
+  "required": [
+    "lender_id",
+    "name",
+    "type"
+  ]
+}

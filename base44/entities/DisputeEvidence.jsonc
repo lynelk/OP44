@@ -1,0 +1,62 @@
+{
+  "name": "DisputeEvidence",
+  "type": "object",
+  "properties": {
+    "rental_agreement_id": {
+      "type": "string"
+    },
+    "submitted_by_user_id": {
+      "type": "string"
+    },
+    "submitter_role": {
+      "type": "string",
+      "enum": [
+        "Borrower",
+        "Lender",
+        "Admin"
+      ]
+    },
+    "evidence_type": {
+      "type": "string",
+      "enum": [
+        "Photo",
+        "Video",
+        "Document",
+        "Receipt",
+        "Screenshot",
+        "Statement",
+        "Other"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "file_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_verified_by_admin": {
+      "type": "boolean",
+      "default": false
+    },
+    "admin_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "rental_agreement_id",
+    "submitted_by_user_id",
+    "submitter_role",
+    "evidence_type",
+    "title"
+  ]
+}
