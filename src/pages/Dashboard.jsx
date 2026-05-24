@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity, Handshake, Vault } from 'lucide-react';
+import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity, Handshake, Vault, GitCompare } from 'lucide-react';
 import MilestoneProgress from '@/components/milestones/MilestoneProgress';
 import ChallengesBoard from '@/components/dashboard/ChallengesBoard';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
+import DailyWellnessJourney from '@/components/wellness/DailyWellnessJourney';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const TIP_STYLES = {
@@ -91,6 +92,7 @@ export default function Dashboard() {
     { icon: Activity, label: 'Health', path: '/financial-health', color: 'bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-300' },
     { icon: Target, label: 'Goals', path: '/savings-goals', color: 'bg-pink-100 text-pink-600 dark:bg-pink-900/40 dark:text-pink-300' },
     { icon: Handshake, label: 'P2P', path: '/p2p', color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300' },
+    { icon: GitCompare, label: 'Benchmark', path: '/benchmarking', color: 'bg-cyan-100 text-cyan-600 dark:bg-cyan-900/40 dark:text-cyan-300' },
   ];
 
   return (
@@ -308,6 +310,9 @@ export default function Dashboard() {
 
         {/* Unlock Requirements */}
         <UnlockRequirements compact={true} />
+
+        {/* Daily Wellness Journey */}
+        {user && <DailyWellnessJourney userId={user.id} />}
 
         {/* Challenges & Milestones */}
         {user && (

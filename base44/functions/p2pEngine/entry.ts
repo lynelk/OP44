@@ -280,33 +280,34 @@ Deno.serve(async (req) => {
       return Response.json({ loan, offer, rates, schedule });
     }
 
-    // ── 4. FUND LOAN (Lender) ────────────────────────────────────────────────
+    // ── 4. FUND LOAN (Lender) — Escrow-backed ───────────────────────────────
     if (action === 'fund_loan') {
-      const [profiles, loan] = await Promise.all([
+      const [profiles, loanArr] = await Promise.all([
         base44.entities.UserProfile.filter({ user_id: user.id }),
         base44.asServiceRole.entities.P2PLoan.filter({ id: params.loan_id })
       ]);
       const profile = profiles[0];
-      const p2pLoan = loan[0];
+      const p2pLoan = loanArr[0];
 
       if (!profile) return Response.json({ error: 'Complete lender profile first' }, { status: 400 });
       if (profile.kyc_status !== 'verified') return Response.json({ error: 'KYC verification required before investing' }, { status: 403 });
       if (!['awaiting_funding'].includes(p2pLoan?.status)) return Response.json({ error: 'Loan not available for funding' }, { status: 400 });
 
       const existingInvestments = await base44.asServiceRole.entities.LenderInvestment.filter({ loan_id: params.loan_id });
-      const totalFunded = existingInvestments.reduce((s, i) => s + i.amount_invested, 0);
+      const totalEscrowed = existingInvestments.reduce((s, i) => s + i.amount_invested, 0);
 
       // Diversification: max 40% per lender
       const maxAllowed = p2pLoan.amount_approved * 0.4;
       if (params.amount > maxAllowed) return Response.json({ error: `Max exposure per loan is UGX ${maxAllowed.toLocaleString()} (40%)` }, { status: 400 });
 
-      const remaining = p2pLoan.amount_approved - totalFunded;
+      const remaining = p2pLoan.amount_approved - totalEscrowed;
       if (params.amount > remaining) return Response.json({ error: `Only UGX ${remaining.toLocaleString()} remaining to fund` }, { status: 400 });
 
       const ownershipPct = (params.amount / p2pLoan.amount_approved) * 100;
       const maturityDate = new Date();
       maturityDate.setMonth(maturityDate.getMonth() + p2pLoan.tenure_months);
 
+      // Create investment in escrow state
       const investment = await base44.entities.LenderInvestment.create({
         lender_id: user.id,
         lender_profile_id: profile.id,
@@ -314,27 +315,98 @@ Deno.serve(async (req) => {
         investment_type: 'manual',
         amount_invested: params.amount,
         ownership_pct: ownershipPct,
-        expected_return: Math.round(params.amount * ownershipPct / 100 * (p2pLoan.final_interest_rate / 100) * p2pLoan.tenure_months),
+        expected_return: Math.round(params.amount * (p2pLoan.final_interest_rate / 100) * p2pLoan.tenure_months),
         lender_share_pct: 55,
         platform_share_pct: 30,
         reserve_share_pct: 15,
+        status: 'active',
         invested_at: new Date().toISOString(),
         maturity_date: maturityDate.toISOString().split('T')[0]
       });
 
-      // Check if threshold met
-      const newTotal = totalFunded + params.amount;
+      // Update escrowed amount on loan
+      const newEscrowed = totalEscrowed + params.amount;
       const threshold = p2pLoan.amount_approved * (p2pLoan.funding_threshold_pct / 100);
-      if (newTotal >= threshold) {
+      const thresholdMet = newEscrowed >= threshold;
+
+      if (thresholdMet) {
+        // Mark loan as funded — escrow threshold met
         await base44.asServiceRole.entities.P2PLoan.update(params.loan_id, {
           status: 'funded',
-          amount_funded: newTotal
+          amount_funded: newEscrowed,
+          escrowed_amount: newEscrowed
         });
+
+        // Auto-trigger disbursement: build repayment schedule and disburse
+        const now = new Date();
+        const disburseAmount = p2pLoan.amount_approved;
+        const disbFee = Math.round(disburseAmount * 0.03);
+        const insurance = Math.round(disburseAmount * 0.01);
+        const netDisb = disburseAmount - disbFee - insurance;
+        const monthlyRate = (p2pLoan.final_interest_rate || 5) / 100;
+        const tenure = p2pLoan.tenure_months;
+        const monthly = monthlyRate === 0 ? disburseAmount / tenure
+          : Math.round((disburseAmount * monthlyRate * Math.pow(1 + monthlyRate, tenure)) / (Math.pow(1 + monthlyRate, tenure) - 1));
+        const total = monthly * tenure;
+
+        // Generate full P2PRepayment schedule (replace draft schedules)
+        const existingRepayments = await base44.asServiceRole.entities.P2PRepayment.filter({ loan_id: params.loan_id, status: 'scheduled' });
+        const disbursedAt = now.toISOString();
+        const nextRepayDate = new Date(now);
+        nextRepayDate.setMonth(nextRepayDate.getMonth() + 1);
+
+        // If no repayments exist yet, create them now
+        if (existingRepayments.length === 0) {
+          const schedule = [];
+          for (let i = 1; i <= tenure; i++) {
+            const d = new Date(now);
+            d.setMonth(d.getMonth() + i);
+            schedule.push({
+              loan_id: params.loan_id,
+              borrower_id: p2pLoan.borrower_id,
+              amount: monthly,
+              principal_portion: Math.round(disburseAmount / tenure),
+              interest_portion: Math.round(monthly - disburseAmount / tenure),
+              due_date: d.toISOString().split('T')[0],
+              status: 'scheduled',
+            });
+          }
+          await Promise.all(schedule.map(s => base44.asServiceRole.entities.P2PRepayment.create(s)));
+        }
+
+        // Mark as disbursed
+        await base44.asServiceRole.entities.P2PLoan.update(params.loan_id, {
+          status: 'disbursed',
+          disbursed_at: disbursedAt,
+          disbursement_method: 'mobile_money',
+          origination_fee: disbFee,
+          insurance_cost: insurance,
+          net_disbursement: netDisb,
+          total_repayable: total,
+          monthly_installment: monthly,
+          outstanding_balance: total,
+          next_repayment_date: nextRepayDate.toISOString().split('T')[0],
+          is_marketplace_listed: false,
+        });
+
+        // Notify borrower
+        await base44.asServiceRole.entities.Notification.create({
+          user_id: p2pLoan.borrower_id,
+          title: '💸 P2P Loan Disbursed!',
+          message: `Your loan of UGX ${disburseAmount.toLocaleString()} has been fully funded and UGX ${netDisb.toLocaleString()} disbursed to your account. First repayment due ${nextRepayDate.toISOString().split('T')[0]}.`,
+          type: 'loan',
+          is_read: false,
+        }).catch(() => null);
+
       } else {
-        await base44.asServiceRole.entities.P2PLoan.update(params.loan_id, { amount_funded: newTotal });
+        // Still collecting — update escrowed amount
+        await base44.asServiceRole.entities.P2PLoan.update(params.loan_id, {
+          amount_funded: newEscrowed,
+          escrowed_amount: newEscrowed
+        });
       }
 
-      return Response.json({ investment, total_funded: newTotal, threshold_met: newTotal >= threshold });
+      return Response.json({ investment, total_funded: newEscrowed, threshold_met: thresholdMet, auto_disbursed: thresholdMet });
     }
 
     // ── 5. DISBURSE LOAN ─────────────────────────────────────────────────────

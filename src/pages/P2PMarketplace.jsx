@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Filter, TrendingUp, Shield, Clock, AlertCircle, CheckCircle2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import EscrowStatusBadge from '@/components/p2p/EscrowStatusBadge';
 
 const TIER_CONFIG = {
   platinum: { color: 'bg-slate-800 text-white', emoji: '💎' },
@@ -154,19 +155,8 @@ export default function P2PMarketplace() {
                     </div>
                   </div>
 
-                  {/* Funding Progress */}
-                  <div className="mb-3">
-                    <div className="flex justify-between text-xs text-gray-500 mb-1">
-                      <span>{pctFunded.toFixed(0)}% funded</span>
-                      <span>Need {loan.funding_threshold_pct}% to disburse</span>
-                    </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full transition-all"
-                        style={{ width: `${pctFunded}%` }}
-                      />
-                    </div>
-                  </div>
+                  {/* Escrow Status */}
+                  <EscrowStatusBadge loan={loan} />
 
                   <button
                     onClick={() => { setSelectedLoan(loan); setFundAmount(''); setError(''); setSuccess(null); }}

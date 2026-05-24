@@ -60,6 +60,8 @@ import TermsOfService from './pages/TermsOfService';
 import DataRights from './pages/DataRights';
 import AccessibilityStatement from './pages/AccessibilityStatement';
 import ErrorBoundary from './components/ErrorBoundary';
+import Benchmarking from './pages/Benchmarking';
+import CollectionsMonitor from './pages/CollectionsMonitor';
 
 // Root paths get a fade transition; child paths slide in from the right
 const ROOT_PATHS = ['/', '/loans', '/savings', '/budget', '/profile', '/credit-score', '/invest', '/insurance', '/financial-health', '/notifications', '/p2p', '/savings-goals', '/savings-groups', '/savings-challenges', '/group-challenges', '/debt-payoff', '/about', '/contact', '/privacy', '/terms', '/accessibility'];
@@ -175,6 +177,8 @@ const AuthenticatedApp = () => {
       <Route path="/terms" element={<TermsOfService />} />
       <Route path="/data-rights" element={<><DataRights /><BottomNav /></>} />
       <Route path="/accessibility" element={<AccessibilityStatement />} />
+      <Route path="/benchmarking" element={<><Benchmarking /><BottomNav /></>} />
+      <Route path="/admin/collections" element={<CollectionsMonitor />} />
       <Route path="/savings-goals" element={<><SavingsGoals /><BottomNav /></>} />
       <Route path="/loans/pre-qualify" element={<><LoanPreQualify /><BottomNav /></>} />
       <Route path="*" element={<PageNotFound />} />

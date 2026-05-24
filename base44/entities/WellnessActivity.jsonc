@@ -1,0 +1,54 @@
+{
+  "name": "WellnessActivity",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string"
+    },
+    "activity_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "checklist": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean",
+            "default": false
+          },
+          "points": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "total_points_earned": {
+      "type": "number",
+      "default": 0
+    },
+    "streak_count": {
+      "type": "number",
+      "default": 0
+    },
+    "completed_all": {
+      "type": "boolean",
+      "default": false
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 500
+    }
+  },
+  "required": [
+    "user_id",
+    "activity_date"
+  ]
+}
