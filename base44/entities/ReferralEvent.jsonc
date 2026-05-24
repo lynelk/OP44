@@ -1,0 +1,45 @@
+{
+  "name": "ReferralEvent",
+  "type": "object",
+  "properties": {
+    "referrer_id": {
+      "type": "string",
+      "description": "user_id of the referrer"
+    },
+    "invitee_id": {
+      "type": "string",
+      "description": "user_id of the invited user"
+    },
+    "referral_code_used": {
+      "type": "string"
+    },
+    "loan_application_id": {
+      "type": "string",
+      "description": "The disbursed loan that triggered the award"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "awarded",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "pending until invitee's first loan is disbursed"
+    },
+    "points_awarded": {
+      "type": "number",
+      "default": 0,
+      "description": "Points awarded to referrer"
+    },
+    "awarded_date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "referrer_id",
+    "invitee_id",
+    "referral_code_used"
+  ]
+}
