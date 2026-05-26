@@ -5,8 +5,7 @@ module.exports = {
   theme: {
   	extend: {
       fontFamily: {
-        sans: ['Inter', 'Poppins', 'system-ui', '-apple-system', 'sans-serif'],
-        inter: ['Inter', 'sans-serif'],
+        sans: ['Poppins', 'system-ui', '-apple-system', 'sans-serif'],
         poppins: ['Poppins', 'sans-serif'],
       },
   		borderRadius: {
@@ -17,10 +16,11 @@ module.exports = {
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
-        'forest': '#006B3C',
-        'pipiya-green': '#7BC943',
-        'pipiya-gold': '#F4B400',
-        'soft-white': '#F8F9FA',
+        'opfin-blue': '#0D1BFF',
+        'opfin-light': '#32B4FF',
+        'opfin-green': '#00C48C',
+        'opfin-gray': '#F2F5F9',
+        'opfin-dark': '#1A1D29',
   			card: {
   				DEFAULT: 'hsl(var(--card))',
   				foreground: 'hsl(var(--card-foreground))'

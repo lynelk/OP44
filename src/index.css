@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,82 +6,83 @@
 
 @layer base {
   :root {
-    --font-sans: 'Inter', 'Poppins', system-ui, -apple-system, sans-serif;
+    --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
 
-    /* Pipiya Brand Colors */
-    --brand-forest: #006B3C;
-    --brand-green: #7BC943;
-    --brand-gold: #F4B400;
-    --brand-soft-white: #F8F9FA;
+    /* OpFin Brand Colors */
+    --brand-primary: #0D1BFF;
+    --brand-light-blue: #32B4FF;
+    --brand-success: #00C48C;
+    --brand-light-gray: #F2F5F9;
+    --brand-dark: #1A1D29;
 
-    --background: 0 0% 97%;
-    --foreground: 160 100% 13%;
+    --background: 220 33% 97%;
+    --foreground: 230 45% 14%;
     --card: 0 0% 100%;
-    --card-foreground: 160 100% 13%;
+    --card-foreground: 230 45% 14%;
     --popover: 0 0% 100%;
-    --popover-foreground: 160 100% 13%;
-    --primary: 154 100% 21%;
+    --popover-foreground: 230 45% 14%;
+    --primary: 234 100% 52%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 94 50% 56%;
+    --secondary: 198 100% 60%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 95%;
+    --muted: 220 20% 95%;
     --muted-foreground: 0 0% 45%;
-    --accent: 44 100% 48%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 162 100% 39%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 154 100% 21%;
-    --chart-1: 154 100% 21%;
-    --chart-2: 94 50% 56%;
-    --chart-3: 44 100% 48%;
-    --chart-4: 154 60% 35%;
-    --chart-5: 94 60% 40%;
+    --border: 220 20% 90%;
+    --input: 220 20% 90%;
+    --ring: 234 100% 52%;
+    --chart-1: 234 100% 52%;
+    --chart-2: 198 100% 60%;
+    --chart-3: 162 100% 39%;
+    --chart-4: 234 80% 65%;
+    --chart-5: 198 80% 50%;
     --radius: 0.75rem;
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 160 100% 13%;
-    --sidebar-primary: 154 100% 21%;
+    --sidebar-foreground: 230 45% 14%;
+    --sidebar-primary: 234 100% 52%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 94 40% 90%;
-    --sidebar-accent-foreground: 154 100% 21%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 154 100% 21%;
+    --sidebar-accent: 198 60% 90%;
+    --sidebar-accent-foreground: 234 100% 52%;
+    --sidebar-border: 220 20% 90%;
+    --sidebar-ring: 234 100% 52%;
   }
 
   .dark {
-    --background: 160 30% 6%;
+    --background: 230 30% 8%;
     --foreground: 0 0% 98%;
-    --card: 160 20% 10%;
+    --card: 230 25% 12%;
     --card-foreground: 0 0% 98%;
-    --popover: 160 20% 10%;
+    --popover: 230 25% 12%;
     --popover-foreground: 0 0% 98%;
-    --primary: 94 50% 56%;
-    --primary-foreground: 160 100% 10%;
-    --secondary: 154 60% 25%;
+    --primary: 198 100% 60%;
+    --primary-foreground: 230 45% 10%;
+    --secondary: 234 60% 35%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 160 15% 15%;
+    --muted: 230 20% 18%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 44 100% 48%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 162 100% 39%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 160 15% 18%;
-    --input: 160 15% 18%;
-    --ring: 94 50% 56%;
-    --chart-1: 94 50% 56%;
-    --chart-2: 44 100% 48%;
-    --chart-3: 154 60% 45%;
-    --chart-4: 94 60% 40%;
-    --chart-5: 160 50% 35%;
-    --sidebar-background: 160 30% 8%;
+    --border: 230 20% 20%;
+    --input: 230 20% 20%;
+    --ring: 198 100% 60%;
+    --chart-1: 198 100% 60%;
+    --chart-2: 162 100% 39%;
+    --chart-3: 234 80% 65%;
+    --chart-4: 198 80% 50%;
+    --chart-5: 234 60% 45%;
+    --sidebar-background: 230 30% 10%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 94 50% 56%;
+    --sidebar-primary: 198 100% 60%;
     --sidebar-primary-foreground: 0 0% 10%;
-    --sidebar-accent: 160 20% 15%;
+    --sidebar-accent: 230 25% 18%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 160 15% 18%;
-    --sidebar-ring: 94 50% 56%;
+    --sidebar-border: 230 20% 20%;
+    --sidebar-ring: 198 100% 60%;
   }
 }
 

@@ -69,7 +69,7 @@ export default function MobileHeader() {
         {!isRoot ? (
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1 text-[#006B3C] font-medium text-sm min-w-[44px] min-h-[44px] flex items-center"
+            className="flex items-center gap-1 text-[#0D1BFF] font-medium text-sm min-w-[44px] min-h-[44px] flex items-center"
           >
             <ChevronLeft className="w-5 h-5" />
             Back

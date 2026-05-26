@@ -93,6 +93,10 @@ export default function Dashboard() {
   const activeLoan = loans.find(l => l.status === 'active' || l.status === 'disbursed');
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  // OpFin brand colors
+  const PRIMARY = '#0D1BFF';
+  const LIGHT = '#32B4FF';
+  const SUCCESS = '#00C48C';
 
   const formatCurrency = (amount) => {
     if (!amount) return 'UGX 0';
@@ -100,15 +104,15 @@ export default function Dashboard() {
   };
 
   const QUICK_ACTIONS = [
-    { icon: CreditCard, label: 'Apply Loan', path: '/loans/apply', color: 'bg-[#006B3C]/10 text-[#006B3C] dark:bg-[#006B3C]/20 dark:text-[#7BC943]' },
-    { icon: Wallet, label: 'Save', path: '/savings', color: 'bg-[#7BC943]/10 text-[#7BC943] dark:bg-[#7BC943]/20 dark:text-[#7BC943]' },
-    { icon: Shield, label: 'Insure', path: '/insurance', color: 'bg-[#F4B400]/10 text-[#F4B400] dark:bg-[#F4B400]/20 dark:text-[#F4B400]' },
-    { icon: TrendingUp, label: 'Invest', path: '/invest', color: 'bg-[#006B3C]/10 text-[#006B3C] dark:bg-[#006B3C]/20 dark:text-[#7BC943]' },
+    { icon: CreditCard, label: 'Apply Loan', path: '/loans/apply', color: 'bg-[#0D1BFF]/10 text-[#0D1BFF] dark:bg-[#0D1BFF]/20 dark:text-[#32B4FF]' },
+    { icon: Wallet, label: 'Save', path: '/savings', color: 'bg-[#00C48C]/10 text-[#00C48C] dark:bg-[#00C48C]/20 dark:text-[#00C48C]' },
+    { icon: Shield, label: 'Insure', path: '/insurance', color: 'bg-[#32B4FF]/10 text-[#32B4FF] dark:bg-[#32B4FF]/20 dark:text-[#32B4FF]' },
+    { icon: TrendingUp, label: 'Invest', path: '/invest', color: 'bg-[#0D1BFF]/10 text-[#0D1BFF] dark:bg-[#0D1BFF]/20 dark:text-[#32B4FF]' },
     { icon: TrendingDown, label: 'Debt', path: '/debt-payoff', color: 'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300' },
-    { icon: Users, label: 'Groups', path: '/savings-groups', color: 'bg-[#006B3C]/10 text-[#006B3C] dark:bg-[#006B3C]/20 dark:text-[#7BC943]' },
-    { icon: Activity, label: 'Health', path: '/financial-health', color: 'bg-[#7BC943]/10 text-[#7BC943] dark:bg-[#7BC943]/20 dark:text-[#7BC943]' },
-    { icon: Handshake, label: 'P2P', path: '/p2p', color: 'bg-[#006B3C]/10 text-[#006B3C] dark:bg-[#006B3C]/20 dark:text-[#7BC943]' },
-    { icon: PieChart, label: 'Net Worth', path: '/net-worth', color: 'bg-[#F4B400]/10 text-[#F4B400] dark:bg-[#F4B400]/20 dark:text-[#F4B400]' },
+    { icon: Users, label: 'Groups', path: '/savings-groups', color: 'bg-[#0D1BFF]/10 text-[#0D1BFF] dark:bg-[#0D1BFF]/20 dark:text-[#32B4FF]' },
+    { icon: Activity, label: 'Health', path: '/financial-health', color: 'bg-[#00C48C]/10 text-[#00C48C] dark:bg-[#00C48C]/20 dark:text-[#00C48C]' },
+    { icon: Handshake, label: 'P2P', path: '/p2p', color: 'bg-[#0D1BFF]/10 text-[#0D1BFF] dark:bg-[#0D1BFF]/20 dark:text-[#32B4FF]' },
+    { icon: PieChart, label: 'Net Worth', path: '/net-worth', color: 'bg-[#32B4FF]/10 text-[#32B4FF] dark:bg-[#32B4FF]/20 dark:text-[#32B4FF]' },
   ];
 
   return (
@@ -123,16 +127,16 @@ export default function Dashboard() {
       )}
 
       {/* Hero Header */}
-      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-20">
+      <div className="bg-gradient-to-br from-[#1A1D29] via-[#0D1BFF] to-[#32B4FF] text-white px-5 pt-14 pb-20">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <p className="text-green-200 text-sm font-medium">{greeting},</p>
+            <p className="text-blue-100 text-sm font-medium">{greeting},</p>
             <h1 className="text-2xl font-bold tracking-tight">{user?.full_name?.split(' ')[0] || 'Welcome'} 👋</h1>
           </div>
           <Link to="/notifications" className="relative w-11 h-11 bg-white/10 rounded-full flex items-center justify-center">
             <Bell className="w-5 h-5" />
             {notifications.length > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-[#F4B400] text-[#006B3C] text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+              <span className="absolute -top-0.5 -right-0.5 bg-[#00C48C] text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                 {notifications.length > 9 ? '9+' : notifications.length}
               </span>
             )}
@@ -144,15 +148,15 @@ export default function Dashboard() {
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-200 text-xs font-medium mb-0.5">Your Credit Score</p>
+                <p className="text-blue-100 text-xs font-medium mb-0.5">Your Credit Score</p>
                 <div className="flex items-end gap-2">
                   <span className="text-4xl font-bold tracking-tight">
                     {creditScore?.score ?? '—'}
                   </span>
                   {creditScore?.risk_band && (
                     <span className={`text-xs rounded-full px-2 py-0.5 mb-1 font-medium ${
-                      creditScore.risk_band === 'A' ? 'bg-emerald-400/20 text-emerald-300' :
-                      creditScore.risk_band === 'B' ? 'bg-blue-400/20 text-blue-300' :
+                      creditScore.risk_band === 'A' ? 'bg-[#00C48C]/30 text-[#00C48C]' :
+                      creditScore.risk_band === 'B' ? 'bg-[#32B4FF]/30 text-[#32B4FF]' :
                       creditScore.risk_band === 'C' ? 'bg-amber-400/20 text-amber-300' :
                       'bg-red-400/20 text-red-300'
                     }`}>
@@ -165,14 +169,14 @@ export default function Dashboard() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-green-200 text-xs mb-1 font-medium">Available Credit</p>
+                <p className="text-blue-100 text-xs mb-1 font-medium">Available Credit</p>
                 <p className="text-2xl font-bold">
                   {creditScore?.max_loan_limit
                     ? formatCurrency(creditScore.max_loan_limit)
                     : 'N/A'}
                 </p>
                 <button
-                  className="mt-2 bg-[#F4B400] hover:bg-yellow-500 text-[#006B3C] text-xs font-semibold rounded-xl px-4 py-2 transition-colors"
+                  className="mt-2 bg-[#00C48C] hover:bg-[#00a878] text-white text-xs font-semibold rounded-xl px-4 py-2 transition-colors"
                   onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = '/loans/apply'; }}
                 >
                   Apply Now
@@ -188,21 +192,21 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-[#7BC943]/10 dark:bg-[#7BC943]/20 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-[#7BC943] dark:text-[#7BC943]" />
+              <div className="w-8 h-8 bg-[#00C48C]/10 dark:bg-[#00C48C]/20 rounded-xl flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-[#00C48C]" />
               </div>
               <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Investments</span>
             </div>
             <p className="text-xl font-bold text-gray-900 dark:text-white">{formatCurrency(totalInvestments)}</p>
-            <p className="text-xs text-[#7BC943] flex items-center gap-0.5 mt-1">
+            <p className="text-xs text-[#00C48C] flex items-center gap-0.5 mt-1">
               <ArrowUpRight className="w-3 h-3" /> {savings.length} pockets
             </p>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-[#F4B400]/10 dark:bg-[#F4B400]/20 rounded-xl flex items-center justify-center">
-                <CreditCard className="w-4 h-4 text-[#F4B400] dark:text-[#F4B400]" />
+              <div className="w-8 h-8 bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20 rounded-xl flex items-center justify-center">
+                <CreditCard className="w-4 h-4 text-[#0D1BFF] dark:text-[#32B4FF]" />
               </div>
               <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Active Loan</span>
             </div>
@@ -211,7 +215,7 @@ export default function Dashboard() {
                 <p className="text-xl font-bold text-gray-900 dark:text-white">
                   {formatCurrency(activeLoan.outstanding_balance || activeLoan.amount_approved || 0)}
                 </p>
-                <p className="text-xs text-[#F4B400] flex items-center gap-0.5 mt-1">
+                <p className="text-xs text-[#32B4FF] flex items-center gap-0.5 mt-1">
                   <ArrowDownRight className="w-3 h-3" /> Outstanding
                 </p>
               </>
@@ -245,7 +249,7 @@ export default function Dashboard() {
             <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-purple-500" /> Your Insights
             </h2>
-            <button onClick={handleRefresh} className="text-[#7BC943] text-xs font-bold flex items-center gap-1 hover:text-[#006B3C] transition-colors">
+            <button onClick={handleRefresh} className="text-[#0D1BFF] text-xs font-bold flex items-center gap-1 hover:text-[#32B4FF] transition-colors">
               <RefreshCw className="w-3 h-3" /> Refresh
             </button>
           </div>
@@ -285,7 +289,7 @@ export default function Dashboard() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">My Savings</h2>
-            <Link to="/savings" className="text-[#006B3C] text-xs font-medium flex items-center gap-0.5">
+            <Link to="/savings" className="text-[#0D1BFF] text-xs font-medium flex items-center gap-0.5">
               View all <ChevronRight className="w-3 h-3" />
             </Link>
           </div>
@@ -310,12 +314,12 @@ export default function Dashboard() {
                           <p className="text-xs text-gray-400">Goal: {formatCurrency(pocket.goal_amount)}</p>
                         </div>
                       </div>
-                      <span className="text-sm font-bold text-[#006B3C] dark:text-[#7BC943]">
+                      <span className="text-sm font-bold text-[#0D1BFF] dark:text-[#32B4FF]">
                         {formatCurrency(pocket.current_balance)}
                       </span>
                     </div>
                     <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
-                      <div className="bg-gradient-to-r from-[#006B3C] to-[#7BC943] h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                      <div className="bg-gradient-to-r from-[#0D1BFF] to-[#32B4FF] h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
                     </div>
                     <p className="text-xs text-gray-400 mt-1">{progress.toFixed(0)}% of goal</p>
                   </div>

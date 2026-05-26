@@ -1,12 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Shield, ArrowLeft, Mail, Phone } from 'lucide-react';
 
-const LOGO_URL = 'https://media.base44.com/images/public/6a0ed744d2266f7b5226f8a2/5220bc5cd_Pipiya_Master_Logo.png';
-
 const SECTIONS = [
   {
     title: '1. Who We Are',
-    body: `Pipiya Technologies Ltd ("Pipiya", "we", "our", "us") is a financial technology company registered in Uganda (Registration No. TBD), regulated by the Financial Services Authority of Uganda (FSAU). Our registered address is Kampala, Uganda. Contact: privacy@pipiya.ug.`,
+    body: `OpFin Technologies Ltd ("OpFin", "we", "our", "us") is a financial technology company registered in Uganda (Registration No. TBD), regulated by the Financial Services Authority of Uganda (FSAU). Our registered address is Kampala, Uganda. Contact: privacy@opfin.ug.`,
   },
   {
     title: '2. Data We Collect',
@@ -96,39 +94,39 @@ To exercise any of these rights, contact privacy@pipiya.ug or use the Data Right
   },
   {
     title: '13. Contact & Complaints',
-    body: `Data Protection Officer: privacy@pipiya.ug
-General enquiries: hello@pipiya.ug | +256 700 000 000
+    body: `Data Protection Officer: privacy@opfin.ug
+General enquiries: hello@opfin.ug | +256 700 000 000
 If you are unsatisfied with our response, you may lodge a complaint with the Personal Data Protection Office of Uganda (PDPO).`,
   },
 ];
 
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen bg-[#F8F9FA] font-poppins">
+    <div className="min-h-screen bg-[#F2F5F9] font-poppins">
       {/* Nav */}
       <nav className="flex items-center justify-between px-5 py-3 bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm">
         <Link to="/landing">
-          <img src={LOGO_URL} alt="Pipiya" className="h-10 object-contain" />
+          <span className="text-2xl font-black text-[#0D1BFF] tracking-tight">Op<span className="text-[#32B4FF]">Fin</span></span>
         </Link>
-        <Link to="/" className="bg-[#006B3C] text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#005530] transition-colors">
+        <Link to="/" className="bg-[#0D1BFF] text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#0a15cc] transition-colors">
           Open App
         </Link>
       </nav>
 
       {/* Hero */}
-      <section className="bg-gradient-to-br from-[#006B3C] via-[#007a44] to-[#005530] text-white px-5 pt-14 pb-16 relative overflow-hidden">
-        <div className="absolute -top-16 -right-16 w-72 h-72 bg-[#7BC943]/20 rounded-full blur-3xl" />
+      <section className="bg-gradient-to-br from-[#1A1D29] via-[#0D1BFF] to-[#32B4FF] text-white px-5 pt-14 pb-16 relative overflow-hidden">
+        <div className="absolute -top-16 -right-16 w-72 h-72 bg-[#32B4FF]/20 rounded-full blur-3xl" />
         <div className="relative max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-5">
-            <Shield className="w-3.5 h-3.5 text-[#7BC943]" />
-            <span className="text-[#7BC943] text-xs font-semibold uppercase tracking-wider">ISO/IEC 27701 Compliant</span>
+            <Shield className="w-3.5 h-3.5 text-[#00C48C]" />
+            <span className="text-[#00C48C] text-xs font-semibold uppercase tracking-wider">ISO/IEC 27701 Compliant</span>
           </div>
           <h1 className="text-3xl font-extrabold leading-tight mb-3 font-poppins">Privacy Policy</h1>
-          <p className="text-green-100 text-sm">
+          <p className="text-blue-100 text-sm">
             Last updated: 23 May 2026 — Version 2.0
           </p>
-          <p className="text-green-200 text-sm mt-2 leading-relaxed">
-            Pipiya is committed to protecting your personal data and respecting your privacy rights under the Uganda Data Protection and Privacy Act 2019 and international best practices.
+          <p className="text-blue-200 text-sm mt-2 leading-relaxed">
+            OpFin is committed to protecting your personal data and respecting your privacy rights under the Uganda Data Protection and Privacy Act 2019 and international best practices.
           </p>
         </div>
       </section>
@@ -137,32 +135,32 @@ export default function PrivacyPolicy() {
       <main className="max-w-2xl mx-auto px-5 py-10 space-y-8" id="main-content">
         {SECTIONS.map(s => (
           <section key={s.title}>
-            <h2 className="text-base font-bold text-[#006B3C] mb-2 font-poppins">{s.title}</h2>
+            <h2 className="text-base font-bold text-[#0D1BFF] mb-2 font-poppins">{s.title}</h2>
             <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">{s.body}</p>
           </section>
         ))}
 
         {/* Rights CTA */}
-        <div className="bg-[#006B3C] rounded-2xl p-5 text-white">
+        <div className="bg-[#0D1BFF] rounded-2xl p-5 text-white">
           <h3 className="font-bold mb-2">Exercise Your Data Rights</h3>
           <p className="text-sm text-green-100 mb-4">Request data access, correction, or deletion directly through the app.</p>
-          <Link to="/consent" className="inline-flex items-center gap-2 bg-[#F4B400] text-[#006B3C] font-bold py-2.5 px-5 rounded-xl text-sm hover:bg-yellow-400 transition-colors">
+          <Link to="/consent" className="inline-flex items-center gap-2 bg-[#00C48C] text-white font-bold py-2.5 px-5 rounded-xl text-sm hover:bg-[#00a878] transition-colors">
             Manage My Data & Consents
           </Link>
         </div>
 
         <div className="text-xs text-gray-400 border-t pt-6">
-          <p>© 2026 Pipiya Technologies Ltd. All rights reserved. Registered in Uganda.</p>
+          <p>© 2026 OpFin Technologies Ltd. All rights reserved. Registered in Uganda.</p>
           <p className="mt-1">FSAU Regulated | ISO/IEC 27001 Certified Infrastructure | Uganda Data Protection and Privacy Act 2019 Compliant</p>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-[#004d2b] text-green-300 px-5 py-8">
+      <footer className="bg-[#1A1D29] text-blue-300 px-5 py-8">
         <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-start justify-between gap-4">
           <div>
-            <img src={LOGO_URL} alt="Pipiya" className="h-8 object-contain mb-2" style={{ filter: 'brightness(0) invert(1)' }} />
-            <p className="text-xs opacity-50">© 2026 Pipiya Technologies Ltd.</p>
+            <div className="text-xl font-black text-white mb-2 tracking-tight">Op<span className="text-[#32B4FF]">Fin</span></div>
+            <p className="text-xs opacity-50">© 2026 OpFin Technologies Ltd.</p>
           </div>
           <div className="flex gap-5 text-xs">
             <Link to="/terms" className="hover:text-white">Terms of Use</Link>

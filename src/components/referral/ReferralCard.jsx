@@ -24,8 +24,8 @@ export default function ReferralCard() {
   const share = () => {
     if (navigator.share) {
       navigator.share({
-        title: 'Join me on Pipiya!',
-        text: `Use my referral code ${data.referral_code} to sign up on Pipiya and we both earn loyalty points when you get your first loan!`,
+        title: 'Join me on OpFin!',
+        text: `Use my referral code ${data.referral_code} to sign up on OpFin and we both earn loyalty points when you get your first loan!`,
         url: data.referral_link,
       });
     } else {
@@ -42,7 +42,7 @@ export default function ReferralCard() {
   if (!data) return null;
 
   return (
-    <div className="bg-gradient-to-br from-[#004d2b] to-[#006B3C] text-white rounded-2xl p-5 space-y-4">
+    <div className="bg-gradient-to-br from-[#1A1D29] to-[#0D1BFF] text-white rounded-2xl p-5 space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Gift className="w-5 h-5 text-yellow-300" />
@@ -94,7 +94,7 @@ export default function ReferralCard() {
         </div>
       </div>
 
-      <Button onClick={share} className="w-full bg-[#F4B400] hover:bg-yellow-400 text-[#004d2b] font-bold gap-2 h-10">
+      <Button onClick={share} className="w-full bg-[#00C48C] hover:bg-[#00a878] text-white font-bold gap-2 h-10">
         <Share2 className="w-4 h-4" /> Share Referral Link
       </Button>
     </div>
