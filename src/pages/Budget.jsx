@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import BudgetLimitsManager from '@/components/budget/BudgetLimitsManager';
 import ReceiptScanner from '@/components/budget/ReceiptScanner';
 import BudgetForecast from '@/components/budget/BudgetForecast';
+import AffordabilityMeter from '@/components/budget/AffordabilityMeter';
 
 const CATEGORIES = ['food','transport','housing','health','education','entertainment','utilities','clothing','savings','loan_repayment','other'];
 const CATEGORY_COLORS = {
@@ -109,6 +110,8 @@ export default function Budget() {
             </div>
           </div>
         )}
+
+        {user && <AffordabilityMeter userId={user.id} expenses={expenses} />}
 
         {user && <BudgetLimitsManager userId={user.id} expenses={expenses} />}
 

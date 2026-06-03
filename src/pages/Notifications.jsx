@@ -4,7 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Bell, CheckCheck, ChevronRight, AlertTriangle, CreditCard, PiggyBank, Trophy, Settings } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { notificationRoute } from '@/lib/notificationRoutes';
 
 const TYPE_CONFIG = {
   repayment_due: { icon: CreditCard, color: 'text-red-500', bg: 'bg-red-50' },
@@ -29,6 +30,7 @@ export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [filter, setFilter] = useState('all');
   const [marking, setMarking] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     base44.entities.Notification.filter({}).then(ns =>
@@ -47,6 +49,12 @@ export default function Notifications() {
   const markRead = async (id) => {
     await base44.entities.Notification.update(id, { is_read: true });
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, is_read: true } : n));
+  };
+
+  const handleOpen = (notif) => {
+    if (!notif.is_read) markRead(notif.id);
+    const route = notificationRoute(notif);
+    if (route) navigate(route);
   };
 
   const filtered = filter === 'all' ? notifications
@@ -103,9 +111,10 @@ export default function Notifications() {
         ) : filtered.map(notif => {
           const cfg = TYPE_CONFIG[notif.type] || TYPE_CONFIG.system;
           const Icon = cfg.icon;
+          const route = notificationRoute(notif);
           return (
             <Card key={notif.id} className={`shadow-sm cursor-pointer ${!notif.is_read ? 'border-l-4 border-l-[#006B3C]' : ''}`}
-              onClick={() => !notif.is_read && markRead(notif.id)}>
+              onClick={() => handleOpen(notif)}>
               <CardContent className="p-3">
                 <div className="flex items-start gap-3">
                   <div className={`w-9 h-9 rounded-xl ${cfg.bg} flex items-center justify-center flex-shrink-0`}>
@@ -126,11 +135,10 @@ export default function Notifications() {
                     <p className="text-xs text-gray-500 mt-1 leading-relaxed">{notif.body}</p>
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-xs text-gray-400">{timeAgo(notif.created_date)}</span>
-                      {notif.action_url && (
-                        <Link to={notif.action_url} className="flex items-center gap-0.5 text-xs text-[#006B3C] font-medium"
-                          onClick={e => e.stopPropagation()}>
+                      {route && (
+                        <span className="flex items-center gap-0.5 text-xs text-[#006B3C] font-medium">
                           View <ChevronRight className="w-3 h-3" />
-                        </Link>
+                        </span>
                       )}
                     </div>
                   </div>
