@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
       const awarded = events.filter(e => e.status === 'awarded');
       const pending = events.filter(e => e.status === 'pending');
 
-      const appBase = 'https://app.pipiya.co';
+      const appBase = 'https://app.opfin.co';
       const referralLink = `${appBase}/register?ref=${profile?.referral_code || ''}`;
 
       return Response.json({

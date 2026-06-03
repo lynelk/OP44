@@ -49,7 +49,7 @@ export default function ReferralCard() {
           <h3 className="font-bold text-base">Invite & Earn</h3>
         </div>
         <div className="text-right">
-          <p className="text-xs text-green-200">Your Points</p>
+          <p className="text-xs text-blue-200">Your Points</p>
           <p className="text-lg font-black text-yellow-300">{(data.loyalty_points || 0).toLocaleString()}</p>
         </div>
       </div>
@@ -58,21 +58,21 @@ export default function ReferralCard() {
       <div className="grid grid-cols-3 gap-2 text-center">
         <div className="bg-white/10 rounded-xl py-2">
           <p className="text-lg font-black">{data.successful_referrals || 0}</p>
-          <p className="text-xs text-green-200">Successful</p>
+          <p className="text-xs text-blue-200">Successful</p>
         </div>
         <div className="bg-white/10 rounded-xl py-2">
           <p className="text-lg font-black">{data.pending_referrals || 0}</p>
-          <p className="text-xs text-green-200">Pending</p>
+          <p className="text-xs text-blue-200">Pending</p>
         </div>
         <div className="bg-white/10 rounded-xl py-2">
           <p className="text-sm font-black text-yellow-300">UGX {(data.points_value_ugx || 0).toLocaleString()}</p>
-          <p className="text-xs text-green-200">Points Value</p>
+          <p className="text-xs text-blue-200">Points Value</p>
         </div>
       </div>
 
       {/* Referral Code Box */}
       <div className="bg-white/10 rounded-xl p-3">
-        <p className="text-xs text-green-200 mb-1">Your Referral Code</p>
+        <p className="text-xs text-blue-200 mb-1">Your Referral Code</p>
         <div className="flex items-center justify-between">
           <span className="text-xl font-black tracking-widest">{data.referral_code}</span>
           <button onClick={copyLink} className="flex items-center gap-1.5 text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg font-semibold transition-colors">
@@ -86,11 +86,11 @@ export default function ReferralCard() {
       <div className="grid grid-cols-2 gap-2 text-xs">
         <div className="bg-white/10 rounded-xl p-2.5 text-center">
           <p className="text-yellow-300 font-bold text-base">500 pts</p>
-          <p className="text-green-200">You earn per referral</p>
+          <p className="text-blue-200">You earn per referral</p>
         </div>
         <div className="bg-white/10 rounded-xl p-2.5 text-center">
           <p className="text-yellow-300 font-bold text-base">250 pts</p>
-          <p className="text-green-200">Friend earns on join</p>
+          <p className="text-blue-200">Friend earns on join</p>
         </div>
       </div>
 
