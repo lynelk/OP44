@@ -15,13 +15,15 @@ export default function BottomNav() {
 
   const handleClick = (e, path) => {
     if (location.pathname === path) {
-      // Already on root path — scroll to top
+      // Already on this path — scroll to top
+      e.preventDefault();
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (location.pathname.startsWith(path + '/')) {
+    } else if (path !== '/' && location.pathname.startsWith(path + '/')) {
       // On a sub-path — navigate to root path
       e.preventDefault();
       navigate(path);
     }
+    // Otherwise, let the <Link> handle normal navigation
   };
 
   return (

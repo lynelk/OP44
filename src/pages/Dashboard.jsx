@@ -69,8 +69,11 @@ export default function Dashboard() {
   const { data: tipsData, isLoading: loadingTips } = useQuery({
     queryKey: ['financialTips'],
     queryFn: () => base44.functions.invoke('financialTipsGenerator', {}).then(r => r.data),
-    staleTime: 1000 * 60 * 15,   // cache for 15 min — reduces repeat API hammering
-    retry: false,                  // don't retry on 429 — just show empty state
+    staleTime: 1000 * 60 * 30,   // cache for 30 min
+    gcTime: 1000 * 60 * 60,      // keep in cache for 1 hour
+    retry: false,                  // don't retry on 429
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   const handleRefresh = async () => {
