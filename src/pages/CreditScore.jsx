@@ -34,9 +34,9 @@ export default function CreditScore() {
   };
 
   const riskBandConfig = {
-    A: { label: 'Excellent', color: 'text-[#006B3C]',  bg: 'bg-[#006B3C]/10 dark:bg-[#006B3C]/20', pill: 'bg-[#7BC943]/20 text-[#006B3C]' },
-    B: { label: 'Good',      color: 'text-[#7BC943]',  bg: 'bg-[#7BC943]/10 dark:bg-[#7BC943]/20', pill: 'bg-[#7BC943]/20 text-[#006B3C]' },
-    C: { label: 'Fair',      color: 'text-[#F4B400]',  bg: 'bg-[#F4B400]/10 dark:bg-[#F4B400]/20', pill: 'bg-[#F4B400]/20 text-[#006B3C]' },
+    A: { label: 'Excellent', color: 'text-[#00C48C]',  bg: 'bg-[#00C48C]/10 dark:bg-[#00C48C]/20', pill: 'bg-[#00C48C]/20 text-[#00C48C]' },
+    B: { label: 'Good',      color: 'text-[#0D1BFF]',  bg: 'bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20', pill: 'bg-[#0D1BFF]/20 text-[#0D1BFF]' },
+    C: { label: 'Fair',      color: 'text-amber-500',  bg: 'bg-amber-50 dark:bg-amber-900/20',       pill: 'bg-amber-100 text-amber-700' },
     D: { label: 'Needs Work',color: 'text-red-600',    bg: 'bg-red-50 dark:bg-red-900/20',          pill: 'bg-red-100 text-red-700' },
   };
 
@@ -56,11 +56,11 @@ export default function CreditScore() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-28 font-sans">
-      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-8">
+      <div className="bg-gradient-to-br from-[#1A1D29] via-[#0D1BFF] to-[#32B4FF] text-white px-5 pt-14 pb-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight mb-1">Credit Score</h1>
-            <p className="text-green-200 text-sm">Your financial health at a glance</p>
+            <p className="text-blue-100 text-sm">Your financial health at a glance</p>
           </div>
           <button onClick={recalculate} disabled={calculating}
             className="flex items-center gap-1.5 h-9 px-3 bg-white/10 hover:bg-white/20 text-white text-sm font-medium rounded-full transition-colors disabled:opacity-50">
@@ -81,7 +81,7 @@ export default function CreditScore() {
             <p className="text-gray-700 dark:text-gray-300 font-semibold mb-2">No credit score yet</p>
             <p className="text-gray-400 text-sm mb-4">Calculate your score to understand your borrowing power.</p>
             <button onClick={recalculate} disabled={calculating}
-              className="h-11 px-6 bg-[#006B3C] text-white font-semibold rounded-xl disabled:opacity-50 flex items-center gap-2 mx-auto">
+              className="h-11 px-6 bg-[#0D1BFF] text-white font-semibold rounded-xl disabled:opacity-50 flex items-center gap-2 mx-auto">
               <RefreshCw className={`w-4 h-4 ${calculating ? 'animate-spin' : ''}`} /> Calculate Now
             </button>
           </div>
@@ -101,7 +101,7 @@ export default function CreditScore() {
                   {availableCredit > 0 && (
                     <div className="mt-2 space-y-1">
                       <p className="text-xs text-gray-400">
-                        Available credit: <span className="font-semibold text-[#006B3C]">{formatCurrency(availableCredit)}</span>
+                        Available credit: <span className="font-semibold text-[#0D1BFF] dark:text-[#32B4FF]">{formatCurrency(availableCredit)}</span>
                       </p>
                       <p className="text-xs text-gray-400">
                         Max loan: <span className="font-semibold text-gray-700 dark:text-gray-300">{formatCurrency(availableCredit)}</span>
@@ -117,7 +117,7 @@ export default function CreditScore() {
 
             {/* Available Credit Card */}
             {availableCredit > 0 && (
-              <div className="bg-gradient-to-r from-[#006B3C] to-[#007a44] text-white rounded-2xl p-4 shadow-sm">
+              <div className="bg-gradient-to-r from-[#0D1BFF] to-[#32B4FF] text-white rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center">
@@ -129,14 +129,14 @@ export default function CreditScore() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-green-100">Based on Band {band}</p>
-                    <p className="text-xs text-green-100">Score: {score}</p>
+                    <p className="text-xs text-blue-100">Based on Band {band}</p>
+                    <p className="text-xs text-blue-100">Score: {score}</p>
                   </div>
                 </div>
                 <div className="bg-white/20 rounded-full h-2 overflow-hidden">
                   <div className="h-full bg-white rounded-full" style={{ width: `${Math.min(100, (score / 850) * 100)}%` }} />
                 </div>
-                <p className="text-xs text-green-100 mt-2">
+                <p className="text-xs text-blue-100 mt-2">
                   Higher credit scores unlock more available credit
                 </p>
               </div>
@@ -150,35 +150,35 @@ export default function CreditScore() {
                 </p>
                 <div className="grid grid-cols-3 gap-3">
                   {scoreData.crb_summary.crb_score && (
-                    <div className="bg-[#006B3C]/10 dark:bg-[#006B3C]/20 rounded-xl p-3 text-center">
-                      <p className="text-xs text-gray-400 mb-1">CRB Score</p>
-                      <p className="text-lg font-bold text-[#006B3C] dark:text-[#7BC943]">{scoreData.crb_summary.crb_score}</p>
+                    <div className="bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20 rounded-xl p-3 text-center">
+                       <p className="text-xs text-gray-400 mb-1">CRB Score</p>
+                       <p className="text-lg font-bold text-[#0D1BFF] dark:text-[#32B4FF]">{scoreData.crb_summary.crb_score}</p>
                     </div>
-                  )}
-                  {scoreData.crb_summary.crb_band && (
-                    <div className="bg-[#006B3C]/10 dark:bg-[#006B3C]/20 rounded-xl p-3 text-center">
-                      <p className="text-xs text-gray-400 mb-1">CRB Band</p>
-                      <p className="text-lg font-bold text-[#006B3C] dark:text-[#7BC943]">{scoreData.crb_summary.crb_band}</p>
+                    )}
+                    {scoreData.crb_summary.crb_band && (
+                    <div className="bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20 rounded-xl p-3 text-center">
+                       <p className="text-xs text-gray-400 mb-1">CRB Band</p>
+                       <p className="text-lg font-bold text-[#0D1BFF] dark:text-[#32B4FF]">{scoreData.crb_summary.crb_band}</p>
                     </div>
-                  )}
-                  {scoreData.crb_summary.crb_rating && (
-                    <div className="bg-[#006B3C]/10 dark:bg-[#006B3C]/20 rounded-xl p-3 text-center">
-                      <p className="text-xs text-gray-400 mb-1">Rating</p>
-                      <p className="text-lg font-bold text-[#006B3C] dark:text-[#7BC943]">{scoreData.crb_summary.crb_rating}</p>
+                    )}
+                    {scoreData.crb_summary.crb_rating && (
+                    <div className="bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20 rounded-xl p-3 text-center">
+                       <p className="text-xs text-gray-400 mb-1">Rating</p>
+                       <p className="text-lg font-bold text-[#0D1BFF] dark:text-[#32B4FF]">{scoreData.crb_summary.crb_rating}</p>
                     </div>
-                  )}
-                  {scoreData.crb_summary.mno_score && (
-                    <div className="bg-[#F4B400]/10 dark:bg-[#F4B400]/20 rounded-xl p-3 text-center">
+                    )}
+                    {scoreData.crb_summary.mno_score && (
+                    <div className="bg-[#32B4FF]/10 dark:bg-[#32B4FF]/20 rounded-xl p-3 text-center">
                       <p className="text-xs text-gray-400 mb-1">MNO Score</p>
-                      <p className="text-lg font-bold text-[#006B3C] dark:text-[#F4B400]">{scoreData.crb_summary.mno_score}</p>
+                      <p className="text-lg font-bold text-[#0D1BFF] dark:text-[#32B4FF]">{scoreData.crb_summary.mno_score}</p>
                     </div>
-                  )}
-                  {scoreData.crb_summary.mno_band && (
-                    <div className="bg-[#F4B400]/10 dark:bg-[#F4B400]/20 rounded-xl p-3 text-center">
+                    )}
+                    {scoreData.crb_summary.mno_band && (
+                    <div className="bg-[#32B4FF]/10 dark:bg-[#32B4FF]/20 rounded-xl p-3 text-center">
                       <p className="text-xs text-gray-400 mb-1">MNO Band</p>
-                      <p className="text-lg font-bold text-[#006B3C] dark:text-[#F4B400]">{scoreData.crb_summary.mno_band}</p>
+                      <p className="text-lg font-bold text-[#0D1BFF] dark:text-[#32B4FF]">{scoreData.crb_summary.mno_band}</p>
                     </div>
-                  )}
+                    )}
                 </div>
               </div>
             )}
@@ -213,12 +213,12 @@ export default function CreditScore() {
               </div>
             )}
 
-            <div className="bg-[#006B3C]/10 dark:bg-[#006B3C]/20 border border-[#006B3C]/20 rounded-2xl p-4">
+            <div className="bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20 border border-[#0D1BFF]/20 rounded-2xl p-4">
               <div className="flex gap-3">
-                <Info className="w-5 h-5 text-[#006B3C] flex-shrink-0 mt-0.5" />
+                <Info className="w-5 h-5 text-[#0D1BFF] flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-[#006B3C] dark:text-[#7BC943] mb-1">Improve your score</p>
-                  <ul className="text-xs text-[#006B3C]/80 dark:text-[#7BC943]/80 space-y-1">
+                  <p className="text-sm font-semibold text-[#0D1BFF] dark:text-[#32B4FF] mb-1">Improve your score</p>
+                  <ul className="text-xs text-[#0D1BFF]/80 dark:text-[#32B4FF]/80 space-y-1">
                     <li>• Complete KYC verification</li>
                     <li>• Repay loans on or before due dates</li>
                     <li>• Maintain active savings pockets</li>

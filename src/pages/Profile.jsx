@@ -39,14 +39,14 @@ export default function Profile() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-32">
       {/* Profile Hero */}
-      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-16 pb-20">
+      <div className="bg-gradient-to-br from-[#1A1D29] via-[#0D1BFF] to-[#32B4FF] text-white px-5 pt-16 pb-20">
         <div className="flex items-center gap-4">
           <div className="w-18 h-18 w-[72px] h-[72px] bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-3xl font-bold border-2 border-white/30">
             {user?.full_name?.[0]?.toUpperCase() || 'U'}
           </div>
           <div>
             <h1 className="text-xl font-bold">{user?.full_name || 'User'}</h1>
-            <p className="text-green-200 text-sm mt-0.5">{user?.email}</p>
+            <p className="text-blue-100 text-sm mt-0.5">{user?.email}</p>
             <div className="mt-2">
               <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${kycApproved ? 'bg-emerald-400/20 text-emerald-300' : kycPending ? 'bg-amber-400/20 text-amber-300' : 'bg-white/20 text-white/70'}`}>
                 {kycApproved ? '✓ KYC Verified' : kycPending ? '⏳ KYC Pending' : 'KYC Required'}
@@ -58,11 +58,11 @@ export default function Profile() {
 
       <div className="px-4 -mt-10 space-y-4">
         {/* Points Card */}
-        <div className="bg-gradient-to-r from-[#006B3C] to-[#7BC943] text-white rounded-2xl p-5 shadow-lg flex items-center justify-between">
+        <div className="bg-gradient-to-r from-[#0D1BFF] to-[#32B4FF] text-white rounded-2xl p-5 shadow-lg flex items-center justify-between">
           <div>
-            <p className="text-green-100 text-xs font-medium">Pipiya Points</p>
+            <p className="text-blue-100 text-xs font-medium">Pipiya Points</p>
             <p className="text-4xl font-bold tracking-tight">{totalPoints}</p>
-            <p className="text-green-100 text-xs mt-1">{badges.length} badges earned</p>
+            <p className="text-blue-100 text-xs mt-1">{badges.length} badges earned</p>
           </div>
           <Award className="w-14 h-14 opacity-30" />
         </div>
@@ -95,8 +95,8 @@ export default function Profile() {
         {/* Lender Analytics Link */}
         {userProfile?.account_type === 'lender' && (
           <Link to="/lender-analytics">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-[#006B3C]/10 to-[#7BC943]/10 dark:from-[#006B3C]/20 dark:to-[#7BC943]/20 border border-[#006B3C]/20 dark:border-[#006B3C]/30 mb-4">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#006B3C] to-[#7BC943] flex items-center justify-center flex-shrink-0">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-[#0D1BFF]/10 to-[#32B4FF]/10 dark:from-[#0D1BFF]/20 dark:to-[#32B4FF]/20 border border-[#0D1BFF]/20 dark:border-[#0D1BFF]/30 mb-4">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0D1BFF] to-[#32B4FF] flex items-center justify-center flex-shrink-0">
                 <TrendingUp className="w-5 h-5 text-white" />
               </div>
               <div className="flex-1 min-w-0">
@@ -111,10 +111,10 @@ export default function Profile() {
         {/* Settings Menu */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
           {[
-            { icon: Shield, label: 'Identity & KYC', sub: kycApproved ? 'Verified' : 'Action needed', to: '/credit-score', iconBg: 'bg-[#006B3C]/10 dark:bg-[#006B3C]/20', iconColor: 'text-[#006B3C] dark:text-[#7BC943]' },
-            { icon: Bell, label: 'Notifications', sub: 'Manage alerts', to: '/notifications', iconBg: 'bg-[#F4B400]/10 dark:bg-[#F4B400]/20', iconColor: 'text-[#F4B400]' },
-            { icon: ToggleLeft, label: 'Data & Consent', sub: 'Manage your consents', to: '/consent', iconBg: 'bg-[#7BC943]/10 dark:bg-[#7BC943]/20', iconColor: 'text-[#7BC943]' },
-            { icon: Shield, label: 'My Data Rights', sub: 'Access, export or delete your data', to: '/data-rights', iconBg: 'bg-[#006B3C]/10 dark:bg-[#006B3C]/20', iconColor: 'text-[#006B3C] dark:text-[#7BC943]' },
+            { icon: Shield, label: 'Identity & KYC', sub: kycApproved ? 'Verified' : 'Action needed', to: '/credit-score', iconBg: 'bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20', iconColor: 'text-[#0D1BFF] dark:text-[#32B4FF]' },
+            { icon: Bell, label: 'Notifications', sub: 'Manage alerts', to: '/notifications', iconBg: 'bg-[#00C48C]/10 dark:bg-[#00C48C]/20', iconColor: 'text-[#00C48C]' },
+            { icon: ToggleLeft, label: 'Data & Consent', sub: 'Manage your consents', to: '/consent', iconBg: 'bg-[#32B4FF]/10 dark:bg-[#32B4FF]/20', iconColor: 'text-[#32B4FF]' },
+            { icon: Shield, label: 'My Data Rights', sub: 'Access, export or delete your data', to: '/data-rights', iconBg: 'bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20', iconColor: 'text-[#0D1BFF] dark:text-[#32B4FF]' },
             { icon: User, label: 'Account Settings', sub: 'Edit profile & preferences', to: '/p2p/onboarding', iconBg: 'bg-gray-100 dark:bg-gray-700', iconColor: 'text-gray-600 dark:text-gray-400' },
           ].map(({ icon: Icon, label, sub, to, iconBg, iconColor }, idx, arr) => {
             const inner = (
@@ -137,7 +137,7 @@ export default function Profile() {
 
         {user?.role === 'admin' && (
           <Link to="/admin">
-            <button className="w-full h-12 bg-[#006B3C] text-white rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-95">
+            <button className="w-full h-12 bg-[#0D1BFF] text-white rounded-2xl font-semibold text-sm flex items-center justify-center gap-2 transition-all active:scale-95">
               <LayoutDashboard className="w-4 h-4" /> Admin Panel
             </button>
           </Link>

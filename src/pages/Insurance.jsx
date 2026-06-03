@@ -44,25 +44,25 @@ export default function Insurance() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-28 font-sans">
-      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-8">
+      <div className="bg-gradient-to-br from-[#1A1D29] via-[#0D1BFF] to-[#32B4FF] text-white px-5 pt-14 pb-8">
         <div className="flex items-center gap-2 mb-1">
-          <Shield className="w-5 h-5 text-[#7BC943]" />
+          <Shield className="w-5 h-5 text-[#00C48C]" />
           <h1 className="text-2xl font-bold tracking-tight">Insurance</h1>
         </div>
-        <p className="text-green-200 text-sm mb-5">Protect what matters most</p>
+        <p className="text-blue-100 text-sm mb-5">Protect what matters most</p>
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-white/10 rounded-2xl p-3">
-            <p className="text-xs text-green-200 mb-0.5">Active</p>
+            <p className="text-xs text-blue-100 mb-0.5">Active</p>
             <p className="text-2xl font-bold">{activePoliciesCount}</p>
           </div>
           <div className="bg-white/10 rounded-2xl p-3">
-            <p className="text-xs text-green-200 mb-0.5">Products</p>
+            <p className="text-xs text-blue-100 mb-0.5">Products</p>
             <p className="text-2xl font-bold">{products.length}</p>
           </div>
           <Link to="/insurance/claims">
             <div className="bg-white/10 hover:bg-white/20 rounded-2xl p-3 flex flex-col items-center justify-center transition-colors h-full">
-              <FileText className="w-5 h-5 text-green-200 mb-1" />
-              <p className="text-xs text-green-200 font-medium">Claims</p>
+              <FileText className="w-5 h-5 text-blue-100 mb-1" />
+              <p className="text-xs text-blue-100 font-medium">Claims</p>
             </div>
           </Link>
         </div>
@@ -72,7 +72,7 @@ export default function Insurance() {
       <div className="flex bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-10">
         {[['marketplace','Marketplace'],['my_policies',`Policies${policies.length ? ` (${policies.length})` : ''}`],['claims','Claims']].map(([key, label]) => (
           <button key={key} onClick={() => setTab(key)}
-            className={`flex-1 py-3 text-sm font-medium transition-colors ${tab === key ? 'text-[#006B3C] dark:text-[#7BC943] border-b-2 border-[#006B3C] dark:border-[#7BC943]' : 'text-gray-400'}`}>
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${tab === key ? 'text-[#0D1BFF] dark:text-[#32B4FF] border-b-2 border-[#0D1BFF] dark:border-[#32B4FF]' : 'text-gray-400'}`}>
             {label}
           </button>
         ))}
@@ -89,7 +89,7 @@ export default function Insurance() {
               {CATEGORIES.map(c => (
                 <button key={c.key} onClick={() => setCategory(c.key)}
                   className={`flex-shrink-0 px-3 h-8 rounded-full text-xs font-medium transition-colors ${
-                    category === c.key ? 'bg-[#006B3C] text-white' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
+                    category === c.key ? 'bg-[#0D1BFF] text-white' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
                   }`}>
                   {c.label}
                 </button>
@@ -115,8 +115,8 @@ export default function Insurance() {
           <Link to="/insurance/claims">
             <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 flex items-center justify-between shadow-sm mt-2">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#006B3C]/10 dark:bg-[#006B3C]/20 rounded-xl flex items-center justify-center">
-                  <FileText className="w-5 h-5 text-[#006B3C] dark:text-[#7BC943]" />
+                <div className="w-10 h-10 bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20 rounded-xl flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-[#0D1BFF] dark:text-[#32B4FF]" />
                 </div>
                 <div>
                   <p className="font-semibold text-sm text-gray-900 dark:text-white">View Claims</p>
