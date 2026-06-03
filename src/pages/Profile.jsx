@@ -60,7 +60,7 @@ export default function Profile() {
         {/* Points Card */}
         <div className="bg-gradient-to-r from-[#0D1BFF] to-[#32B4FF] text-white rounded-2xl p-5 shadow-lg flex items-center justify-between">
           <div>
-            <p className="text-blue-100 text-xs font-medium">Pipiya Points</p>
+            <p className="text-blue-100 text-xs font-medium">OpFin Points</p>
             <p className="text-4xl font-bold tracking-tight">{totalPoints}</p>
             <p className="text-blue-100 text-xs mt-1">{badges.length} badges earned</p>
           </div>

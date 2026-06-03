@@ -29,6 +29,8 @@ export default function Dashboard() {
   const pullStartY = useRef(0);
   const queryClient = useQueryClient();
 
+  const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
   const loadData = async () => {
     const me = await base44.auth.me();
     setUser(me);
@@ -42,14 +44,16 @@ export default function Dashboard() {
     setLoans(l); setNotifications(n);
     if (scores.length > 0) setCreditScore(scores[0]);
 
-    // Batch 2: secondary data (staggered to avoid rate limits)
+    // Stagger batch 2 to avoid rate limits
+    await sleep(300);
     const [pockets, b] = await Promise.all([
       base44.entities.SavingsPocket.filter({ user_id: me.id }),
       base44.entities.GamificationBadge.filter({ user_id: me.id }),
     ]);
     setSavings(pockets); setBadges(b);
 
-    // Batch 3: investment totals
+    // Stagger batch 3
+    await sleep(300);
     const [lenderInv, policies] = await Promise.all([
       base44.entities.LenderInvestment.filter({ lender_id: me.id }),
       base44.entities.InsurancePolicy.filter({ user_id: me.id }),
