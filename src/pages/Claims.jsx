@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Upload, FileText, Clock, CheckCircle, AlertCircle, DollarSign, X, Image } from 'lucide-react';
+import ClaimTimeline from '@/components/insurance/ClaimTimeline';
 
 const CLAIM_STATUS = {
   submitted:    { label: 'Submitted',    color: 'bg-blue-100 text-blue-700',    icon: Clock },
@@ -159,6 +160,7 @@ export default function Claims() {
                           📋 {claim.reviewer_notes}
                         </div>
                       )}
+                      <ClaimTimeline claim={claim} />
                     </CardContent>
                   </Card>
                 );

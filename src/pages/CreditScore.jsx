@@ -5,6 +5,7 @@ import { RefreshCw, TrendingUp, Info, ShieldCheck, Wallet } from 'lucide-react';
 import ScoreGauge from '@/components/credit/ScoreGauge';
 import ScoreBreakdown from '@/components/credit/ScoreBreakdown';
 import ReasonCodes from '@/components/credit/ReasonCodes';
+import ScoreSimulator from '@/components/credit/ScoreSimulator';
 
 export default function CreditScore() {
   const [scoreData, setScoreData] = useState(null);
@@ -184,6 +185,8 @@ export default function CreditScore() {
             )}
 
             {scoreData?.reason_codes?.length > 0 && <ReasonCodes codes={scoreData.reason_codes} />}
+
+            <ScoreSimulator currentScore={score} />
 
             {history.length > 1 && (
               <div className="bg-white dark:bg-gray-900 rounded-2xl p-4 shadow-sm">

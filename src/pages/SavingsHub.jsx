@@ -389,6 +389,12 @@ export default function SavingsHub() {
                 <ChevronRight className="w-4 h-4" />
               </button>
             </Link>
+            <Link to="/rosca">
+              <button className="w-full flex items-center justify-between h-11 bg-white dark:bg-gray-800 border border-[#0D1BFF]/30 dark:border-[#32B4FF]/30 text-[#0D1BFF] dark:text-[#32B4FF] rounded-2xl px-4 text-sm font-semibold active:scale-95 transition-transform">
+                <span className="flex items-center gap-2"><RefreshCw className="w-4 h-4" /> Savings Circles (ROSCA)</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </Link>
             {groups.length === 0 ? (
               <div className="text-center py-12 text-gray-400">
                 <Users className="w-10 h-10 mx-auto mb-3 opacity-20" />
