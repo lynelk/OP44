@@ -72,14 +72,14 @@ export default function MilestoneProgress({ userId }) {
         <MilestoneCelebration milestone={celebration} onClose={() => setCelebration(null)} />
       )}
 
-      <Card className="border-0 shadow-md bg-gradient-to-br from-amber-50 to-orange-50">
+      <Card className="border-0 shadow-sm bg-white dark:bg-gray-800">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-amber-500" />
-              <span className="font-semibold text-sm text-slate-700">Milestones</span>
+              <Trophy className="w-4 h-4 text-[#0D1BFF] dark:text-[#32B4FF]" />
+              <span className="font-semibold text-sm text-gray-800 dark:text-white">Milestones</span>
             </div>
-            <span className="text-xs font-medium text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">
+            <span className="text-xs font-medium text-[#0D1BFF] dark:text-[#32B4FF] bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20 px-2 py-0.5 rounded-full">
               {completedCount}/{MILESTONES.length}
             </span>
           </div>
@@ -90,21 +90,21 @@ export default function MilestoneProgress({ userId }) {
                 <div className="flex items-center gap-1.5">
                   <span className="text-lg">{nextMilestone.emoji}</span>
                   <div>
-                    <p className="text-xs font-semibold text-slate-700">{nextMilestone.name}</p>
-                    <p className="text-xs text-slate-400">{nextMilestone.desc}</p>
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">{nextMilestone.name}</p>
+                    <p className="text-xs text-gray-400">{nextMilestone.desc}</p>
                   </div>
                 </div>
-                <span className="text-xs font-bold text-amber-600">
+                <span className="text-xs font-bold text-[#0D1BFF] dark:text-[#32B4FF]">
                   {Math.round(nextMilestone.progress(stats))}%
                 </span>
               </div>
-              <div className="h-2 bg-amber-100 rounded-full overflow-hidden">
+              <div className="h-2 bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-amber-400 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-[#0D1BFF] to-[#32B4FF] rounded-full transition-all duration-500"
                   style={{ width: `${nextMilestone.progress(stats)}%` }}
                 />
               </div>
-              <p className="text-xs text-slate-400 mt-1">Target: {nextMilestone.target}</p>
+              <p className="text-xs text-gray-400 mt-1">Target: {nextMilestone.target}</p>
             </div>
           )}
 

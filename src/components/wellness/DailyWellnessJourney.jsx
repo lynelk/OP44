@@ -85,7 +85,7 @@ export default function DailyWellnessJourney({ userId }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-4 text-white">
+      <div className="bg-gradient-to-r from-[#1A1D29] via-[#0D1BFF] to-[#32B4FF] p-4 text-white">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5" />
@@ -99,7 +99,7 @@ export default function DailyWellnessJourney({ userId }) {
           )}
         </div>
         <div className="mt-3">
-          <div className="flex justify-between text-xs text-purple-200 mb-1">
+          <div className="flex justify-between text-xs text-blue-100 mb-1">
             <span>{completedCount}/{totalCount} tasks</span>
             <span>{activity.total_points_earned} pts earned</span>
           </div>
@@ -124,7 +124,7 @@ export default function DailyWellnessJourney({ userId }) {
             <span className={`flex-1 text-sm ${item.completed ? 'line-through text-gray-400' : 'text-gray-700 dark:text-gray-200'}`}>
               {item.label}
             </span>
-            <span className="text-xs font-bold text-purple-500">+{item.points}pts</span>
+            <span className="text-xs font-bold text-[#0D1BFF] dark:text-[#32B4FF]">+{item.points}pts</span>
           </button>
         ))}
       </div>
@@ -140,9 +140,9 @@ export default function DailyWellnessJourney({ userId }) {
       )}
 
       {/* Benchmarking Link */}
-      <Link to="/benchmarking" className="flex items-center justify-between px-4 py-3 border-t border-gray-50 dark:border-gray-700 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors">
-        <p className="text-xs font-semibold text-purple-700 dark:text-purple-300">See how you compare to peers →</p>
-        <ChevronRight className="w-4 h-4 text-purple-400" />
+      <Link to="/benchmarking" className="flex items-center justify-between px-4 py-3 border-t border-gray-50 dark:border-gray-700 bg-[#0D1BFF]/5 dark:bg-[#0D1BFF]/10 hover:bg-[#0D1BFF]/10 dark:hover:bg-[#0D1BFF]/20 transition-colors">
+        <p className="text-xs font-semibold text-[#0D1BFF] dark:text-[#32B4FF]">See how you compare to peers →</p>
+        <ChevronRight className="w-4 h-4 text-[#32B4FF]" />
       </Link>
     </div>
   );

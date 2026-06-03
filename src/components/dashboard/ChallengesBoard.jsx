@@ -23,11 +23,11 @@ export default function ChallengesBoard({ userId }) {
           </Link>
         </div>
         <Link to="/savings-challenges">
-          <Card className="border-dashed border-2 border-orange-200 bg-orange-50">
+          <Card className="border-dashed border-2 border-[#0D1BFF]/20 bg-[#0D1BFF]/5 dark:bg-[#0D1BFF]/10">
             <CardContent className="p-4 text-center">
               <div className="text-2xl mb-1">🔥</div>
-              <p className="text-sm font-medium text-orange-700">Start a Saving Challenge</p>
-              <p className="text-xs text-orange-500 mt-1">Earn badges for consistent saving streaks</p>
+              <p className="text-sm font-medium text-[#0D1BFF] dark:text-[#32B4FF]">Start a Saving Challenge</p>
+              <p className="text-xs text-[#32B4FF] mt-1">Earn badges for consistent saving streaks</p>
             </CardContent>
           </Card>
         </Link>
@@ -58,7 +58,7 @@ export default function ChallengesBoard({ userId }) {
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-gray-800 leading-tight">{challenge.challenge_title}</p>
                     {isStreak ? (
-                      <p className="text-xs text-orange-600 flex items-center gap-1 mt-0.5">
+                      <p className="text-xs text-[#0D1BFF] dark:text-[#32B4FF] flex items-center gap-1 mt-0.5">
                         <Flame className="w-3 h-3" /> {challenge.current_streak || 0} day streak
                       </p>
                     ) : (
@@ -74,12 +74,12 @@ export default function ChallengesBoard({ userId }) {
                 {isStreak ? (
                   <div className="flex gap-0.5 flex-wrap">
                     {Array.from({ length: 30 }).map((_, i) => (
-                      <div key={i} className={`w-5 h-5 rounded-sm ${i < (challenge.current_streak || 0) ? 'bg-orange-500' : 'bg-gray-100'}`} />
+                      <div key={i} className={`w-5 h-5 rounded-sm ${i < (challenge.current_streak || 0) ? 'bg-[#0D1BFF]' : 'bg-gray-100 dark:bg-gray-700'}`} />
                     ))}
                   </div>
                 ) : (
                   <div className="w-full bg-gray-100 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                    <div className="bg-gradient-to-r from-[#0D1BFF] to-[#32B4FF] h-2 rounded-full transition-all" style={{ width: `${progress}%` }} />
                   </div>
                 )}
               </CardContent>

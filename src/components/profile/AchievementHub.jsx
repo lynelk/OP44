@@ -77,7 +77,7 @@ export default function AchievementHub() {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-violet-600 to-purple-600 p-4">
+      <div className="bg-gradient-to-r from-[#1A1D29] via-[#0D1BFF] to-[#32B4FF] p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Trophy className="w-5 h-5 text-yellow-300" />
@@ -89,7 +89,7 @@ export default function AchievementHub() {
         </div>
         {/* Progress bar */}
         <div className="space-y-1">
-          <div className="flex justify-between text-xs text-purple-200">
+          <div className="flex justify-between text-xs text-blue-100">
             <span>{progressPct}% Complete</span>
             <span>{totalCount - earnedCount} badges to unlock</span>
           </div>
@@ -134,7 +134,7 @@ export default function AchievementHub() {
         {/* Show More/Less toggle */}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="w-full flex items-center justify-center gap-1 text-sm text-violet-600 dark:text-violet-400 font-medium py-1"
+          className="w-full flex items-center justify-center gap-1 text-sm text-[#0D1BFF] dark:text-[#32B4FF] font-medium py-1"
         >
           {expanded ? (
             <><ChevronUp className="w-4 h-4" /> Show Less</>
