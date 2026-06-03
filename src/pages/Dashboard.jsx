@@ -35,29 +35,31 @@ export default function Dashboard() {
     const me = await base44.auth.me();
     setUser(me);
 
-    // Batch 1: core data
-    const [l, n, scores] = await Promise.all([
-      base44.entities.LoanApplication.filter({ user_id: me.id }),
-      base44.entities.Notification.filter({ user_id: me.id, is_read: false }),
-      base44.entities.CreditScore.filter({ user_id: me.id }, '-calculated_at', 1),
-    ]);
-    setLoans(l); setNotifications(n);
+    // Sequential individual fetches with gaps to stay under rate limit
+    const l = await base44.entities.LoanApplication.filter({ user_id: me.id });
+    setLoans(l);
+    await sleep(200);
+
+    const n = await base44.entities.Notification.filter({ user_id: me.id, is_read: false });
+    setNotifications(n);
+    await sleep(200);
+
+    const scores = await base44.entities.CreditScore.filter({ user_id: me.id }, '-calculated_at', 1);
     if (scores.length > 0) setCreditScore(scores[0]);
+    await sleep(200);
 
-    // Stagger batch 2 to avoid rate limits
-    await sleep(300);
-    const [pockets, b] = await Promise.all([
-      base44.entities.SavingsPocket.filter({ user_id: me.id }),
-      base44.entities.GamificationBadge.filter({ user_id: me.id }),
-    ]);
-    setSavings(pockets); setBadges(b);
+    const pockets = await base44.entities.SavingsPocket.filter({ user_id: me.id });
+    setSavings(pockets);
+    await sleep(200);
 
-    // Stagger batch 3
-    await sleep(300);
-    const [lenderInv, policies] = await Promise.all([
-      base44.entities.LenderInvestment.filter({ lender_id: me.id }),
-      base44.entities.InsurancePolicy.filter({ user_id: me.id }),
-    ]);
+    const b = await base44.entities.GamificationBadge.filter({ user_id: me.id });
+    setBadges(b);
+    await sleep(200);
+
+    const lenderInv = await base44.entities.LenderInvestment.filter({ lender_id: me.id });
+    await sleep(200);
+
+    const policies = await base44.entities.InsurancePolicy.filter({ user_id: me.id });
     const p2pTotal = lenderInv.reduce((sum, i) => sum + (i.amount_invested || 0), 0);
     const savingsTotal = pockets.reduce((sum, p) => sum + (p.current_balance || 0), 0);
     const insuranceTotal = policies.reduce((sum, p) => sum + (p.total_premiums_paid || 0), 0);
