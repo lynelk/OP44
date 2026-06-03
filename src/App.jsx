@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -13,6 +13,11 @@ import { useEffect, lazy, Suspense } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { SyncProvider } from './lib/SyncContext';
 import OfflineStatusBar from './components/OfflineStatusBar';
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 // Lazy-loaded pages
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -113,101 +118,98 @@ function AnimatedRoutes({ children }) {
   );
 }
 
+const SPINNER = <div className="fixed inset-0 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-100 border-t-[#0D1BFF] rounded-full animate-spin"></div></div>;
+
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
   const location = useLocation();
 
-  // Show loading spinner while checking app public settings or auth
-  if (isLoadingPublicSettings || isLoadingAuth) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-blue-100 border-t-[#0D1BFF] rounded-full animate-spin"></div>
-      </div>
-    );
-  }
+  if (isLoadingPublicSettings || isLoadingAuth) return SPINNER;
 
-  // Handle authentication errors
-  if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
-    }
-  }
+  if (authError?.type === 'user_not_registered') return <UserNotRegisteredError />;
 
   // Render the main app
   return (
     <>
     <MobileHeader />
     <AnimatedRoutes>
-    <Suspense fallback={<div className="fixed inset-0 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-100 border-t-[#0D1BFF] rounded-full animate-spin"></div></div>}>
+    <Suspense fallback={SPINNER}>
     <Routes location={location}>
-      {/* Add your page Route elements here */}
-      <Route path="/" element={<><Dashboard /><BottomNav /></>} />
-      <Route path="/loans" element={<><Loans /><BottomNav /></>} />
-      <Route path="/loans/apply" element={<><Loans /><BottomNav /></>} />
-      <Route path="/loans/statement" element={<><LoanStatement /><BottomNav /></>} />
-      <Route path="/loans/repay" element={<><RepayLoan /><BottomNav /></>} />
-      <Route path="/savings" element={<><SavingsHub /><BottomNav /></>} />
-      <Route path="/savings/pockets" element={<><Savings /><BottomNav /></>} />
-      <Route path="/budget" element={<><Budget /><BottomNav /></>} />
-      <Route path="/profile" element={<><Profile /><BottomNav /></>} />
-      <Route path="/credit-score" element={<><CreditScore /><BottomNav /></>} />
-      <Route path="/consent" element={<><ConsentManager /><BottomNav /></>} />
-      <Route path="/ussd-monitor" element={<><USSDMonitor /><BottomNav /></>} />
-      <Route path="/insurance" element={<><Insurance /><BottomNav /></>} />
-      <Route path="/insurance/claims" element={<><Claims /><BottomNav /></>} />
-      <Route path="/loans/planner" element={<><RepaymentPlanner /><BottomNav /></>} />
-      <Route path="/budget/insights" element={<><ExpenseInsights /><BottomNav /></>} />
-      <Route path="/health/projection" element={<><FutureHealthProjection /><BottomNav /></>} />
-      <Route path="/savings-challenges" element={<><SavingsChallenges /><BottomNav /></>} />
-      <Route path="/group-challenges" element={<><GroupChallenges /><BottomNav /></>} />
-      <Route path="/debt-payoff" element={<><DebtPayoff /><BottomNav /></>} />
-      <Route path="/notifications" element={<><Notifications /><BottomNav /></>} />
-      <Route path="/savings-groups" element={<><SavingsGroups /><BottomNav /></>} />
-      <Route path="/savings-groups/:groupId" element={<><SavingsGroupDetail /><BottomNav /></>} />
-      <Route path="/financial-health" element={<><FinancialHealth /><BottomNav /></>} />
-      <Route path="/invest" element={<><Invest /><BottomNav /></>} />
+      {/* Auth routes — public */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* Public informational pages */}
       <Route path="/landing" element={<LandingPage />} />
-      <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-      <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
-      <Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
-      <Route path="/admin/rules" element={<AdminRoute><AdminRules /></AdminRoute>} />
-      <Route path="/admin/crb" element={<AdminRoute><AdminCRB /></AdminRoute>} />
-      <Route path="/admin/submissions" element={<AdminRoute><AdminSubmissions /></AdminRoute>} />
-      <Route path="/admin/loans" element={<AdminRoute><AdminLoans /></AdminRoute>} />
-      <Route path="/admin/loans/reschedule" element={<AdminRoute><AdminRescheduleRequests /></AdminRoute>} />
-      <Route path="/ussd" element={<USSDSimulator />} />
-      <Route path="/p2p" element={<><P2PDashboard /><BottomNav /></>} />
-      <Route path="/p2p/onboarding" element={<P2POnboarding />} />
-      <Route path="/p2p/apply" element={<P2PApply />} />
-      <Route path="/p2p/marketplace" element={<P2PMarketplace />} />
-      <Route path="/admin/p2p" element={<AdminRoute><AdminP2P /></AdminRoute>} />
-      <Route path="/admin/reports" element={<AdminRoute><AdminReports /></AdminRoute>} />
-      <Route path="/admin/portfolios" element={<AdminRoute><AdminPortfolios /></AdminRoute>} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/terms" element={<TermsOfService />} />
-      <Route path="/data-rights" element={<><DataRights /><BottomNav /></>} />
       <Route path="/accessibility" element={<AccessibilityStatement />} />
-      <Route path="/benchmarking" element={<><Benchmarking /><BottomNav /></>} />
-      <Route path="/admin/collections" element={<AdminRoute><CollectionsMonitor /></AdminRoute>} />
-      <Route path="/admin/documents" element={<AdminRoute><AdminDocumentReview /></AdminRoute>} />
-      <Route path="/admin/device-verification" element={<AdminRoute><DeviceVerificationQueue /></AdminRoute>} />
-      <Route path="/admin/revenue" element={<AdminRoute><AdminRevenue /></AdminRoute>} />
-      <Route path="/admin/account-balances" element={<AdminRoute><AdminAccountBalances /></AdminRoute>} />
-      <Route path="/admin/device-maintenance" element={<AdminRoute><DeviceMaintenance /></AdminRoute>} />
-      <Route path="/gps-tracker" element={<><GPSTrackingDashboard /><BottomNav /></>} />
-      <Route path="/disputes" element={<><RentalDisputeCenter /><BottomNav /></>} />
-      <Route path="/marketplace" element={<><DeviceMarketplace /><BottomNav /></>} />
-      <Route path="/lender-analytics" element={<><LenderAnalytics /><BottomNav /></>} />
-      <Route path="/savings-goals" element={<><SavingsGoals /><BottomNav /></>} />
-      <Route path="/loans/pre-qualify" element={<><LoanPreQualify /><BottomNav /></>} />
-      <Route path="/net-worth" element={<><NetWorthCalculator /><BottomNav /></>} />
-      <Route path="/delete-account" element={<DeleteAccount />} />
+      <Route path="/ussd" element={<USSDSimulator />} />
+
+      {/* All protected routes */}
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route path="/" element={<><Dashboard /><BottomNav /></>} />
+        <Route path="/loans" element={<><Loans /><BottomNav /></>} />
+        <Route path="/loans/apply" element={<><Loans /><BottomNav /></>} />
+        <Route path="/loans/statement" element={<><LoanStatement /><BottomNav /></>} />
+        <Route path="/loans/repay" element={<><RepayLoan /><BottomNav /></>} />
+        <Route path="/savings" element={<><SavingsHub /><BottomNav /></>} />
+        <Route path="/savings/pockets" element={<><Savings /><BottomNav /></>} />
+        <Route path="/budget" element={<><Budget /><BottomNav /></>} />
+        <Route path="/profile" element={<><Profile /><BottomNav /></>} />
+        <Route path="/credit-score" element={<><CreditScore /><BottomNav /></>} />
+        <Route path="/consent" element={<><ConsentManager /><BottomNav /></>} />
+        <Route path="/ussd-monitor" element={<><USSDMonitor /><BottomNav /></>} />
+        <Route path="/insurance" element={<><Insurance /><BottomNav /></>} />
+        <Route path="/insurance/claims" element={<><Claims /><BottomNav /></>} />
+        <Route path="/loans/planner" element={<><RepaymentPlanner /><BottomNav /></>} />
+        <Route path="/budget/insights" element={<><ExpenseInsights /><BottomNav /></>} />
+        <Route path="/health/projection" element={<><FutureHealthProjection /><BottomNav /></>} />
+        <Route path="/savings-challenges" element={<><SavingsChallenges /><BottomNav /></>} />
+        <Route path="/group-challenges" element={<><GroupChallenges /><BottomNav /></>} />
+        <Route path="/debt-payoff" element={<><DebtPayoff /><BottomNav /></>} />
+        <Route path="/notifications" element={<><Notifications /><BottomNav /></>} />
+        <Route path="/savings-groups" element={<><SavingsGroups /><BottomNav /></>} />
+        <Route path="/savings-groups/:groupId" element={<><SavingsGroupDetail /><BottomNav /></>} />
+        <Route path="/financial-health" element={<><FinancialHealth /><BottomNav /></>} />
+        <Route path="/invest" element={<><Invest /><BottomNav /></>} />
+        <Route path="/data-rights" element={<><DataRights /><BottomNav /></>} />
+        <Route path="/benchmarking" element={<><Benchmarking /><BottomNav /></>} />
+        <Route path="/gps-tracker" element={<><GPSTrackingDashboard /><BottomNav /></>} />
+        <Route path="/disputes" element={<><RentalDisputeCenter /><BottomNav /></>} />
+        <Route path="/marketplace" element={<><DeviceMarketplace /><BottomNav /></>} />
+        <Route path="/lender-analytics" element={<><LenderAnalytics /><BottomNav /></>} />
+        <Route path="/savings-goals" element={<><SavingsGoals /><BottomNav /></>} />
+        <Route path="/loans/pre-qualify" element={<><LoanPreQualify /><BottomNav /></>} />
+        <Route path="/net-worth" element={<><NetWorthCalculator /><BottomNav /></>} />
+        <Route path="/delete-account" element={<DeleteAccount />} />
+        <Route path="/p2p" element={<><P2PDashboard /><BottomNav /></>} />
+        <Route path="/p2p/onboarding" element={<P2POnboarding />} />
+        <Route path="/p2p/apply" element={<P2PApply />} />
+        <Route path="/p2p/marketplace" element={<P2PMarketplace />} />
+        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+        <Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
+        <Route path="/admin/rules" element={<AdminRoute><AdminRules /></AdminRoute>} />
+        <Route path="/admin/crb" element={<AdminRoute><AdminCRB /></AdminRoute>} />
+        <Route path="/admin/submissions" element={<AdminRoute><AdminSubmissions /></AdminRoute>} />
+        <Route path="/admin/loans" element={<AdminRoute><AdminLoans /></AdminRoute>} />
+        <Route path="/admin/loans/reschedule" element={<AdminRoute><AdminRescheduleRequests /></AdminRoute>} />
+        <Route path="/admin/p2p" element={<AdminRoute><AdminP2P /></AdminRoute>} />
+        <Route path="/admin/reports" element={<AdminRoute><AdminReports /></AdminRoute>} />
+        <Route path="/admin/portfolios" element={<AdminRoute><AdminPortfolios /></AdminRoute>} />
+        <Route path="/admin/collections" element={<AdminRoute><CollectionsMonitor /></AdminRoute>} />
+        <Route path="/admin/documents" element={<AdminRoute><AdminDocumentReview /></AdminRoute>} />
+        <Route path="/admin/device-verification" element={<AdminRoute><DeviceVerificationQueue /></AdminRoute>} />
+        <Route path="/admin/revenue" element={<AdminRoute><AdminRevenue /></AdminRoute>} />
+        <Route path="/admin/account-balances" element={<AdminRoute><AdminAccountBalances /></AdminRoute>} />
+        <Route path="/admin/device-maintenance" element={<AdminRoute><DeviceMaintenance /></AdminRoute>} />
+      </Route>
+
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </Suspense>

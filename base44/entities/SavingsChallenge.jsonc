@@ -1,0 +1,55 @@
+{
+  "name": "SavingsChallenge",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "streak_30day",
+        "milestone_100k",
+        "milestone_500k",
+        "milestone_1m",
+        "weekly_streak"
+      ],
+      "default": "streak_30day"
+    },
+    "target_days": {
+      "type": "number",
+      "description": "For streak challenges: consecutive days required"
+    },
+    "target_amount": {
+      "type": "number",
+      "description": "For milestone challenges: savings amount to reach"
+    },
+    "daily_minimum": {
+      "type": "number",
+      "description": "Minimum deposit per day to count as streak day"
+    },
+    "badge_emoji": {
+      "type": "string",
+      "default": "\ud83c\udfc6"
+    },
+    "badge_name": {
+      "type": "string"
+    },
+    "points_reward": {
+      "type": "number",
+      "default": 100
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "title",
+    "type",
+    "badge_name"
+  ]
+}
