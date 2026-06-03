@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity, Handshake, Vault, PieChart } from 'lucide-react';
 import MilestoneProgress from '@/components/milestones/MilestoneProgress';
 import ChallengesBoard from '@/components/dashboard/ChallengesBoard';
+import CoachingNudges from '@/components/dashboard/CoachingNudges';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
 import DailyWellnessJourney from '@/components/wellness/DailyWellnessJourney';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -197,6 +198,8 @@ export default function Dashboard() {
       </div>
 
       <div className="px-4 -mt-10 space-y-5 pb-32">
+        <CoachingNudges userId={user?.id} />
+
         {/* Quick Stats Cards */}
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">

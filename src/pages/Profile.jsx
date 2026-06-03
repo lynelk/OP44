@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { Shield, Bell, LogOut, ChevronRight, Star, Award, ToggleLeft, LayoutDashboard, User, AlertCircle, TrendingUp } from 'lucide-react';
+import { Shield, Bell, LogOut, ChevronRight, Star, Award, ToggleLeft, LayoutDashboard, User, AlertCircle, TrendingUp, Gift, Users, LifeBuoy } from 'lucide-react';
 import AchievementHub from '@/components/profile/AchievementHub';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
 import DailyWellnessJourney from '@/components/wellness/DailyWellnessJourney';
@@ -113,6 +113,9 @@ export default function Profile() {
           {[
             { icon: Shield, label: 'Identity & KYC', sub: kycApproved ? 'Verified' : 'Action needed', to: '/credit-score', iconBg: 'bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20', iconColor: 'text-[#0D1BFF] dark:text-[#32B4FF]' },
             { icon: Bell, label: 'Notifications', sub: 'Manage alerts', to: '/notifications', iconBg: 'bg-[#00C48C]/10 dark:bg-[#00C48C]/20', iconColor: 'text-[#00C48C]' },
+            { icon: Gift, label: 'Rewards', sub: 'Loyalty perks & cashback', to: '/rewards', iconBg: 'bg-[#F4B400]/10', iconColor: 'text-[#F4B400]' },
+            { icon: Users, label: 'Refer & Earn', sub: 'Invite friends, earn points', to: '/referrals', iconBg: 'bg-[#32B4FF]/10 dark:bg-[#32B4FF]/20', iconColor: 'text-[#32B4FF]' },
+            { icon: LifeBuoy, label: 'Help & Support', sub: 'Get help or raise an issue', to: '/support', iconBg: 'bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20', iconColor: 'text-[#0D1BFF] dark:text-[#32B4FF]' },
             { icon: ToggleLeft, label: 'Data & Consent', sub: 'Manage your consents', to: '/consent', iconBg: 'bg-[#32B4FF]/10 dark:bg-[#32B4FF]/20', iconColor: 'text-[#32B4FF]' },
             { icon: Shield, label: 'My Data Rights', sub: 'Access, export or delete your data', to: '/data-rights', iconBg: 'bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20', iconColor: 'text-[#0D1BFF] dark:text-[#32B4FF]' },
             { icon: User, label: 'Account Settings', sub: 'Edit profile & preferences', to: '/p2p/onboarding', iconBg: 'bg-gray-100 dark:bg-gray-700', iconColor: 'text-gray-600 dark:text-gray-400' },
