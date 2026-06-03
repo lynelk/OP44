@@ -37,31 +37,31 @@ export default function Dashboard() {
     const me = await base44.auth.me();
     setUser(me);
 
-    // Sequential individual fetches with gaps to stay under rate limit
-    const l = await base44.entities.LoanApplication.filter({ user_id: me.id });
+    // Batch 1
+    const [l, n] = await Promise.all([
+      base44.entities.LoanApplication.filter({ user_id: me.id }),
+      base44.entities.Notification.filter({ user_id: me.id, is_read: false }),
+    ]);
     setLoans(l);
-    await sleep(200);
-
-    const n = await base44.entities.Notification.filter({ user_id: me.id, is_read: false });
     setNotifications(n);
-    await sleep(200);
+    await sleep(400);
 
-    const scores = await base44.entities.CreditScore.filter({ user_id: me.id }, '-calculated_at', 1);
+    // Batch 2
+    const [scores, pockets] = await Promise.all([
+      base44.entities.CreditScore.filter({ user_id: me.id }, '-calculated_at', 1),
+      base44.entities.SavingsPocket.filter({ user_id: me.id }),
+    ]);
     if (scores.length > 0) setCreditScore(scores[0]);
-    await sleep(200);
-
-    const pockets = await base44.entities.SavingsPocket.filter({ user_id: me.id });
     setSavings(pockets);
-    await sleep(200);
+    await sleep(400);
 
-    const b = await base44.entities.GamificationBadge.filter({ user_id: me.id });
+    // Batch 3
+    const [b, lenderInv, policies] = await Promise.all([
+      base44.entities.GamificationBadge.filter({ user_id: me.id }),
+      base44.entities.LenderInvestment.filter({ lender_id: me.id }),
+      base44.entities.InsurancePolicy.filter({ user_id: me.id }),
+    ]);
     setBadges(b);
-    await sleep(200);
-
-    const lenderInv = await base44.entities.LenderInvestment.filter({ lender_id: me.id });
-    await sleep(200);
-
-    const policies = await base44.entities.InsurancePolicy.filter({ user_id: me.id });
     const p2pTotal = lenderInv.reduce((sum, i) => sum + (i.amount_invested || 0), 0);
     const savingsTotal = pockets.reduce((sum, p) => sum + (p.current_balance || 0), 0);
     const insuranceTotal = policies.reduce((sum, p) => sum + (p.total_premiums_paid || 0), 0);
