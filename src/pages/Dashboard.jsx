@@ -6,6 +6,7 @@ import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, Re
 import MilestoneProgress from '@/components/milestones/MilestoneProgress';
 import ChallengesBoard from '@/components/dashboard/ChallengesBoard';
 import CoachingNudges from '@/components/dashboard/CoachingNudges';
+import OnboardingTour from '@/components/dashboard/OnboardingTour';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
 import DailyWellnessJourney from '@/components/wellness/DailyWellnessJourney';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -197,6 +198,7 @@ export default function Dashboard() {
         </Link>
       </div>
 
+      <OnboardingTour />
       <div className="px-4 -mt-10 space-y-5 pb-32">
         <CoachingNudges userId={user?.id} />
 
