@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Receipt, Plus, BarChart2, Camera, X } from 'lucide-react';
+import { Receipt, Plus, BarChart2, Camera, X, Building2 } from 'lucide-react';
 import ExportExpensesCSV from '@/components/budget/ExportExpensesCSV';
 import { PieChart as RechartsPie, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Link } from 'react-router-dom';
@@ -76,6 +76,11 @@ export default function Budget() {
             </div>
           </Link>
           <ExportExpensesCSV expenses={expenses} />
+          <Link to="/budget/linked-accounts">
+            <div className="flex items-center gap-1.5 h-10 border border-[#0D1BFF]/30 dark:border-[#32B4FF]/30 text-[#0D1BFF] dark:text-[#32B4FF] text-sm font-medium px-4 rounded-full bg-white dark:bg-gray-900">
+              <Building2 className="w-4 h-4" /> Linked Accounts
+            </div>
+          </Link>
         </div>
 
         {showScanner && (

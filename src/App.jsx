@@ -86,6 +86,9 @@ const Support = lazy(() => import('./pages/Support'));
 const Rewards = lazy(() => import('./pages/Rewards'));
 const Referrals = lazy(() => import('./pages/Referrals'));
 const Rosca = lazy(() => import('./pages/Rosca'));
+const NotificationSettings = lazy(() => import('./pages/NotificationSettings'));
+const P2PSecondaryMarket = lazy(() => import('./pages/P2PSecondaryMarket'));
+const LinkedAccounts = lazy(() => import('./pages/LinkedAccounts'));
 
 // Root paths get a fade transition; child paths slide in from the right
 const ROOT_PATHS = ['/', '/loans', '/savings', '/budget', '/profile', '/credit-score', '/invest', '/insurance', '/financial-health', '/notifications', '/p2p', '/savings-goals', '/savings-groups', '/savings-challenges', '/group-challenges', '/debt-payoff', '/about', '/contact', '/privacy', '/terms', '/accessibility'];
@@ -194,6 +197,9 @@ const AuthenticatedApp = () => {
         <Route path="/rewards" element={<><Rewards /><BottomNav /></>} />
         <Route path="/referrals" element={<><Referrals /><BottomNav /></>} />
         <Route path="/rosca" element={<><Rosca /><BottomNav /></>} />
+        <Route path="/notification-settings" element={<><NotificationSettings /><BottomNav /></>} />
+        <Route path="/p2p/secondary" element={<><P2PSecondaryMarket /><BottomNav /></>} />
+        <Route path="/budget/linked-accounts" element={<><LinkedAccounts /><BottomNav /></>} />
         <Route path="/delete-account" element={<DeleteAccount />} />
         <Route path="/p2p" element={<><P2PDashboard /><BottomNav /></>} />
         <Route path="/p2p/onboarding" element={<P2POnboarding />} />

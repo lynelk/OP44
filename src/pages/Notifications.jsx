@@ -82,12 +82,18 @@ export default function Notifications() {
             <h1 className="text-2xl font-bold">Notifications</h1>
             <p className="text-green-200 text-sm">{unreadCount} unread</p>
           </div>
-          {unreadCount > 0 && (
-            <Button size="sm" variant="outline" className="border-green-300 text-white bg-white/10 text-xs"
-              onClick={markAllRead} disabled={marking}>
-              <CheckCheck className="w-3 h-3 mr-1" /> Mark All Read
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {unreadCount > 0 && (
+              <Button size="sm" variant="outline" className="border-green-300 text-white bg-white/10 text-xs"
+                onClick={markAllRead} disabled={marking}>
+                <CheckCheck className="w-3 h-3 mr-1" /> Mark All Read
+              </Button>
+            )}
+            <button onClick={() => navigate('/notification-settings')}
+              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center" aria-label="Notification settings">
+              <Settings className="w-4 h-4 text-white" />
+            </button>
+          </div>
         </div>
       </div>
 
