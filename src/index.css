@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
+    --font-sans: 'Noto Sans', sans-serif;
 
     /* OpFin Brand Colors */
     --brand-primary: #0D1BFF;

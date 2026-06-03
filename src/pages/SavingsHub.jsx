@@ -120,21 +120,21 @@ export default function SavingsHub() {
       {isRefreshing && (
         <div className="flex justify-center pt-4 pb-2">
           <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-full px-4 py-2 shadow-lg text-sm text-gray-600 dark:text-gray-300">
-            <RefreshCw className="w-4 h-4 animate-spin text-emerald-500" /> Refreshing...
+            <RefreshCw className="w-4 h-4 animate-spin text-[#0D1BFF]" /> Refreshing...
           </div>
         </div>
       )}
 
       {/* Hero */}
-      <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-6">
+      <div className="bg-gradient-to-br from-[#1A1D29] via-[#0D1BFF] to-[#32B4FF] text-white px-5 pt-14 pb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Savings Hub</h1>
-            <p className="text-green-200 text-sm mt-0.5">All your savings, one place</p>
+            <p className="text-blue-100 text-sm mt-0.5">All your savings, one place</p>
           </div>
           <button
             onClick={() => { setShowQS(!showQS); setShowCreate(false); }}
-            className="flex items-center gap-1.5 bg-[#F4B400] text-[#006B3C] font-bold px-4 py-2 rounded-full text-sm shadow-md active:scale-95 transition-transform"
+            className="flex items-center gap-1.5 bg-[#00C48C] text-white font-bold px-4 py-2 rounded-full text-sm shadow-md active:scale-95 transition-transform"
           >
             <Zap className="w-3.5 h-3.5" /> Quick Save
           </button>
@@ -143,15 +143,15 @@ export default function SavingsHub() {
         {/* Summary row */}
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-white/10 rounded-2xl p-3 text-center">
-            <p className="text-green-200 text-xs">Total Saved</p>
+            <p className="text-blue-100 text-xs">Total Saved</p>
             <p className="text-lg font-bold">UGX {(totalBalance / 1000).toFixed(0)}K</p>
           </div>
           <div className="bg-white/10 rounded-2xl p-3 text-center">
-            <p className="text-green-200 text-xs">Goals</p>
+            <p className="text-blue-100 text-xs">Goals</p>
             <p className="text-lg font-bold">{overallGoalPct.toFixed(0)}%</p>
           </div>
           <div className="bg-white/10 rounded-2xl p-3 text-center">
-            <p className="text-green-200 text-xs">Challenges</p>
+            <p className="text-blue-100 text-xs">Challenges</p>
             <p className="text-lg font-bold">{challenges.length} active</p>
           </div>
         </div>
@@ -181,7 +181,7 @@ export default function SavingsHub() {
               />
               <button
                 onClick={handleQuickSave} disabled={quickSaving || !quickSavePocketId || !quickSaveAmount}
-                className="w-full h-11 bg-[#006B3C] text-white rounded-xl font-semibold text-sm disabled:opacity-50 active:scale-95 transition-transform"
+                className="w-full h-11 bg-[#0D1BFF] text-white rounded-xl font-semibold text-sm disabled:opacity-50 active:scale-95 transition-transform"
               >
                 {quickSaving ? 'Saving…' : 'Save Now'}
               </button>
@@ -197,7 +197,7 @@ export default function SavingsHub() {
               onClick={() => setTab(t)}
               className={`flex-shrink-0 px-4 h-9 rounded-full text-sm font-semibold transition-all ${
                 tab === t
-                  ? 'bg-[#006B3C] text-white shadow-sm'
+                  ? 'bg-[#0D1BFF] text-white shadow-sm'
                   : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
               }`}
             >
@@ -211,7 +211,7 @@ export default function SavingsHub() {
           <div className="space-y-3">
             <button
               onClick={() => { setShowCreate(!showCreate); setShowQS(false); }}
-              className="w-full flex items-center justify-center gap-1.5 h-11 bg-white dark:bg-gray-800 border-2 border-dashed border-[#006B3C] text-[#006B3C] dark:text-[#7BC943] rounded-2xl text-sm font-semibold active:scale-95 transition-transform"
+              className="w-full flex items-center justify-center gap-1.5 h-11 bg-white dark:bg-gray-800 border-2 border-dashed border-[#0D1BFF] text-[#0D1BFF] dark:text-[#32B4FF] rounded-2xl text-sm font-semibold active:scale-95 transition-transform"
             >
               {showCreate ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
               {showCreate ? 'Cancel' : 'New Pocket'}
@@ -222,7 +222,7 @@ export default function SavingsHub() {
                 <div className="flex gap-2 flex-wrap">
                   {ICONS.map(ic => (
                     <button key={ic} onClick={() => setNewIcon(ic)}
-                      className={`text-2xl p-2 rounded-xl transition-all ${newIcon === ic ? 'bg-green-100 dark:bg-green-900/40 ring-2 ring-[#006B3C]' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                      className={`text-2xl p-2 rounded-xl transition-all ${newIcon === ic ? 'bg-blue-100 dark:bg-blue-900/40 ring-2 ring-[#0D1BFF]' : 'bg-gray-100 dark:bg-gray-700'}`}>
                       {ic}
                     </button>
                   ))}
@@ -243,7 +243,7 @@ export default function SavingsHub() {
                 )}
                 <button
                   onClick={handleCreatePocket} disabled={creating || !newName || !newGoal}
-                  className="w-full h-11 bg-[#006B3C] text-white rounded-xl font-semibold text-sm disabled:opacity-50 active:scale-95"
+                  className="w-full h-11 bg-[#0D1BFF] text-white rounded-xl font-semibold text-sm disabled:opacity-50 active:scale-95"
                 >
                   {creating ? 'Creating…' : 'Create Pocket'}
                 </button>
@@ -274,18 +274,18 @@ export default function SavingsHub() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-bold text-[#006B3C] dark:text-[#7BC943]">UGX {pocket.current_balance?.toLocaleString()}</p>
+                        <p className="text-sm font-bold text-[#0D1BFF] dark:text-[#32B4FF]">UGX {pocket.current_balance?.toLocaleString()}</p>
                         <p className="text-xs text-gray-400">{progress.toFixed(0)}%</p>
                       </div>
                     </div>
                     <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
                       <div
-                        className="bg-gradient-to-r from-[#006B3C] to-[#7BC943] h-2 rounded-full transition-all duration-500"
+                        className="bg-gradient-to-r from-[#0D1BFF] to-[#32B4FF] h-2 rounded-full transition-all duration-500"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
                     {pocket.auto_save_frequency && pocket.auto_save_frequency !== 'none' && pocket.auto_save_amount && (
-                      <p className="text-xs text-[#006B3C] flex items-center gap-1 mt-2">
+                      <p className="text-xs text-[#0D1BFF] dark:text-[#32B4FF] flex items-center gap-1 mt-2">
                         <Zap className="w-3 h-3" /> Auto-saving UGX {pocket.auto_save_amount?.toLocaleString()} {pocket.auto_save_frequency}
                       </p>
                     )}
@@ -300,7 +300,7 @@ export default function SavingsHub() {
         {tab === 'Goals' && (
           <div className="space-y-3">
             <Link to="/savings-goals">
-              <button className="w-full flex items-center justify-between h-11 bg-gradient-to-r from-[#006B3C] to-[#7BC943] text-white rounded-2xl px-4 text-sm font-semibold active:scale-95 transition-transform">
+              <button className="w-full flex items-center justify-between h-11 bg-gradient-to-r from-[#0D1BFF] to-[#32B4FF] text-white rounded-2xl px-4 text-sm font-semibold active:scale-95 transition-transform">
                 <span className="flex items-center gap-2"><Target className="w-4 h-4" /> Manage Smart Goals</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -339,7 +339,7 @@ export default function SavingsHub() {
         {tab === 'Challenges' && (
           <div className="space-y-3">
             <Link to="/savings-challenges">
-              <button className="w-full flex items-center justify-between h-11 bg-gradient-to-r from-[#F4B400] to-[#006B3C] text-white rounded-2xl px-4 text-sm font-semibold active:scale-95 transition-transform">
+              <button className="w-full flex items-center justify-between h-11 bg-gradient-to-r from-[#0D1BFF] to-[#32B4FF] text-white rounded-2xl px-4 text-sm font-semibold active:scale-95 transition-transform">
                 <span className="flex items-center gap-2"><Trophy className="w-4 h-4" /> Browse Challenges</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -365,7 +365,7 @@ export default function SavingsHub() {
                     <>
                       <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 mt-2 mb-1">
                         <div
-                          className="bg-gradient-to-r from-[#F4B400] to-[#006B3C] h-2 rounded-full transition-all duration-500"
+                          className="bg-gradient-to-r from-[#0D1BFF] to-[#32B4FF] h-2 rounded-full transition-all duration-500"
                           style={{ width: `${Math.min(100, ((c.total_saved_in_challenge || 0) / c.target_amount) * 100)}%` }}
                         />
                       </div>
@@ -384,7 +384,7 @@ export default function SavingsHub() {
         {tab === 'Groups' && (
           <div className="space-y-3">
             <Link to="/savings-groups">
-              <button className="w-full flex items-center justify-between h-11 bg-gradient-to-r from-[#006B3C] to-[#7BC943] text-white rounded-2xl px-4 text-sm font-semibold active:scale-95 transition-transform">
+              <button className="w-full flex items-center justify-between h-11 bg-gradient-to-r from-[#0D1BFF] to-[#32B4FF] text-white rounded-2xl px-4 text-sm font-semibold active:scale-95 transition-transform">
                 <span className="flex items-center gap-2"><Users className="w-4 h-4" /> Manage Groups</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -398,7 +398,7 @@ export default function SavingsHub() {
               groups.slice(0, 6).map(g => (
                 <Link key={g.id} to={`/savings-groups/${g.id}`}>
                   <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm flex items-center gap-3">
-                    <div className="w-10 h-10 bg-[#006B3C]/10 dark:bg-[#006B3C]/20 rounded-xl flex items-center justify-center text-xl">
+                    <div className="w-10 h-10 bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20 rounded-xl flex items-center justify-center text-xl">
                       {g.icon || '👥'}
                     </div>
                     <div className="flex-1 min-w-0">
