@@ -68,7 +68,7 @@ export default function BudgetLimitsManager({ userId, expenses }) {
       </CardHeader>
       <CardContent className="space-y-3">
         {showAdd && (
-          <div className="bg-orange-50 rounded-xl p-3 space-y-2">
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 space-y-2">
             <Select value={newCat} onValueChange={setNewCat}>
               <SelectTrigger className="h-9 rounded-md bg-white text-sm">
                 <SelectValue placeholder="Category" />
@@ -78,7 +78,7 @@ export default function BudgetLimitsManager({ userId, expenses }) {
               </SelectContent>
             </Select>
             <Input type="number" placeholder="Monthly limit (UGX)" value={newLimit} onChange={e => setNewLimit(e.target.value)} className="text-sm" />
-            <Button size="sm" className="w-full bg-[#1a3a6b] text-white text-xs" onClick={handleAdd} disabled={saving}>
+            <Button size="sm" className="w-full bg-[#0D1BFF] text-white text-xs" onClick={handleAdd} disabled={saving}>
               {saving ? 'Saving...' : 'Add Alert'}
             </Button>
           </div>
@@ -114,7 +114,7 @@ export default function BudgetLimitsManager({ userId, expenses }) {
               </div>
               <div className="w-full bg-gray-100 rounded-full h-1.5">
                 <div
-                  className={`h-1.5 rounded-full transition-all ${isOver ? 'bg-red-500' : isWarning ? 'bg-orange-500' : 'bg-green-500'}`}
+                  className={`h-1.5 rounded-full transition-all ${isOver ? 'bg-red-500' : isWarning ? 'bg-amber-500' : 'bg-[#00C48C]'}`}
                   style={{ width: `${pct}%` }}
                 />
               </div>

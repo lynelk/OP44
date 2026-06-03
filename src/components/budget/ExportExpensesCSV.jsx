@@ -39,7 +39,7 @@ export default function ExportExpensesCSV({ expenses }) {
     <button
       onClick={handleExport}
       disabled={exporting || !expenses || expenses.length === 0}
-      className="flex items-center gap-1.5 h-10 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white text-sm font-medium px-4 rounded-full transition-colors"
+      className="flex items-center gap-1.5 h-10 bg-[#00C48C] hover:bg-[#00a878] disabled:opacity-40 text-white text-sm font-medium px-4 rounded-full transition-colors"
     >
       <Download className="w-4 h-4" />
       {exporting ? 'Exporting…' : 'Export CSV'}

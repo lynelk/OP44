@@ -45,7 +45,7 @@ export default function BudgetForecast() {
         className="w-full p-4 flex items-center justify-between"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#0D1BFF] to-[#32B4FF] flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div className="text-left">
@@ -56,10 +56,10 @@ export default function BudgetForecast() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {loading && <RefreshCw className="w-4 h-4 text-violet-500 animate-spin" />}
+          {loading && <RefreshCw className="w-4 h-4 text-[#0D1BFF] animate-spin" />}
           {ran && !loading && (expanded ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />)}
           {!ran && !loading && (
-            <span className="text-xs bg-violet-100 text-violet-700 font-semibold px-3 py-1 rounded-full">Analyze</span>
+            <span className="text-xs bg-[#0D1BFF]/10 text-[#0D1BFF] dark:bg-[#32B4FF]/10 dark:text-[#32B4FF] font-semibold px-3 py-1 rounded-full">Analyze</span>
           )}
         </div>
       </button>
@@ -68,7 +68,7 @@ export default function BudgetForecast() {
         <div className="px-4 pb-4 space-y-3 border-t border-gray-100 dark:border-gray-800 pt-3">
           {loading && (
             <div className="flex flex-col items-center py-6 gap-2">
-              <div className="w-8 h-8 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
+              <div className="w-8 h-8 border-4 border-blue-100 border-t-[#0D1BFF] rounded-full animate-spin" />
               <p className="text-sm text-gray-400">Analyzing your spending patterns...</p>
             </div>
           )}
@@ -85,9 +85,9 @@ export default function BudgetForecast() {
 
               {/* Top suggestion */}
               {forecast.top_suggestion && (
-                <div className="bg-violet-50 border border-violet-200 rounded-xl p-3 flex items-start gap-2">
-                  <Sparkles className="w-4 h-4 text-violet-600 mt-0.5 flex-shrink-0" />
-                  <p className="text-xs text-violet-700 font-medium">{forecast.top_suggestion}</p>
+                <div className="bg-[#0D1BFF]/5 border border-[#0D1BFF]/20 rounded-xl p-3 flex items-start gap-2">
+                  <Sparkles className="w-4 h-4 text-[#0D1BFF] mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-[#0D1BFF] dark:text-[#32B4FF] font-medium">{forecast.top_suggestion}</p>
                 </div>
               )}
 
@@ -140,7 +140,7 @@ export default function BudgetForecast() {
 
               <button
                 onClick={runForecast}
-                className="w-full h-9 rounded-xl border border-violet-200 text-violet-600 text-sm font-medium flex items-center justify-center gap-1.5"
+                className="w-full h-9 rounded-xl border border-[#0D1BFF]/30 text-[#0D1BFF] dark:text-[#32B4FF] text-sm font-medium flex items-center justify-center gap-1.5"
               >
                 <RefreshCw className="w-3.5 h-3.5" /> Refresh Analysis
               </button>
