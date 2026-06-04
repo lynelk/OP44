@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Smartphone, CheckCircle2, XCircle, Loader2, ChevronRight } from 'lucide-react';
+import { Smartphone, CheckCircle2, XCircle, Loader2, ChevronRight, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -13,9 +13,10 @@ export default function MobileMoneyModal({ loan, onSuccess, onClose }) {
   const [provider, setProvider] = useState(null);
   const [phone, setPhone] = useState('');
   const [pin, setPin] = useState('');
-  const [step, setStep] = useState('provider'); // provider | phone | pin | processing | success | failed
+  const [step, setStep] = useState('provider'); // provider | phone | pin | processing | success | pending | failed
   const [result, setResult] = useState(null);
   const [amount, setAmount] = useState(String(loan?.monthly_installment || ''));
+  const [checking, setChecking] = useState(false);
 
   const handleProviderSelect = (p) => {
     setProvider(p);
@@ -38,7 +39,24 @@ export default function MobileMoneyModal({ loan, onSuccess, onClose }) {
     });
     const data = res.data;
     setResult(data);
-    setStep(data.success ? 'success' : 'failed');
+    setStep(data.success ? 'success' : data.pending ? 'pending' : 'failed');
+  };
+
+  const handleCheckStatus = async () => {
+    if (!result?.txn_ref) return;
+    setChecking(true);
+    const res = await base44.functions.invoke('processMobileMoneyPayment', {
+      action: 'check_status', check_txn_ref: result.txn_ref,
+    });
+    setChecking(false);
+    const status = res.data?.status;
+    if (status === 'paid') {
+      setResult(r => ({ ...r, success: true }));
+      setStep('success');
+    } else if (status === 'failed') {
+      setStep('failed');
+    }
+    // else: still pending — leave the screen as-is
   };
 
   const formatPhone = (val) => {
@@ -225,6 +243,38 @@ export default function MobileMoneyModal({ loan, onSuccess, onClose }) {
               </div>
             </div>
             <Button className="w-full h-12 bg-[#1a3a6b] rounded-xl" onClick={() => onSuccess(result)}>Done</Button>
+          </div>
+        )}
+
+        {step === 'pending' && (
+          <div className="px-5 py-8 text-center">
+            <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Clock className="w-10 h-10 text-amber-500" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-1">Awaiting Confirmation</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              We sent a prompt to your phone but haven't received confirmation from {provider?.name} yet.
+              If you approved it, it will clear shortly — we won't charge you twice.
+            </p>
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-left space-y-2 mb-5 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Amount</span>
+                <span className="font-bold text-gray-900">UGX {parseFloat(amount || 0).toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Reference</span>
+                <span className="font-mono text-xs text-gray-700">{result?.txn_ref}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Status</span>
+                <span className="font-semibold text-amber-600">Pending</span>
+              </div>
+            </div>
+            <Button className="w-full h-12 bg-[#1a3a6b] rounded-xl mb-2 flex items-center justify-center gap-2" disabled={checking} onClick={handleCheckStatus}>
+              {checking ? <><Loader2 className="w-4 h-4 animate-spin" /> Checking…</> : 'Check Payment Status'}
+            </Button>
+            <button onClick={onClose} className="w-full text-sm text-gray-400 py-2">Close — I'll check later</button>
+            <p className="text-xs text-gray-400 mt-2">You can track this payment in your loan statement.</p>
           </div>
         )}
 
