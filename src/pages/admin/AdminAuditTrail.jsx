@@ -15,6 +15,17 @@ const ACTION_COLORS = {
   flagged: 'bg-yellow-100 text-yellow-700',
 };
 
+// Normalise a stored `changes` value (JSON string or object) into safe pretty text.
+function formatChanges(changes) {
+  try {
+    const obj = typeof changes === 'string' ? JSON.parse(changes) : changes;
+    return JSON.stringify(obj, null, 2);
+  } catch {
+    // Not valid JSON — render as a plain string (React still escapes it).
+    return String(changes);
+  }
+}
+
 export default function AdminAuditTrail() {
   const [logs, setLogs] = useState([]);
   const [users, setUsers] = useState({});
@@ -117,7 +128,7 @@ export default function AdminAuditTrail() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs font-semibold text-gray-800 truncate">
-                        {actor?.full_name || actor?.email || log.performed_by || 'System'}
+                        {actor?.full_name || actor?.email || log.performed_by_email || log.performed_by || 'System'}
                       </p>
                       <p className="text-xs text-gray-500 truncate">
                         {log.entity_type} · {log.entity_id?.slice(-8)}
@@ -137,8 +148,11 @@ export default function AdminAuditTrail() {
                 {isExpanded && log.changes && (
                   <div className="mt-2 ml-10 bg-gray-50 rounded-lg p-2">
                     <p className="text-xs font-semibold text-gray-500 mb-1">Changes</p>
+                    {/* React escapes text children, so this cannot inject HTML. We also
+                        normalise through JSON.parse/stringify to pretty-print and strip
+                        anything that isn't valid serialised data. */}
                     <pre className="text-xs text-gray-700 overflow-x-auto whitespace-pre-wrap break-all">
-                      {typeof log.changes === 'string' ? log.changes : JSON.stringify(log.changes, null, 2)}
+                      {formatChanges(log.changes)}
                     </pre>
                   </div>
                 )}

@@ -26,6 +26,7 @@ export default function AdminLoans() {
   const [saving, setSaving] = useState(false);
   const [checkedIds, setCheckedIds] = useState(new Set());
   const [bulkSaving, setBulkSaving] = useState(false);
+  const [bulkConfirm, setBulkConfirm] = useState(null); // { status } pending confirmation
 
   const toggleCheck = (id) => setCheckedIds(prev => {
     const next = new Set(prev);
@@ -45,11 +46,14 @@ export default function AdminLoans() {
   const handleBulkAction = async (newStatus) => {
     if (checkedIds.size === 0) return;
     setBulkSaving(true);
-    await Promise.all([...checkedIds].map(id =>
+    const results = await Promise.allSettled([...checkedIds].map(id =>
       base44.functions.invoke('adminManager', { action: 'update', entity: 'loans', id, data: { status: newStatus } })
     ));
+    const failed = results.filter(r => r.status === 'rejected').length;
     setBulkSaving(false);
+    setBulkConfirm(null);
     setCheckedIds(new Set());
+    if (failed > 0) alert(`${failed} of ${results.length} updates failed. Please retry.`);
     load();
   };
 
@@ -132,10 +136,10 @@ export default function AdminLoans() {
             {checkedIds.size > 0 && (
               <>
                 <span className="text-xs text-gray-400 ml-auto">{checkedIds.size} selected</span>
-                <Button size="sm" className="bg-green-600 text-white text-xs h-7 px-3" disabled={bulkSaving} onClick={() => handleBulkAction('approved')}>
+                <Button size="sm" className="bg-green-600 text-white text-xs h-7 px-3" disabled={bulkSaving} onClick={() => setBulkConfirm({ status: 'approved' })}>
                   <CheckCircle2 className="w-3 h-3 mr-1" /> Approve All
                 </Button>
-                <Button size="sm" className="bg-red-500 text-white text-xs h-7 px-3" disabled={bulkSaving} onClick={() => handleBulkAction('rejected')}>
+                <Button size="sm" className="bg-red-500 text-white text-xs h-7 px-3" disabled={bulkSaving} onClick={() => setBulkConfirm({ status: 'rejected' })}>
                   <XCircle className="w-3 h-3 mr-1" /> Reject All
                 </Button>
               </>
@@ -187,6 +191,36 @@ export default function AdminLoans() {
           );
         })}
       </div>
+
+      {/* Bulk action confirmation */}
+      {bulkConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center px-6">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-5 space-y-4">
+            <div className="flex items-center gap-2">
+              {bulkConfirm.status === 'approved'
+                ? <CheckCircle2 className="w-6 h-6 text-green-600" />
+                : <XCircle className="w-6 h-6 text-red-500" />}
+              <h3 className="font-bold text-gray-900">
+                {bulkConfirm.status === 'approved' ? 'Approve' : 'Reject'} {checkedIds.size} loan{checkedIds.size > 1 ? 's' : ''}?
+              </h3>
+            </div>
+            <p className="text-sm text-gray-600">
+              This will set <strong>{checkedIds.size}</strong> submitted application{checkedIds.size > 1 ? 's' : ''} to
+              <strong> {bulkConfirm.status}</strong>. {bulkConfirm.status === 'approved' && 'Approved loans proceed to disbursement.'} This action is logged to the audit trail and cannot be undone in bulk.
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" disabled={bulkSaving} onClick={() => setBulkConfirm(null)}>Cancel</Button>
+              <Button
+                className={`flex-1 text-white ${bulkConfirm.status === 'approved' ? 'bg-green-600' : 'bg-red-500'}`}
+                disabled={bulkSaving}
+                onClick={() => handleBulkAction(bulkConfirm.status)}
+              >
+                {bulkSaving ? 'Processing…' : `Yes, ${bulkConfirm.status === 'approved' ? 'Approve' : 'Reject'} All`}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {selected && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end">

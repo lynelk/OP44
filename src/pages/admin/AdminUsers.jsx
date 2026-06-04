@@ -5,8 +5,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, Search, User, Building2, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
+import { ChevronLeft, Search, User, Building2, CheckCircle2, XCircle, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+// Mask all but the last two digits for list/detail display (Uganda DPA / data minimisation).
+function maskPhone(phone) {
+  if (!phone) return '—';
+  const s = String(phone);
+  if (s.length <= 4) return s;
+  return s.slice(0, 4).replace(/\d/g, (d, i) => (i < 1 ? d : '•')) + '••••••' + s.slice(-2);
+}
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -15,6 +23,7 @@ export default function AdminUsers() {
   const [filterType, setFilterType] = useState('all');
   const [selected, setSelected] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [phoneRevealed, setPhoneRevealed] = useState(false);
 
   const loadUsers = async () => {
     setLoading(true);
@@ -33,7 +42,7 @@ export default function AdminUsers() {
 
   const handleSave = async () => {
     setSaving(true);
-    await base44.functions.invoke('adminManager', { action: 'update', entity: 'users', id: selected.id, data: { role: selected.role, current_risk_band: selected.current_risk_band } });
+    await base44.functions.invoke('adminManager', { action: 'update', entity: 'users', id: selected.id, data: { role: selected.role, current_risk_band: selected.current_risk_band, admin_tier: selected.admin_tier || null } });
     setSaving(false);
     setSelected(null);
     loadUsers();
@@ -68,7 +77,7 @@ export default function AdminUsers() {
         {loading ? (
           <div className="text-center py-10 text-gray-400"><RefreshCw className="w-6 h-6 animate-spin mx-auto" /></div>
         ) : filtered.map(u => (
-          <Card key={u.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelected({...u})}>
+          <Card key={u.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => { setSelected({...u}); setPhoneRevealed(false); }}>
             <CardContent className="p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#1a3a6b] flex items-center justify-center text-white font-bold text-sm">
                 {u.full_name?.[0] || u.email?.[0] || '?'}
@@ -95,7 +104,19 @@ export default function AdminUsers() {
               <h3 className="font-bold text-lg">{selected.full_name}</h3>
               <button onClick={() => setSelected(null)} className="text-gray-400">✕</button>
             </div>
-            <p className="text-sm text-gray-500">{selected.email} • {selected.phone_number}</p>
+            <div className="text-sm text-gray-500 flex items-center gap-1.5 flex-wrap">
+              <span>{selected.email}</span>
+              <span>•</span>
+              <span className="font-mono">{phoneRevealed ? selected.phone_number : maskPhone(selected.phone_number)}</span>
+              {selected.phone_number && (
+                <button
+                  onClick={() => setPhoneRevealed(v => !v)}
+                  className="inline-flex items-center gap-0.5 text-xs text-[#1a3a6b] font-medium"
+                >
+                  {phoneRevealed ? <><EyeOff className="w-3 h-3" /> Hide</> : <><Eye className="w-3 h-3" /> Reveal</>}
+                </button>
+              )}
+            </div>
             {selected.business_profile && (
               <div className="bg-blue-50 rounded-lg p-3 text-sm">
                 <p className="font-semibold text-blue-700 flex items-center gap-1"><Building2 className="w-4 h-4" /> {selected.business_profile.business_name}</p>
@@ -113,6 +134,19 @@ export default function AdminUsers() {
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-600 mb-1 block">Back-office Tier <span className="font-normal text-gray-400">(optional)</span></label>
+                <Select value={selected.admin_tier || 'none'} onValueChange={v => setSelected(s => ({...s, admin_tier: v === 'none' ? null : v}))}>
+                  <SelectTrigger><SelectValue placeholder="No staff access" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No staff access</SelectItem>
+                    <SelectItem value="reviewer">Reviewer (read-only)</SelectItem>
+                    <SelectItem value="approver">Approver (status changes)</SelectItem>
+                    <SelectItem value="ops">Ops (disbursement & collections)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-400 mt-1">Grants scoped back-office access without full admin. Ignored if Role is Admin.</p>
               </div>
               <div>
                 <label className="text-xs font-semibold text-gray-600 mb-1 block">Risk Band</label>
