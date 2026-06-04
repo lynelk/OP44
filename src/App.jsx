@@ -165,7 +165,7 @@ const AuthenticatedApp = () => {
       <Route path="/ussd" element={<USSDSimulator />} />
 
       {/* All protected routes */}
-      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/landing" replace />} />}>
         <Route path="/" element={<><Dashboard /><BottomNav /></>} />
         <Route path="/loans" element={<><Loans /><BottomNav /></>} />
         <Route path="/loans/apply" element={<><Loans /><BottomNav /></>} />

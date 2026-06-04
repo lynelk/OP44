@@ -1,4 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 import { TrendingUp, Shield, PiggyBank, Zap, Users, BarChart2, ChevronRight, Star, CheckCircle, Phone, Mail, MapPin } from 'lucide-react';
 
 const LOGO_TEXT = 'OpFin';
@@ -32,15 +34,23 @@ const HOW_IT_WORKS = [
 ];
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    base44.auth.isAuthenticated().then(authed => {
+      if (authed) navigate('/', { replace: true });
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#F2F5F9] font-poppins">
       {/* Nav */}
       <nav className="flex items-center justify-between px-5 py-3 bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm">
-        <span className="text-2xl font-black text-[#0D1BFF] tracking-tight">Op<span className="text-[#32B4FF]">Fin</span></span>
+        <img src="https://media.base44.com/images/public/6a0ed744d2266f7b5226f8a2/aa93f20a2_OpFin_83x.png" alt="OpFin" className="h-9 w-auto" />
         <div className="flex items-center gap-3">
           <Link to="/about" className="text-[#0D1BFF] text-sm font-medium hidden sm:block hover:underline">About</Link>
           <Link to="/contact" className="text-[#0D1BFF] text-sm font-medium hidden sm:block hover:underline">Contact</Link>
-          <Link to="/" className="bg-[#0D1BFF] text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#0a15cc] transition-colors">
+          <Link to="/login" className="bg-[#0D1BFF] text-white text-sm font-semibold px-5 py-2 rounded-full hover:bg-[#0a15cc] transition-colors">
             Open App
           </Link>
         </div>
@@ -52,7 +62,9 @@ export default function LandingPage() {
         <div className="absolute -bottom-12 -left-12 w-56 h-56 bg-[#00C48C]/15 rounded-full blur-2xl" />
 
         <div className="relative max-w-md mx-auto text-center">
-          <div className="text-5xl font-black mb-6 tracking-tight drop-shadow-lg">Op<span className="text-[#32B4FF]">Fin</span></div>
+          <div className="mb-6 flex justify-center">
+            <img src="https://media.base44.com/images/public/6a0ed744d2266f7b5226f8a2/aa93f20a2_OpFin_83x.png" alt="OpFin" className="h-16 w-auto brightness-0 invert" />
+          </div>
           <div className="inline-flex items-center gap-2 bg-[#32B4FF]/20 border border-[#32B4FF]/30 rounded-full px-4 py-1.5 mb-5">
             <span className="text-[#32B4FF] text-xs font-semibold uppercase tracking-wider">Smart Finance. Simple Solutions.</span>
           </div>
@@ -65,11 +77,11 @@ export default function LandingPage() {
             Fast and simple mobile financial solutions — savings, loans, insurance and more. Built for Uganda.
           </p>
           <div className="flex flex-col gap-3">
-            <Link to="/" className="bg-[#00C48C] text-white font-bold py-4 px-8 rounded-2xl text-base flex items-center justify-center gap-2 shadow-xl hover:bg-[#00a878] transition-colors">
+            <Link to="/register" className="bg-[#00C48C] text-white font-bold py-4 px-8 rounded-2xl text-base flex items-center justify-center gap-2 shadow-xl hover:bg-[#00a878] transition-colors">
               Get Started Free <ChevronRight className="w-5 h-5" />
             </Link>
-            <Link to="/" className="border border-white/30 text-white font-semibold py-3 px-8 rounded-2xl text-sm hover:bg-white/10 transition-colors">
-              Apply in Minutes →
+            <Link to="/login" className="border border-white/30 text-white font-semibold py-3 px-8 rounded-2xl text-sm hover:bg-white/10 transition-colors">
+              Sign In →
             </Link>
           </div>
         </div>
@@ -187,7 +199,7 @@ export default function LandingPage() {
           <h2 className="text-3xl font-extrabold text-white mb-3 font-poppins">Ready to take control of your finances?</h2>
           <p className="text-blue-100 mb-8 text-sm">Join 50,000+ Ugandans already building wealth with OpFin</p>
           <div className="space-y-3">
-            <Link to="/" className="block bg-white text-[#0D1BFF] font-bold py-4 px-8 rounded-2xl text-base shadow-xl hover:bg-blue-50 transition-colors">
+            <Link to="/register" className="block bg-white text-[#0D1BFF] font-bold py-4 px-8 rounded-2xl text-base shadow-xl hover:bg-blue-50 transition-colors">
               Get Started with OpFin →
             </Link>
             <div className="flex items-center justify-center gap-4 text-white/70 text-xs">
@@ -202,7 +214,9 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-[#1A1D29] text-blue-300 px-5 py-10">
         <div className="max-w-md mx-auto">
-          <div className="text-2xl font-black text-white mb-4 tracking-tight">Op<span className="text-[#32B4FF]">Fin</span></div>
+          <div className="mb-4">
+            <img src="https://media.base44.com/images/public/6a0ed744d2266f7b5226f8a2/aa93f20a2_OpFin_83x.png" alt="OpFin" className="h-9 w-auto brightness-0 invert" />
+          </div>
           <p className="text-xs leading-relaxed mb-5 text-blue-200">
             OpFin is a financial technology platform registered in Uganda, providing savings, investment, credit and insurance services to youth, women entrepreneurs, market vendors, and everyday earners across East Africa.
           </p>
