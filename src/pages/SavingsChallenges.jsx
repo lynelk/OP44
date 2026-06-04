@@ -79,7 +79,7 @@ export default function SavingsChallenges() {
         setActiveChallenges(challenges.filter(c => c.status === 'active'));
         setCompletedChallenges(challenges.filter(c => c.status === 'completed'));
       });
-      base44.entities.SavingsPocket.filter({}).then(setPockets);
+      base44.entities.SavingsPocket.filter({}, '-created_date', 100).then(setPockets);
     });
   }, []);
 

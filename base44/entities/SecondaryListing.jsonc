@@ -1,0 +1,28 @@
+{
+  "name": "SecondaryListing",
+  "type": "object",
+  "properties": {
+    "investment_id": { "type": "string", "description": "LenderInvestment being sold" },
+    "loan_id": { "type": "string" },
+    "loan_ref": { "type": "string" },
+    "seller_id": { "type": "string", "description": "Current lender (user id)" },
+    "buyer_id": { "type": "string", "description": "Set on settlement" },
+    "outstanding_principal": { "type": "number", "description": "Principal still owed on the underlying loan at listing time" },
+    "asking_price": { "type": "number" },
+    "discount_pct": { "type": "number", "description": "Implied discount vs outstanding principal (negative = premium)" },
+    "risk_band": { "type": "string", "enum": ["A", "B", "C", "D"] },
+    "months_remaining": { "type": "number" },
+    "transfer_fee": { "type": "number", "description": "Platform fee charged to buyer on settlement" },
+    "idempotency_key": { "type": "string", "description": "Guards against duplicate settlement" },
+    "status": { "type": "string", "enum": ["open", "matched", "settled", "cancelled"], "default": "open" },
+    "listed_at": { "type": "string", "format": "date-time" },
+    "settled_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["investment_id", "seller_id", "asking_price"],
+  "rls": {
+    "read": { "$or": [{ "data.seller_id": "{{user.id}}" }, { "data.buyer_id": "{{user.id}}" }, { "user_condition": { "role": "admin" } }] },
+    "create": { "user_condition": { "role": "admin" } },
+    "update": { "user_condition": { "role": "admin" } },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
+}

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { CreditCard, FileText, ArrowUpCircle, TrendingDown, Zap, ChevronRight, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Banknote, RefreshCw, CalendarClock, Phone } from 'lucide-react';
+import { CreditCard, FileText, ArrowUpCircle, TrendingDown, Zap, ChevronRight, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Banknote, RefreshCw, CalendarClock, Phone, PlusCircle } from 'lucide-react';
 
 import LoanApplicationWizard from '@/components/loans/LoanApplicationWizard';
 import LoanRescheduleModal from '@/components/loans/LoanRescheduleModal';
@@ -22,6 +22,9 @@ export default function Loans() {
   const [loans, setLoans] = useState([]);
   const [showWizard, setShowWizard] = useState(false);
   const [rescheduleLoan, setRescheduleLoan] = useState(null);
+  const [topUpLoan, setTopUpLoan] = useState(null);
+  const [topUpAmount, setTopUpAmount] = useState('');
+  const [topUpLoading, setTopUpLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -253,12 +256,20 @@ export default function Loans() {
                         </button>
                       </Link>
                     </div>
-                    <button
-                      onClick={() => setRescheduleLoan(loan)}
-                      className="w-full text-xs text-[#0D1BFF] font-semibold h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center gap-1.5"
-                    >
-                      <CalendarClock className="w-3.5 h-3.5" /> Request Reschedule
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setRescheduleLoan(loan)}
+                        className="flex-1 text-xs text-[#0D1BFF] font-semibold h-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center gap-1.5"
+                      >
+                        <CalendarClock className="w-3.5 h-3.5" /> Reschedule
+                      </button>
+                      <button
+                        onClick={() => { setTopUpLoan(loan); setTopUpAmount(''); }}
+                        className="flex-1 text-xs text-emerald-700 font-semibold h-9 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center gap-1.5"
+                      >
+                        <PlusCircle className="w-3.5 h-3.5" /> Top-Up
+                      </button>
+                    </div>
                   </div>
                   )}
 
@@ -290,6 +301,65 @@ export default function Loans() {
           onClose={() => setRescheduleLoan(null)}
           onSuccess={() => { setRescheduleLoan(null); load(); }}
         />
+      )}
+
+      {/* Top-Up Modal */}
+      {topUpLoan && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end">
+          <div className="bg-white rounded-t-2xl w-full p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-gray-900">Loan Top-Up Request</h3>
+              <button onClick={() => setTopUpLoan(null)} className="text-gray-400">✕</button>
+            </div>
+            <div className="bg-blue-50 rounded-xl p-3 text-xs text-blue-700">
+              <p className="font-semibold">{topUpLoan.purpose || 'Personal Loan'}</p>
+              <p className="mt-0.5">Current balance: UGX {(topUpLoan.outstanding_balance || 0).toLocaleString()}</p>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-600 mb-1 block">Top-Up Amount (UGX)</label>
+              <input
+                type="number"
+                placeholder="e.g. 500000"
+                value={topUpAmount}
+                onChange={e => setTopUpAmount(e.target.value)}
+                className="w-full h-11 rounded-xl border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1a3a6b]"
+              />
+            </div>
+            {topUpAmount && parseFloat(topUpAmount) > 0 && (
+              <div className="bg-gray-50 rounded-xl p-3 text-xs space-y-1.5">
+                <div className="flex justify-between text-gray-600">
+                  <span>Top-up amount</span><span className="font-semibold">UGX {parseFloat(topUpAmount).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>New estimated balance</span>
+                  <span className="font-semibold text-[#1a3a6b]">UGX {((topUpLoan.outstanding_balance || 0) + parseFloat(topUpAmount)).toLocaleString()}</span>
+                </div>
+                <p className="text-gray-400 pt-1">Subject to credit assessment. Approval in 24–48 hours.</p>
+              </div>
+            )}
+            <button
+              disabled={!topUpAmount || parseFloat(topUpAmount) <= 0 || topUpLoading}
+              onClick={async () => {
+                setTopUpLoading(true);
+                await base44.entities.LoanApplication.create({
+                  user_id: user?.id,
+                  amount_requested: parseFloat(topUpAmount),
+                  purpose: `Top-up on loan ${topUpLoan.id}`,
+                  loan_type: topUpLoan.loan_type || 'personal',
+                  tenure_months: topUpLoan.tenure_months,
+                  status: 'submitted',
+                });
+                setTopUpLoading(false);
+                setTopUpLoan(null);
+                setTopUpAmount('');
+                load();
+              }}
+              className="w-full h-12 bg-emerald-600 text-white font-bold rounded-2xl text-sm disabled:opacity-50"
+            >
+              {topUpLoading ? 'Submitting…' : 'Submit Top-Up Request'}
+            </button>
+          </div>
+        </div>
       )}
 
       {showWizard && (

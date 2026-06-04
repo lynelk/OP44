@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link, useNavigate } from 'react-router-dom';
-import { TrendingUp, Wallet, ShieldCheck, Star, Plus, ArrowRight, RefreshCw, AlertTriangle, CheckCircle2, Clock, Banknote, Users, BarChart3, Bell } from 'lucide-react';
+import { TrendingUp, Star, Plus, ArrowRight, RefreshCw, AlertTriangle, Banknote, Users, BarChart3 } from 'lucide-react';
 import LenderAlertPreferences from '@/components/p2p/LenderAlertPreferences';
 import DiversificationCard from '@/components/p2p/DiversificationCard';
 import { Button } from '@/components/ui/button';
@@ -312,6 +312,11 @@ export default function P2PDashboard() {
               </div>
             </div>
             <DiversificationCard investments={investments} />
+            <Link to="/p2p/secondary">
+              <Button variant="outline" className="w-full gap-2 h-11 font-semibold border-[#006B3C]/30 text-[#006B3C]">
+                <RefreshCw className="w-4 h-4" /> Secondary Market — buy & sell positions
+              </Button>
+            </Link>
             <Link to="/p2p/marketplace">
               <Button className="w-full bg-[#006B3C] hover:bg-[#005530] gap-2 h-12 font-bold">
                 <BarChart3 className="w-5 h-5" /> Browse Loans to Fund

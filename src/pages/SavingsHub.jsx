@@ -289,6 +289,16 @@ export default function SavingsHub() {
                         <Zap className="w-3 h-3" /> Auto-saving UGX {pocket.auto_save_amount?.toLocaleString()} {pocket.auto_save_frequency}
                       </p>
                     )}
+                    {pocket.current_balance > 0 && (() => {
+                      const annualRate = pocket.interest_rate || 0.06;
+                      const monthlyInterest = Math.round(pocket.current_balance * (annualRate / 12));
+                      if (monthlyInterest <= 0) return null;
+                      return (
+                        <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mt-1">
+                          +UGX {monthlyInterest.toLocaleString()}/mo interest ({(annualRate * 100).toFixed(0)}% p.a.)
+                        </p>
+                      );
+                    })()}
                   </div>
                 );
               })

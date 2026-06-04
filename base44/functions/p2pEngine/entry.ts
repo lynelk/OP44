@@ -109,14 +109,14 @@ async function distributeRevenue(base44, loanId, repaymentId, grossInterest, con
     distributed_at: new Date().toISOString()
   });
 
-  // Update lender investments pro-rata
+  // Update lender investments pro-rata (parallel — avoids N+1 sequential writes)
   const investments = await base44.asServiceRole.entities.LenderInvestment.filter({ loan_id: loanId });
-  for (const inv of investments) {
+  await Promise.all(investments.map(inv => {
     const invShare = Math.round(lenderShare * (inv.ownership_pct / 100));
-    await base44.asServiceRole.entities.LenderInvestment.update(inv.id, {
+    return base44.asServiceRole.entities.LenderInvestment.update(inv.id, {
       actual_return_earned: (inv.actual_return_earned || 0) + invShare
     });
-  }
+  }));
 
   return { lender_share: lenderShare, platform_share: platformShare, reserve_share: reserveShare };
 }
@@ -497,9 +497,164 @@ Deno.serve(async (req) => {
       return Response.json({ profile: profiles[0] || null, loans, investments, rewards });
     }
 
+    // ── 9. SECONDARY MARKET: LIST A POSITION FOR SALE ───────────────────────
+    if (action === 'list_position') {
+      const askingPrice = Number(params.asking_price);
+      if (!params.investment_id || !(askingPrice > 0)) {
+        return Response.json({ error: 'investment_id and a positive asking_price are required' }, { status: 400 });
+      }
+
+      const invArr = await base44.asServiceRole.entities.LenderInvestment.filter({ id: params.investment_id });
+      const investment = invArr[0];
+      if (!investment) return Response.json({ error: 'Investment not found' }, { status: 404 });
+      if (investment.lender_id !== user.id) return Response.json({ error: 'You do not own this investment' }, { status: 403 });
+      if (investment.status !== 'active') return Response.json({ error: 'Only active investments can be listed' }, { status: 400 });
+
+      // Block resale of arrears/defaulted loans.
+      const loanArr = await base44.asServiceRole.entities.P2PLoan.filter({ id: investment.loan_id });
+      const loan = loanArr[0];
+      if (loan && ['overdue', 'flagged', 'defaulted', 'written_off'].includes(loan.status)) {
+        return Response.json({ error: 'Loans in arrears cannot be sold on the secondary market' }, { status: 400 });
+      }
+
+      // Prevent duplicate open listings for the same position.
+      const dupes = await base44.asServiceRole.entities.SecondaryListing.filter({ investment_id: investment.id, status: 'open' });
+      if (dupes.length > 0) return Response.json({ error: 'This position is already listed' }, { status: 400 });
+
+      const outstanding = (investment.amount_invested || 0) - (investment.principal_recovered || 0);
+      // Guard against fire-sale signalling: cap discount at 25%.
+      if (askingPrice < outstanding * 0.75) {
+        return Response.json({ error: 'Asking price too low — maximum discount is 25% of outstanding principal' }, { status: 400 });
+      }
+
+      let monthsRemaining = null;
+      if (investment.maturity_date) {
+        monthsRemaining = Math.max(0, Math.round((new Date(investment.maturity_date) - new Date()) / (1000 * 60 * 60 * 24 * 30)));
+      }
+
+      const listing = await base44.asServiceRole.entities.SecondaryListing.create({
+        investment_id: investment.id,
+        loan_id: investment.loan_id,
+        loan_ref: loan?.loan_ref || (investment.loan_id ? `P2P-${String(investment.loan_id).slice(-4)}` : 'P2P'),
+        seller_id: user.id,
+        outstanding_principal: outstanding,
+        asking_price: askingPrice,
+        discount_pct: outstanding > 0 ? Math.round((1 - askingPrice / outstanding) * 1000) / 10 : 0,
+        risk_band: investment.risk_band || loan?.risk_band || 'B',
+        months_remaining: monthsRemaining,
+        transfer_fee: Math.round(askingPrice * 0.01),
+        status: 'open',
+        listed_at: new Date().toISOString(),
+      });
+      return Response.json({ listing });
+    }
+
+    // ── 10. SECONDARY MARKET: CANCEL A LISTING ──────────────────────────────
+    if (action === 'cancel_listing') {
+      const arr = await base44.asServiceRole.entities.SecondaryListing.filter({ id: params.listing_id });
+      const listing = arr[0];
+      if (!listing) return Response.json({ error: 'Listing not found' }, { status: 404 });
+      if (listing.seller_id !== user.id) return Response.json({ error: 'Not your listing' }, { status: 403 });
+      if (listing.status !== 'open') return Response.json({ error: 'Only open listings can be cancelled' }, { status: 400 });
+      await base44.asServiceRole.entities.SecondaryListing.update(listing.id, { status: 'cancelled' });
+      return Response.json({ success: true });
+    }
+
+    // ── 11. SECONDARY MARKET: BROWSE OPEN LISTINGS ──────────────────────────
+    if (action === 'get_secondary_listings') {
+      const open = await base44.asServiceRole.entities.SecondaryListing.filter({ status: 'open' }, '-listed_at', 50);
+      return Response.json({ listings: open.filter(l => l.seller_id !== user.id) });
+    }
+
+    // ── 12. SECONDARY MARKET: BUY A POSITION (atomic + idempotent) ──────────
+    if (action === 'buy_position') {
+      const idempotencyKey = params.idempotency_key || `buy_${params.listing_id}_${user.id}`;
+
+      // Idempotency: if this key already settled, return the prior result.
+      const priorSettled = await base44.asServiceRole.entities.SecondaryListing.filter({ idempotency_key: idempotencyKey, status: 'settled' });
+      if (priorSettled.length > 0) {
+        return Response.json({ success: true, duplicate: true, listing: priorSettled[0] });
+      }
+
+      const arr = await base44.asServiceRole.entities.SecondaryListing.filter({ id: params.listing_id });
+      const listing = arr[0];
+      if (!listing) return Response.json({ error: 'Listing not found' }, { status: 404 });
+      if (listing.status !== 'open') return Response.json({ error: 'Listing is no longer available' }, { status: 409 });
+      if (listing.seller_id === user.id) return Response.json({ error: 'You cannot buy your own listing' }, { status: 400 });
+
+      const profiles = await base44.entities.UserProfile.filter({ user_id: user.id });
+      const buyerProfile = profiles[0];
+      if (!buyerProfile) return Response.json({ error: 'Complete your profile first' }, { status: 400 });
+      if (buyerProfile.kyc_status !== 'verified') return Response.json({ error: 'KYC verification required to buy positions' }, { status: 403 });
+
+      const invArr = await base44.asServiceRole.entities.LenderInvestment.filter({ id: listing.investment_id });
+      const investment = invArr[0];
+      if (!investment || investment.status !== 'active') {
+        return Response.json({ error: 'Underlying investment is no longer transferable' }, { status: 409 });
+      }
+
+      const fee = Math.round(listing.asking_price * 0.01);
+
+      // Reserve first (optimistic lock) — prevents a concurrent second buyer.
+      await base44.asServiceRole.entities.SecondaryListing.update(listing.id, {
+        status: 'matched', buyer_id: user.id, transfer_fee: fee, idempotency_key: idempotencyKey,
+      });
+
+      try {
+        // Settlement step 1: transfer ownership of the investment to the buyer.
+        await base44.asServiceRole.entities.LenderInvestment.update(investment.id, {
+          lender_id: user.id,
+          lender_profile_id: buyerProfile.id,
+          description: `${investment.description || ''} | transferred via secondary market ${new Date().toISOString().split('T')[0]}`.trim(),
+        });
+
+        // Settlement step 2: record the platform transfer fee.
+        await base44.asServiceRole.entities.RevenueTransaction.create({
+          loan_id: listing.loan_id,
+          transaction_type: 'transfer_fee',
+          gross_interest: 0,
+          platform_share: fee,
+          platform_share_pct: 100,
+          status: 'distributed',
+          distributed_at: new Date().toISOString(),
+          description: `Secondary market transfer fee — listing ${listing.id}`,
+        }).catch(() => null);
+
+        // Settlement step 3: finalise the listing.
+        await base44.asServiceRole.entities.SecondaryListing.update(listing.id, {
+          status: 'settled', settled_at: new Date().toISOString(),
+        });
+
+        // Notify both parties (best-effort via the dispatcher).
+        await notify(base44, listing.seller_id, {
+          title: '✅ Your investment sold', body: `Your position ${listing.loan_ref} sold for UGX ${listing.asking_price.toLocaleString()}.`,
+          type: 'system', action_url: '/p2p',
+        });
+        await notify(base44, user.id, {
+          title: '🛒 Position purchased', body: `You bought ${listing.loan_ref} for UGX ${listing.asking_price.toLocaleString()} (+UGX ${fee.toLocaleString()} fee).`,
+          type: 'system', action_url: '/p2p',
+        });
+
+        return Response.json({ success: true, settled: true, paid: listing.asking_price, fee, total: listing.asking_price + fee });
+      } catch (settleErr) {
+        // Compensation: release the reservation so the listing can be retried.
+        await base44.asServiceRole.entities.SecondaryListing.update(listing.id, { status: 'open', buyer_id: null }).catch(() => null);
+        return Response.json({ error: 'Settlement failed, no changes applied. Please retry.', detail: String(settleErr) }, { status: 500 });
+      }
+    }
+
     return Response.json({ error: 'Unknown action' }, { status: 400 });
 
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
+
+// Best-effort notification: prefer the central dispatcher, fall back to a direct write.
+async function notify(base44, userId, { title, body, type, action_url, priority = 'medium' }) {
+  try {
+    await base44.functions.invoke('dispatchNotification', { user_id: userId, title, body, type, action_url, priority });
+  } catch {
+    await base44.asServiceRole.entities.Notification.create({ user_id: userId, title, body, type, action_url, priority, is_read: false }).catch(() => null);
+  }
+}

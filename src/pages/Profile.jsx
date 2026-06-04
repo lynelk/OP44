@@ -22,9 +22,9 @@ export default function Profile() {
 
   useEffect(() => {
     base44.auth.me().then(setUser);
-    base44.entities.UserProfile.filter({}).then(r => setUserProfile(r[0] || null));
-    base44.entities.KYCDocument.filter({}).then(setKyc);
-    base44.entities.GamificationBadge.filter({}).then(setBadges);
+    base44.entities.UserProfile.filter({}, '-updated_date', 1).then(r => setUserProfile(r[0] || null));
+    base44.entities.KYCDocument.filter({}, '-created_date', 50).then(setKyc);
+    base44.entities.GamificationBadge.filter({}, '-created_date', 100).then(setBadges);
   }, []);
 
   const kycApproved = kyc.some(d => d.status === 'approved');

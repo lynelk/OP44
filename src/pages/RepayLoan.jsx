@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, CreditCard, Smartphone, Building2, Wallet, Calendar, TrendingDown, Clock, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, CreditCard, Smartphone, Building2, Wallet, Calendar, TrendingDown, Clock, AlertTriangle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import MobileMoneyModal from '@/components/loans/MobileMoneyModal';
 
@@ -26,6 +27,8 @@ export default function RepayLoan() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [successData, setSuccessData] = useState(null);
+  const [prepayMode, setPrepayMode] = useState(false);
+  const [prepayAmount, setPrepayAmount] = useState('');
 
   const loadRepayments = async (loanId) => {
     const reps = await base44.entities.Repayment.filter({ loan_id: loanId });
@@ -74,7 +77,9 @@ export default function RepayLoan() {
   const handleNonMMPayment = async () => {
     if (!selectedLoan) return;
     const today = new Date().toISOString().split('T')[0];
-    const payAmount = nextDue?.amount || selectedLoan.monthly_installment;
+    const baseAmount = prepayMode ? parseFloat(prepayAmount) : (nextDue?.amount || selectedLoan.monthly_installment);
+    const penaltyRate = prepayMode ? 0.02 : 0;
+    const payAmount = baseAmount + Math.round(baseAmount * penaltyRate);
     const txnRef = `TXN-${Date.now()}`;
 
     if (nextDue) {
@@ -220,6 +225,62 @@ export default function RepayLoan() {
                   </div>
                 )}
 
+                {/* Partial / full prepayment toggle */}
+                {selectedLoan && (
+                  <div className="bg-white rounded-2xl p-4 shadow-sm">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-xs font-semibold text-gray-700">Payment Type</p>
+                      <div className="flex rounded-xl overflow-hidden border border-gray-200">
+                        <button
+                          onClick={() => setPrepayMode(false)}
+                          className={`px-3 py-1.5 text-xs font-semibold transition-colors ${!prepayMode ? 'bg-[#1a3a6b] text-white' : 'text-gray-500'}`}
+                        >Next Instalment</button>
+                        <button
+                          onClick={() => setPrepayMode(true)}
+                          className={`px-3 py-1.5 text-xs font-semibold transition-colors flex items-center gap-1 ${prepayMode ? 'bg-[#1a3a6b] text-white' : 'text-gray-500'}`}
+                        >
+                          <Zap className="w-3 h-3" /> Prepay
+                        </button>
+                      </div>
+                    </div>
+                    {prepayMode && (() => {
+                      const outstanding = selectedLoan.outstanding_balance || selectedLoan.total_repayable || 0;
+                      const amt = parseFloat(prepayAmount) || 0;
+                      const penaltyRate = 0.02; // 2% early settlement fee
+                      const penalty = amt > 0 ? Math.round(amt * penaltyRate) : 0;
+                      const totalDue = amt + penalty;
+                      const newBal = Math.max(0, outstanding - amt);
+                      return (
+                        <div className="space-y-3">
+                          <Input
+                            type="number"
+                            placeholder="Amount to prepay (UGX)"
+                            value={prepayAmount}
+                            onChange={e => setPrepayAmount(e.target.value)}
+                            className="h-11 rounded-xl"
+                          />
+                          {amt > 0 && (
+                            <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 space-y-1.5 text-xs">
+                              <div className="flex justify-between text-gray-700">
+                                <span>Principal prepaid</span><span className="font-semibold">UGX {amt.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between text-amber-700">
+                                <span>Early settlement fee (2%)</span><span className="font-semibold">UGX {penalty.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between text-gray-900 font-bold border-t border-amber-200 pt-1.5">
+                                <span>Total charged</span><span>UGX {totalDue.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between text-emerald-700">
+                                <span>Remaining balance after</span><span className="font-semibold">UGX {newBal.toLocaleString()}</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
                 {/* Payment method selector */}
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Payment Method</p>
@@ -254,17 +315,22 @@ export default function RepayLoan() {
                 {paymentMethod === 'mobile_money' ? (
                   <button
                     onClick={() => setShowMobileMoneyModal(true)}
-                    className="w-full h-14 bg-gradient-to-r from-orange-500 to-orange-400 text-white font-bold rounded-2xl text-base shadow-md shadow-orange-100 flex items-center justify-center gap-2"
+                    disabled={prepayMode && !parseFloat(prepayAmount)}
+                    className="w-full h-14 bg-gradient-to-r from-orange-500 to-orange-400 text-white font-bold rounded-2xl text-base shadow-md shadow-orange-100 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     <Smartphone className="w-5 h-5" />
-                    Pay via Mobile Money
+                    {prepayMode ? `Prepay UGX ${(parseFloat(prepayAmount) || 0).toLocaleString()} via Mobile Money` : 'Pay via Mobile Money'}
                   </button>
                 ) : (
                   <button
                     onClick={handleNonMMPayment}
-                    className="w-full h-14 bg-[#1a3a6b] text-white font-bold rounded-2xl text-base"
+                    disabled={prepayMode && !parseFloat(prepayAmount)}
+                    className="w-full h-14 bg-[#1a3a6b] text-white font-bold rounded-2xl text-base disabled:opacity-50"
                   >
-                    Record Payment — UGX {(nextDue?.amount || selectedLoan?.monthly_installment || 0).toLocaleString()}
+                    {prepayMode
+                      ? `Prepay UGX ${(parseFloat(prepayAmount) || 0).toLocaleString()}`
+                      : `Record Payment — UGX ${(nextDue?.amount || selectedLoan?.monthly_installment || 0).toLocaleString()}`
+                    }
                   </button>
                 )}
 

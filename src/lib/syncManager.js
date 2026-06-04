@@ -29,6 +29,10 @@ const SYNC_ENTITIES = [
   { name: 'ReferralEvent',      userField: 'user_id' },
   { name: 'RiskProfile',        userField: 'user_id' },
   { name: 'SupportTicket',      userField: 'user_id' },
+  { name: 'NotificationPreference', userField: 'user_id' },
+  { name: 'BankConnection',     userField: 'user_id' },
+  { name: 'BankTransaction',    userField: 'user_id' },
+  { name: 'SecondaryListing',   userField: 'seller_id' },
   // Lender-scoped
   { name: 'Device',             userField: 'lender_id' },
   { name: 'GPSTracker',         userField: 'lender_id' },

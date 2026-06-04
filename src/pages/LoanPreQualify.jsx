@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Zap, TrendingUp, AlertCircle, ChevronRight, Loader2, Info } from 'lucide-react';
+import { Zap, TrendingUp, AlertCircle, ChevronRight, Loader2, Info, BarChart2, X, Check } from 'lucide-react';
 
 const RISK_COLORS = {
   A: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
@@ -13,6 +13,17 @@ const RISK_COLORS = {
 export default function LoanPreQualify() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [compareList, setCompareList] = useState([]);
+  const [showCompare, setShowCompare] = useState(false);
+
+  const toggleCompare = (product) => {
+    setCompareList(prev => {
+      const exists = prev.find(p => p.name === product.name);
+      if (exists) return prev.filter(p => p.name !== product.name);
+      if (prev.length >= 3) return prev; // max 3
+      return [...prev, product];
+    });
+  };
 
   useEffect(() => {
     base44.auth.me().then(() => handleCheck());
@@ -126,13 +137,26 @@ export default function LoanPreQualify() {
                           <p className="text-xs text-gray-400">{product.interest_rate?.toFixed(1)}%/mo</p>
                         </div>
                       </div>
-                      <div className="mt-3 flex items-center justify-between">
+                      <div className="mt-3 flex items-center justify-between gap-2">
                         <p className="text-xs text-gray-400 dark:text-gray-500">Up to {product.max_tenure_months} months</p>
-                        <Link to="/loans">
-                          <button className="text-xs bg-orange-500 text-white font-semibold rounded-xl h-8 px-4 flex items-center gap-1 active:scale-95 transition-all">
-                            Apply <ChevronRight className="w-3 h-3" />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => toggleCompare(product)}
+                            className={`text-xs font-semibold rounded-xl h-8 px-3 flex items-center gap-1 border transition-all active:scale-95 ${
+                              compareList.find(p => p.name === product.name)
+                                ? 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700'
+                                : 'text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700'
+                            }`}
+                          >
+                            <BarChart2 className="w-3 h-3" />
+                            {compareList.find(p => p.name === product.name) ? 'Added' : 'Compare'}
                           </button>
-                        </Link>
+                          <Link to="/loans">
+                            <button className="text-xs bg-orange-500 text-white font-semibold rounded-xl h-8 px-4 flex items-center gap-1 active:scale-95 transition-all">
+                              Apply <ChevronRight className="w-3 h-3" />
+                            </button>
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -158,6 +182,73 @@ export default function LoanPreQualify() {
           </div>
         )}
       </div>
+      {/* Compare sticky bar */}
+      {compareList.length > 0 && !showCompare && (
+        <div className="fixed bottom-20 left-0 right-0 px-4 z-40">
+          <button
+            onClick={() => setShowCompare(true)}
+            className="w-full h-12 bg-[#0f2952] text-white font-bold rounded-2xl text-sm shadow-xl flex items-center justify-center gap-2"
+          >
+            <BarChart2 className="w-4 h-4" />
+            Compare {compareList.length} Product{compareList.length > 1 ? 's' : ''}
+          </button>
+        </div>
+      )}
+
+      {/* Comparison modal */}
+      {showCompare && compareList.length > 0 && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-end">
+          <div className="bg-white dark:bg-gray-900 rounded-t-2xl w-full p-5 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-gray-900 dark:text-white">Product Comparison</h3>
+              <button onClick={() => setShowCompare(false)} className="text-gray-400"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr>
+                    <th className="text-left text-gray-400 font-normal pb-2 pr-3 min-w-[100px]">Feature</th>
+                    {compareList.map((p, i) => (
+                      <th key={i} className="text-center pb-2 px-2 min-w-[90px]">
+                        <span className="text-sm">{p.icon || '💰'}</span>
+                        <p className="font-semibold text-gray-800 dark:text-white text-xs mt-0.5 leading-tight">{p.name}</p>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {[
+                    { label: 'Max Amount', fn: p => `UGX ${p.qualified_amount?.toLocaleString() || '—'}` },
+                    { label: 'Interest/mo', fn: p => `${p.interest_rate?.toFixed(1) || '—'}%` },
+                    { label: 'Max Tenure', fn: p => `${p.max_tenure_months || '—'} mo` },
+                    { label: 'Monthly Est.', fn: p => {
+                      if (!p.qualified_amount || !p.interest_rate || !p.max_tenure_months) return '—';
+                      const r = p.interest_rate / 100;
+                      const n = p.max_tenure_months;
+                      const installment = p.qualified_amount * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+                      return `UGX ${Math.round(installment).toLocaleString()}`;
+                    }},
+                    { label: 'Popular', fn: p => p.popular ? '✓' : '—' },
+                  ].map((row, i) => (
+                    <tr key={i}>
+                      <td className="py-2.5 pr-3 text-gray-500 dark:text-gray-400">{row.label}</td>
+                      {compareList.map((p, j) => (
+                        <td key={j} className="py-2.5 px-2 text-center font-semibold text-gray-800 dark:text-white">{row.fn(p)}</td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <button
+              onClick={() => { setShowCompare(false); setCompareList([]); }}
+              className="w-full mt-4 h-11 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-600 dark:text-gray-300"
+            >
+              Clear Comparison
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

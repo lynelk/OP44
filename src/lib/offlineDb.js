@@ -68,4 +68,12 @@ db.version(1).stores({
   _syncMeta:          'entity',
 });
 
+// v2: bank-feed import, P2P secondary market, notification preferences
+db.version(2).stores({
+  BankConnection:        'id, user_id, status, updated_date',
+  BankTransaction:       'id, user_id, connection_id, external_id, imported, updated_date',
+  SecondaryListing:      'id, seller_id, buyer_id, status, updated_date',
+  NotificationPreference:'id, user_id, updated_date',
+});
+
 export default db;
