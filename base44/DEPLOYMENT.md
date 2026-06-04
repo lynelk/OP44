@@ -25,17 +25,24 @@ Deploy via your normal Base44 sync/publish step (the app source is Base44-manage
 - **Email (Resend):** `RESEND_API_KEY`, `NOTIFY_FROM_EMAIL`
 - **Bank aggregator (Mono example):** `MONO_SECRET_KEY` — without it, `bankSyncTransactions` uses a deterministic dev feed so the pipeline still works end to end
 
-## Security (done on the new entities)
-- **RLS applied** to `BankConnection`, `BankTransaction`, `NotificationPreference`
-  (owner + admin) and `SecondaryListing` (seller/buyer read; service-role/admin
-  writes only, so listings can't be forged from the client).
+## Security (done)
+- **RLS** applied to **39 entities** total — see `RLS_PLAN.md`. The 4 new entities are
+  enforced live (via MCP); the other 35 strictly-private/lender-private entities have
+  RLS in their `.jsonc` schema source and enforce on the next deploy.
+- **Idempotency** added to `processMobileMoneyPayment` (optional `idempotency_key`
+  prevents double-charges) and `p2pEngine buy_position` (stable per-listing/buyer key).
+- **Input validation**: positive-amount + phone-format checks in
+  `processMobileMoneyPayment`; type/required validation in `dispatchNotification`;
+  discount caps + ownership/KYC checks in the secondary-market actions.
+- **N+1 fix**: `distributeRevenue` updates lender investments in parallel.
+- **Notification schema bug fixed**: `monitorRepayments` and `processMobileMoneyPayment`
+  no longer write invalid `Notification` records — they route through `dispatchNotification`.
 
-## Still recommended (platform-level, deliberately not done piecemeal)
-- **App-wide RLS** on the other ~57 entities — several are cross-read (marketplace,
-  P2P loans, savings groups, reference data) so this needs a tested, per-entity pass,
-  not a blanket rule. Use the new entities' rules as the template for strictly-private ones.
+## Still recommended (platform-level / needs decision or testing)
+- **Remaining RLS** on cross-read entities (P2P loans, devices/marketplace, groups,
+  ROSCA, reference data, back-office) — proposed rules in `RLS_PLAN.md`; apply per-entity
+  with a preview test (membership-scoped reads may need a `member_ids[]` helper field).
 - **Rate limiting** on financial endpoints — needs a KV/store or Base44 middleware.
-- **Pagination**: per-user display lists are now bounded (Budget, Notifications,
-  RepaymentPlanner, SavingsChallenges, Profile, GPS). Admin aggregations and
-  cross-user reads were intentionally left unbounded (limiting would change totals);
-  those need server-side aggregation endpoints instead.
+- **Backend cron pagination**: `monitorRepayments` / `adminReports` scan all records by
+  design; at scale convert to cursor-based batch processing (not simple limits).
+- **Composite indexes, CDN, APM/Sentry, load testing** — platform/infra tasks.

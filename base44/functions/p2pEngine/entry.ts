@@ -109,14 +109,14 @@ async function distributeRevenue(base44, loanId, repaymentId, grossInterest, con
     distributed_at: new Date().toISOString()
   });
 
-  // Update lender investments pro-rata
+  // Update lender investments pro-rata (parallel — avoids N+1 sequential writes)
   const investments = await base44.asServiceRole.entities.LenderInvestment.filter({ loan_id: loanId });
-  for (const inv of investments) {
+  await Promise.all(investments.map(inv => {
     const invShare = Math.round(lenderShare * (inv.ownership_pct / 100));
-    await base44.asServiceRole.entities.LenderInvestment.update(inv.id, {
+    return base44.asServiceRole.entities.LenderInvestment.update(inv.id, {
       actual_return_earned: (inv.actual_return_earned || 0) + invShare
     });
-  }
+  }));
 
   return { lender_share: lenderShare, platform_share: platformShare, reserve_share: reserveShare };
 }

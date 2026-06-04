@@ -116,7 +116,7 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
-    const { loan_id, p2p_loan_id, amount, phone_number, provider } = body;
+    const { loan_id, p2p_loan_id, amount, phone_number, provider, idempotency_key } = body;
 
     if (!amount || !phone_number || !provider) {
       return Response.json({ error: 'Missing required fields: amount, phone_number, provider' }, { status: 400 });
@@ -125,8 +125,27 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Provide either loan_id or p2p_loan_id' }, { status: 400 });
     }
 
+    // ── Input validation ──
     const payAmount = parseFloat(amount);
-    const txnRef = `${provider.toUpperCase()}-${Date.now()}-${Math.floor(Math.random() * 9000 + 1000)}`;
+    if (!Number.isFinite(payAmount) || payAmount <= 0) {
+      return Response.json({ error: 'Amount must be a positive number' }, { status: 400 });
+    }
+    if (!/^\+?\d{9,15}$/.test(String(phone_number))) {
+      return Response.json({ error: 'Invalid phone number format' }, { status: 400 });
+    }
+
+    // ── Idempotency: a repeated key that already settled returns the prior result
+    //    instead of charging the customer twice. ──
+    const txnRef = idempotency_key || `${provider.toUpperCase()}-${Date.now()}-${Math.floor(Math.random() * 9000 + 1000)}`;
+    if (idempotency_key) {
+      const [legacyDupe, p2pDupe] = await Promise.all([
+        base44.entities.Repayment.filter({ transaction_ref: idempotency_key }, '-created_date', 1).catch(() => []),
+        base44.entities.P2PRepayment.filter({ transaction_ref: idempotency_key }, '-created_date', 1).catch(() => []),
+      ]);
+      if (legacyDupe.length > 0 || p2pDupe.length > 0) {
+        return Response.json({ success: true, duplicate: true, txn_ref: idempotency_key });
+      }
+    }
     const note = loan_id ? `Loan repayment ${loan_id}` : `P2P loan repayment ${p2p_loan_id}`;
 
     // ── Call real provider API ──
@@ -177,11 +196,10 @@ Deno.serve(async (req) => {
       const newStatus = newBalance <= 0 ? 'closed' : targetLoan.status;
       await base44.entities.LoanApplication.update(loan_id, { outstanding_balance: newBalance, status: newStatus });
 
-      await base44.asServiceRole.entities.Notification.create({
-        user_id: user.id,
+      await notify(base44, user.id, {
         title: 'Loan Repayment Confirmed',
-        message: `UGX ${payAmount.toLocaleString()} via ${provider.toUpperCase()} confirmed. Ref: ${txnRef}. ${newBalance > 0 ? `Remaining: UGX ${newBalance.toLocaleString()}` : 'Loan fully repaid! 🎉'}`,
-        type: 'payment', is_read: false,
+        body: `UGX ${payAmount.toLocaleString()} via ${provider.toUpperCase()} confirmed. Ref: ${txnRef}. ${newBalance > 0 ? `Remaining: UGX ${newBalance.toLocaleString()}` : 'Loan fully repaid! 🎉'}`,
+        type: 'system', priority: 'medium', action_url: '/loans/statement',
       });
 
       return Response.json({
@@ -214,11 +232,10 @@ Deno.serve(async (req) => {
         status: newBalance <= 0 ? 'closed' : targetP2P.status,
       });
 
-      await base44.asServiceRole.entities.Notification.create({
-        user_id: user.id,
+      await notify(base44, user.id, {
         title: 'P2P Repayment Confirmed',
-        message: `UGX ${payAmount.toLocaleString()} P2P repayment via ${provider.toUpperCase()} confirmed. Ref: ${txnRef}.`,
-        type: 'payment', is_read: false,
+        body: `UGX ${payAmount.toLocaleString()} P2P repayment via ${provider.toUpperCase()} confirmed. Ref: ${txnRef}.`,
+        type: 'system', priority: 'medium', action_url: '/p2p',
       });
 
       return Response.json({
@@ -231,3 +248,12 @@ Deno.serve(async (req) => {
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
+
+// Route confirmations through the central dispatcher (channels + quiet hours + valid schema).
+async function notify(base44, userId, { title, body, type, action_url, priority = 'medium' }) {
+  try {
+    await base44.functions.invoke('dispatchNotification', { user_id: userId, title, body, type, action_url, priority });
+  } catch {
+    await base44.asServiceRole.entities.Notification.create({ user_id: userId, title, body, type, action_url, priority, is_read: false }).catch(() => null);
+  }
+}
