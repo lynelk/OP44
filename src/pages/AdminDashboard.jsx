@@ -242,18 +242,14 @@ export default function AdminDashboard() {
             {/* Admin modules */}
             <div>
               <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Admin Modules</h2>
-              <div className="space-y-2">
-                {MODULES.map(({ path, icon: Icon, label, desc, color }) => (
+              <div className="grid grid-cols-2 gap-2">
+                {MODULES.map(({ path, icon: Icon, label, color }) => (
                   <Link key={path} to={path}>
-                    <div className="bg-white rounded-xl shadow-sm p-3.5 flex items-center gap-3 hover:shadow-md transition-shadow">
-                      <div className={`w-9 h-9 rounded-xl ${color} flex items-center justify-center`}>
+                    <div className="bg-white rounded-xl shadow-sm p-3 flex items-center gap-2.5 hover:shadow-md transition-shadow active:scale-[0.98]">
+                      <div className={`w-9 h-9 rounded-xl ${color} flex items-center justify-center shrink-0`}>
                         <Icon className="w-4 h-4 text-white" />
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-800">{label}</p>
-                        <p className="text-xs text-gray-500">{desc}</p>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-gray-400" />
+                      <p className="text-xs font-semibold text-gray-800 leading-tight">{label}</p>
                     </div>
                   </Link>
                 ))}
