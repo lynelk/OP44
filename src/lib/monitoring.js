@@ -21,8 +21,9 @@ export async function initMonitoring() {
   if (!dsn) return; // disabled — no DSN configured
 
   try {
-    // Dynamic import so the bundle/build doesn't require the package to exist.
-    const Sentry = await import(/* @vite-ignore */ '@sentry/react').catch(() => null);
+    // Use a variable to prevent Rollup from statically resolving the optional dep.
+    const pkg = '@sentry/react';
+    const Sentry = await import(/* @vite-ignore */ pkg).catch(() => null);
     if (!Sentry?.init) {
       console.info('[monitoring] VITE_SENTRY_DSN set but @sentry/react not installed — skipping.');
       return;

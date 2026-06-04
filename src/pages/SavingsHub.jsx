@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { savingsInterest } from '@/lib/finance';
+import { toast } from 'sonner';
 
 const ICONS = ['🎯','🏠','📚','✈️','💊','💍','🚗','💼'];
 const TABS  = ['Pockets', 'Goals', 'Challenges', 'Groups'];
@@ -98,6 +99,7 @@ export default function SavingsHub() {
     setQuickSaveAmount('');
     setShowQS(false);
     setQuickSaving(false);
+    toast.success(`UGX ${amt.toLocaleString('en-UG')} saved to ${pocket.name}`);
   };
 
   const handleCreatePocket = async () => {
@@ -114,6 +116,7 @@ export default function SavingsHub() {
     setShowCreate(false);
     setNewName(''); setNewGoal(''); setNewIcon('🎯'); setNewFreq('none'); setNewAuto('');
     setCreating(false);
+    toast.success(`"${pocket.name}" pocket created`);
   };
 
   return (

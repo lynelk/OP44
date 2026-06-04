@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import ReferralCard from '@/components/referral/ReferralCard';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
@@ -20,55 +20,29 @@ const TIP_STYLES = {
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
-  const [loans, setLoans] = useState([]);
-  const [savings, setSavings] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [badges, setBadges] = useState([]);
-  const [creditScore, setCreditScore] = useState(null);
-  const [totalInvestments, setTotalInvestments] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const scrollRef = useRef(null);
   const pullStartY = useRef(0);
   const queryClient = useQueryClient();
 
-  const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => {});
+  }, []);
 
-  const loadData = async () => {
-    const me = await base44.auth.me();
-    setUser(me);
+  const { data: summary, refetch: refetchSummary } = useQuery({
+    queryKey: ['dashboardSummary'],
+    queryFn: () => base44.functions.invoke('getDashboardSummary', {}).then(r => r.data),
+    staleTime: 1000 * 60 * 2,
+    gcTime: 1000 * 60 * 5,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
 
-    // Sequential individual fetches with gaps to stay under rate limit
-    const l = await base44.entities.LoanApplication.filter({ user_id: me.id });
-    setLoans(l);
-    await sleep(200);
-
-    const n = await base44.entities.Notification.filter({ user_id: me.id, is_read: false });
-    setNotifications(n);
-    await sleep(200);
-
-    const scores = await base44.entities.CreditScore.filter({ user_id: me.id }, '-calculated_at', 1);
-    if (scores.length > 0) setCreditScore(scores[0]);
-    await sleep(200);
-
-    const pockets = await base44.entities.SavingsPocket.filter({ user_id: me.id });
-    setSavings(pockets);
-    await sleep(200);
-
-    const b = await base44.entities.GamificationBadge.filter({ user_id: me.id });
-    setBadges(b);
-    await sleep(200);
-
-    const lenderInv = await base44.entities.LenderInvestment.filter({ lender_id: me.id });
-    await sleep(200);
-
-    const policies = await base44.entities.InsurancePolicy.filter({ user_id: me.id });
-    const p2pTotal = lenderInv.reduce((sum, i) => sum + (i.amount_invested || 0), 0);
-    const savingsTotal = pockets.reduce((sum, p) => sum + (p.current_balance || 0), 0);
-    const insuranceTotal = policies.reduce((sum, p) => sum + (p.total_premiums_paid || 0), 0);
-    setTotalInvestments(p2pTotal + savingsTotal + insuranceTotal);
-  };
-
-  useEffect(() => { loadData(); }, []);
+  const loans = summary?.loans ?? [];
+  const notifications = summary?.notifications ?? [];
+  const creditScore = summary?.creditScore ?? null;
+  const savings = summary?.pockets ?? [];
+  const totalInvestments = summary?.totalInvestments ?? 0;
 
   const { data: tipsData, isLoading: loadingTips } = useQuery({
     queryKey: ['financialTips'],
@@ -82,8 +56,10 @@ export default function Dashboard() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await loadData();
-    queryClient.invalidateQueries(['financialTips']);
+    await Promise.all([
+      refetchSummary(),
+      queryClient.invalidateQueries({ queryKey: ['financialTips'] }),
+    ]);
     setTimeout(() => setIsRefreshing(false), 800);
   };
 
