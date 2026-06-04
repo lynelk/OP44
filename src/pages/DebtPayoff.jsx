@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { TrendingDown, Zap, Target, AlertCircle, CheckCircle2, ArrowRight, PiggyBank, Trophy } from 'lucide-react';
-import MilestoneCelebration from '@/components/debt/MilestoneCelebration';
+import MilestoneCelebration from '@/components/ui/MilestoneCelebration';
 import { useRef } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 

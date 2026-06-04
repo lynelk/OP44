@@ -15,7 +15,7 @@ async function getMtnAccessToken() {
       'Ocp-Apim-Subscription-Key': subscriptionKey,
     },
   });
-  if (!res.ok) throw new Error(`MTN token error: ${await res.text()}`);
+  if (!res.ok) { console.error('[MTN] token error:', await res.text()); throw new Error('Mobile money provider unavailable'); }
   const data = await res.json();
   return data.access_token;
 }
@@ -46,7 +46,7 @@ async function mtnRequestToPay({ amount, phone_number, txnRef, note }) {
     }),
   });
 
-  if (res.status !== 202) throw new Error(`MTN request failed: ${await res.text()}`);
+  if (res.status !== 202) { console.error('[MTN] request failed:', res.status, await res.text()); throw new Error('Mobile money payment could not be initiated'); }
 
   // Poll for status (up to 30s)
   for (let i = 0; i < 6; i++) {
@@ -79,7 +79,7 @@ async function getAirtelAccessToken() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, grant_type: 'client_credentials' }),
   });
-  if (!res.ok) throw new Error(`Airtel token error: ${await res.text()}`);
+  if (!res.ok) { console.error('[Airtel] token error:', await res.text()); throw new Error('Mobile money provider unavailable'); }
   const data = await res.json();
   return data.access_token;
 }
@@ -312,7 +312,8 @@ Deno.serve(async (req) => {
     }
 
   } catch (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('[processMobileMoneyPayment] unhandled error:', error);
+    return Response.json({ error: 'Payment processing failed. Please try again or contact support.' }, { status: 500 });
   }
 });
 

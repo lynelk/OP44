@@ -5,6 +5,8 @@
  */
 import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useOfflineEntity } from '@/lib/useOfflineEntity';
+import { useAuth } from '@/lib/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -18,8 +20,10 @@ const ICONS = ['🎯','🏠','📚','✈️','💊','💍','🚗','💼'];
 const TABS  = ['Pockets', 'Goals', 'Challenges', 'Groups'];
 
 export default function SavingsHub() {
+  const { user } = useAuth();
+  const offlinePockets = useOfflineEntity('SavingsPocket', user?.id ? { user_id: user.id } : {});
+
   const [tab, setTab]             = useState('Pockets');
-  const [user, setUser]           = useState(null);
   const [pockets, setPockets]     = useState([]);
   const [goals, setGoals]         = useState([]);
   const [challenges, setChallenges] = useState([]);
@@ -46,8 +50,7 @@ export default function SavingsHub() {
   const pullStartY  = useRef(0);
 
   const loadData = async () => {
-    const u = await base44.auth.me();
-    setUser(u);
+    const u = user || await base44.auth.me();
     const [p, g, c, gr] = await Promise.all([
       base44.entities.SavingsPocket.filter({ user_id: u.id }),
       base44.entities.SavingsGoal.filter({ user_id: u.id }),
@@ -92,10 +95,11 @@ export default function SavingsHub() {
     setQuickSaving(true);
     const pocket  = pockets.find(p => p.id === quickSavePocketId);
     if (!pocket) { setQuickSaving(false); return; }
-    const updated = await base44.entities.SavingsPocket.update(pocket.id, {
-      current_balance: (pocket.current_balance || 0) + amt,
-    });
-    setPockets(prev => prev.map(p => p.id === pocket.id ? updated : p));
+    const newBalance = (pocket.current_balance || 0) + amt;
+    // Route through offline-entity hook so write is queued when offline
+    const updated = await offlinePockets.update(pocket.id, { current_balance: newBalance })
+      .catch(() => base44.entities.SavingsPocket.update(pocket.id, { current_balance: newBalance }));
+    setPockets(prev => prev.map(p => p.id === pocket.id ? { ...p, current_balance: newBalance, ...updated } : p));
     setQuickSaveAmount('');
     setShowQS(false);
     setQuickSaving(false);

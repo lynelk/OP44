@@ -60,6 +60,23 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'amountRequested and tenureMonths are required' }, { status: 400 });
     }
 
+    // P3-2: range guards — prevent nonsensical decisions from extreme inputs
+    const MIN_AMOUNT = 100_000;    // UGX 100K
+    const MAX_AMOUNT = 50_000_000; // UGX 50M
+    const MIN_TENURE = 1;
+    const MAX_TENURE = 24;
+    if (!Number.isFinite(amountRequested) || amountRequested < MIN_AMOUNT || amountRequested > MAX_AMOUNT) {
+      return Response.json({
+        error: `Amount must be between UGX ${MIN_AMOUNT.toLocaleString()} and UGX ${MAX_AMOUNT.toLocaleString()}`,
+      }, { status: 400 });
+    }
+    if (!Number.isInteger(tenureMonths) || tenureMonths < MIN_TENURE || tenureMonths > MAX_TENURE) {
+      return Response.json({
+        error: `Tenure must be a whole number between ${MIN_TENURE} and ${MAX_TENURE} months`,
+      }, { status: 400 });
+    }
+    }
+
     // ── 1. Fetch all relevant data in parallel ──────────────────────────────
     const [
       profiles, creditScores, repayments, p2pRepayments,

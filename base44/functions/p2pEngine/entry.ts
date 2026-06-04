@@ -109,14 +109,24 @@ async function distributeRevenue(base44, loanId, repaymentId, grossInterest, con
     distributed_at: new Date().toISOString()
   });
 
-  // Update lender investments pro-rata (parallel — avoids N+1 sequential writes)
+  // Update lender investments pro-rata.
+  // Use integer-safe distribution: allocate via Math.round for each lender, then
+  // assign the residual rounding remainder to the largest-share lender to ensure
+  // sum of per-lender shares == lenderShare exactly (no UGX lost to rounding drift).
   const investments = await base44.asServiceRole.entities.LenderInvestment.filter({ loan_id: loanId });
-  await Promise.all(investments.map(inv => {
-    const invShare = Math.round(lenderShare * (inv.ownership_pct / 100));
-    return base44.asServiceRole.entities.LenderInvestment.update(inv.id, {
-      actual_return_earned: (inv.actual_return_earned || 0) + invShare
-    });
-  }));
+  if (investments.length > 0) {
+    const shares = investments.map(inv => Math.round(lenderShare * (inv.ownership_pct / 100)));
+    const remainder = lenderShare - shares.reduce((s, v) => s + v, 0);
+    if (remainder !== 0) {
+      const maxIdx = shares.reduce((best, v, i) => v > shares[best] ? i : best, 0);
+      shares[maxIdx] += remainder;
+    }
+    await Promise.all(investments.map((inv, i) =>
+      base44.asServiceRole.entities.LenderInvestment.update(inv.id, {
+        actual_return_earned: (inv.actual_return_earned || 0) + shares[i],
+      })
+    ));
+  }
 
   return { lender_share: lenderShare, platform_share: platformShare, reserve_share: reserveShare };
 }

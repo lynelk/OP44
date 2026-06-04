@@ -14,6 +14,7 @@ export default function NotificationSettings() {
   const navigate = useNavigate();
   const [prefs, setPrefs] = useState(null);
   const [saved, setSaved] = useState(false);
+  const [pushError, setPushError] = useState('');
 
   useEffect(() => { getPrefs().then(setPrefs); }, []);
 
@@ -35,7 +36,7 @@ export default function NotificationSettings() {
   const enablePush = async () => {
     const ok = await registerPush();
     update({ push: ok });
-    if (!ok) alert('Push permission was not granted by your browser.');
+    if (!ok) setPushError('Push permission was not granted by your browser.');
   };
 
   if (!prefs) return (
@@ -65,6 +66,13 @@ export default function NotificationSettings() {
         {NOTIF_PREFS_STUB && (
           <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/40 p-3 text-xs text-amber-700 dark:text-amber-400">
             Preferences are saved to your account. SMS &amp; push delivery activate once the backend dispatcher is connected.
+          </div>
+        )}
+
+        {pushError && (
+          <div className="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/40 p-3 text-xs text-red-700 dark:text-red-400 flex items-center justify-between">
+            <span>{pushError}</span>
+            <button onClick={() => setPushError('')} className="ml-2 text-red-400" aria-label="Dismiss">✕</button>
           </div>
         )}
 

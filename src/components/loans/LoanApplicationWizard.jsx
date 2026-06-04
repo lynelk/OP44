@@ -136,7 +136,7 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
   if (submitted) {
     return (
       <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-5">
-        <div className="bg-white rounded-3xl p-8 text-center w-full max-w-sm">
+        <div className="bg-white dark:bg-gray-900 rounded-3xl p-8 text-center w-full max-w-sm">
           <div className={`w-20 h-20 ${autoApproved ? 'bg-orange-100' : 'bg-emerald-100'} rounded-full flex items-center justify-center mx-auto mb-4`}>
             <CheckCircle2 className={`w-10 h-10 ${autoApproved ? 'text-orange-500' : 'text-emerald-500'}`} />
           </div>
@@ -156,12 +156,12 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-end justify-center">
-      <div className="bg-white w-full max-w-md rounded-t-3xl overflow-hidden" style={{ maxHeight: '92vh', overflowY: 'auto' }}>
+      <div className="bg-white dark:bg-gray-900 w-full max-w-md rounded-t-3xl overflow-hidden" style={{ maxHeight: '92vh', overflowY: 'auto' }}>
         {/* Handle + header */}
         <div className="flex justify-center pt-3 pb-1">
           <div className="w-10 h-1.5 bg-gray-200 rounded-full" />
         </div>
-        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-2">
             {step > 0 && (
               <button onClick={() => setStep(s => s - 1)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
@@ -235,7 +235,7 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
                       className={`py-2 rounded-xl text-xs font-semibold border transition-all ${
                         parseFloat(amount) === v
                           ? 'bg-[#1a3a6b] text-white border-[#1a3a6b]'
-                          : 'bg-white border-gray-200 text-gray-700 hover:border-[#1a3a6b]'
+                          : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-[#1a3a6b]'
                       }`}
                     >
                       {v >= 1000000 ? `${(v/1000000).toFixed(1)}M` : `${(v/1000).toFixed(0)}K`}
@@ -272,7 +272,7 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
                       key={v}
                       onClick={() => setTenure(v)}
                       className={`py-3 rounded-xl text-xs font-bold border transition-all ${
-                        tenure === v ? 'bg-[#1a3a6b] text-white border-[#1a3a6b]' : 'bg-white border-gray-200 text-gray-700 hover:border-[#1a3a6b]'
+                        tenure === v ? 'bg-[#1a3a6b] text-white border-[#1a3a6b]' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-[#1a3a6b]'
                       }`}
                     >
                       {l}
@@ -289,7 +289,7 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
                       key={p}
                       onClick={() => setPurpose(p)}
                       className={`py-2.5 px-3 rounded-xl text-xs font-medium border text-left transition-all ${
-                        purpose === p ? 'bg-orange-50 border-orange-400 text-orange-700' : 'bg-white border-gray-200 text-gray-700 hover:border-orange-300'
+                        purpose === p ? 'bg-orange-50 border-orange-400 text-orange-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-orange-300'
                       }`}
                     >
                       {p}

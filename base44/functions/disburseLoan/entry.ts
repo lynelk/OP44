@@ -96,6 +96,17 @@ Deno.serve(async (req) => {
       : (amount * r * Math.pow(1 + r, tenure)) / (Math.pow(1 + r, tenure) - 1);
     const totalRepayable = monthly * tenure;
 
+    // P1-2: idempotency — bail out if a schedule already exists to prevent duplicate repayments on retry
+    const existingRepayments = await base44.asServiceRole.entities.Repayment.filter({ loan_id });
+    if (existingRepayments.length > 0) {
+      return Response.json({
+        success: true,
+        duplicate: true,
+        message: 'Loan already disbursed — repayment schedule exists',
+        repayment_schedule_created: existingRepayments.length,
+      });
+    }
+
     // Repayment schedule
     const repaymentSchedule = [];
     for (let i = 1; i <= tenure; i++) {

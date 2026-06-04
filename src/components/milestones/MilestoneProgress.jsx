@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Trophy } from 'lucide-react';
-import MilestoneCelebration from './MilestoneCelebration';
+import MilestoneCelebration from '@/components/ui/MilestoneCelebration';
 
 const MILESTONES = [
   { id: 'first_100k_saved',   badge: 'first_savings',          emoji: '🐣', name: 'First 100K Saved',       desc: 'Save UGX 100,000 total',      check: ({ totalSavings }) => totalSavings >= 100000,     progress: ({ totalSavings }) => Math.min(100, (totalSavings / 100000) * 100),     target: '100K savings' },

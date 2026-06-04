@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { Link } from 'react-router-dom';
 import { CreditCard, FileText, ArrowUpCircle, TrendingDown, Zap, ChevronRight, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Banknote, RefreshCw, CalendarClock, Phone, PlusCircle } from 'lucide-react';
 
@@ -19,28 +21,26 @@ const STATUS_CONFIG = {
 };
 
 export default function Loans() {
-  const [loans, setLoans] = useState([]);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: loans = [], isLoading: loading, refetch } = useQuery({
+    queryKey: ['loans', user?.id],
+    queryFn: () => base44.entities.LoanApplication.filter({ user_id: user.id })
+      .then(data => data.sort((a, b) => new Date(b.created_date) - new Date(a.created_date))),
+    enabled: !!user?.id,
+    staleTime: 1000 * 60 * 2,
+  });
+
   const [showWizard, setShowWizard] = useState(false);
   const [rescheduleLoan, setRescheduleLoan] = useState(null);
   const [topUpLoan, setTopUpLoan] = useState(null);
   const [topUpAmount, setTopUpAmount] = useState('');
   const [topUpLoading, setTopUpLoading] = useState(false);
   const [topUpError, setTopUpError] = useState(null);
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const scrollRef = useRef(null);
   const pullStartY = useRef(0);
-
-  const load = async () => {
-    const u = await base44.auth.me();
-    setUser(u);
-    const data = await base44.entities.LoanApplication.filter({ user_id: u.id });
-    setLoans(data.sort((a, b) => new Date(b.created_date) - new Date(a.created_date)));
-    setLoading(false);
-  };
-
-  useEffect(() => { load(); }, []);
 
   // Pull to refresh
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function Loans() {
       const delta = e.changedTouches[0].clientY - pullStartY.current;
       if (delta > 80 && el.scrollTop === 0) {
         setIsRefreshing(true);
-        await load();
+        await refetch();
         setTimeout(() => setIsRefreshing(false), 600);
       }
     };
@@ -319,7 +319,7 @@ export default function Loans() {
         <LoanRescheduleModal
           loan={rescheduleLoan}
           onClose={() => setRescheduleLoan(null)}
-          onSuccess={() => { setRescheduleLoan(null); load(); }}
+          onSuccess={() => { setRescheduleLoan(null); refetch(); }}
         />
       )}
 
@@ -386,7 +386,7 @@ export default function Loans() {
                     // loanDecisionEngine already created the LoanApplication on approval.
                     setTopUpLoan(null);
                     setTopUpAmount('');
-                    load();
+                    refetch();
                   }
                 } catch (e) {
                   setTopUpError('Something went wrong assessing your request.');
@@ -406,9 +406,9 @@ export default function Loans() {
         <LoanApplicationWizard
           user={user}
           onClose={() => setShowWizard(false)}
-          onSuccess={(loan) => {
+          onSuccess={() => {
             setShowWizard(false);
-            setLoans(prev => [loan, ...prev]);
+            refetch();
           }}
         />
       )}

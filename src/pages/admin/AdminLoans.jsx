@@ -5,8 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { ChevronLeft, Search, RefreshCw, CheckCircle2, XCircle, Clock, CalendarClock, CheckSquare, Square, ListChecks } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import { ChevronLeft, Search, RefreshCw, CheckCircle2, XCircle, Clock, CalendarClock, CheckSquare, Square, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+const PAGE_SIZE = 25;
 
 const STATUS_COLORS = {
   draft: 'bg-gray-100 text-gray-600', submitted: 'bg-blue-100 text-blue-700',
@@ -17,11 +20,14 @@ const STATUS_COLORS = {
 };
 
 export default function AdminLoans() {
+  const { toast } = useToast();
   const [loans, setLoans] = useState([]);
   const [users, setUsers] = useState({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [filterStage, setFilterStage] = useState('all');
+  const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
   const [saving, setSaving] = useState(false);
   const [checkedIds, setCheckedIds] = useState(new Set());
@@ -53,7 +59,7 @@ export default function AdminLoans() {
     setBulkSaving(false);
     setBulkConfirm(null);
     setCheckedIds(new Set());
-    if (failed > 0) alert(`${failed} of ${results.length} updates failed. Please retry.`);
+    if (failed > 0) toast({ title: 'Bulk action partially failed', description: `${failed} of ${results.length} updates failed. Please retry.`, variant: 'destructive' });
     load();
   };
 
@@ -89,8 +95,12 @@ export default function AdminLoans() {
     const u = users[l.user_id] || {};
     const matchSearch = !search || u.full_name?.toLowerCase().includes(search.toLowerCase()) || l.id?.includes(search);
     const matchStatus = filterStatus === 'all' || l.status === filterStatus;
-    return matchSearch && matchStatus;
+    const matchStage = filterStage === 'all' || l.collections_stage === filterStage;
+    return matchSearch && matchStatus && matchStage;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
@@ -113,9 +123,9 @@ export default function AdminLoans() {
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-            <Input className="pl-9" placeholder="Search borrower or loan ID..." value={search} onChange={e => setSearch(e.target.value)} />
+            <Input className="pl-9" placeholder="Search borrower or loan ID..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} />
           </div>
-          <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <Select value={filterStatus} onValueChange={v => { setFilterStatus(v); setPage(1); }}>
             <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
@@ -123,6 +133,21 @@ export default function AdminLoans() {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Collections stage filter */}
+        <Select value={filterStage} onValueChange={v => { setFilterStage(v); setPage(1); }}>
+          <SelectTrigger className="w-full"><SelectValue placeholder="Collections stage" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Collections Stages</SelectItem>
+            <SelectItem value="tier1_reminder">Tier 1 — Reminder</SelectItem>
+            <SelectItem value="tier2_plan_offer">Tier 2 — Plan Offer</SelectItem>
+            <SelectItem value="tier3_collections">Tier 3 — Collections</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          {filtered.length} loan{filtered.length !== 1 ? 's' : ''} · page {page} of {totalPages}
+        </p>
 
         {/* Bulk action bar */}
         {filtered.some(l => l.status === 'submitted') && (
@@ -149,7 +174,7 @@ export default function AdminLoans() {
 
         {loading ? (
           <div className="text-center py-10"><RefreshCw className="w-6 h-6 animate-spin mx-auto text-gray-400" /></div>
-        ) : filtered.map(loan => {
+        ) : paginated.map(loan => {
           const u = users[loan.user_id] || {};
           return (
             <Card key={loan.id} className="cursor-pointer hover:shadow-md" onClick={() => setSelected({...loan})}>
@@ -192,6 +217,29 @@ export default function AdminLoans() {
         })}
       </div>
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 py-4">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(p => p - 1)}
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 disabled:opacity-40"
+            aria-label="Previous page"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <span className="text-sm text-gray-600 dark:text-gray-400">{page} / {totalPages}</span>
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage(p => p + 1)}
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 disabled:opacity-40"
+            aria-label="Next page"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Bulk action confirmation */}
       {bulkConfirm && (
         <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center px-6">
@@ -227,7 +275,7 @@ export default function AdminLoans() {
           <div className="bg-white dark:bg-gray-800 rounded-t-2xl w-full p-5 space-y-3 max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h3 className="font-bold">Update Loan</h3>
-              <button onClick={() => setSelected(null)} className="text-gray-400">✕</button>
+              <button onClick={() => setSelected(null)} className="text-gray-400" aria-label="Close">✕</button>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400">Borrower: {users[selected.user_id]?.full_name} · UGX {selected.amount_requested?.toLocaleString()}</p>
             <div>

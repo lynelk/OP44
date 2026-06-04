@@ -118,6 +118,24 @@
     "escalated_to_collections": {
       "type": "boolean",
       "default": false
+    },
+    "draft_step": {
+      "type": "number",
+      "description": "Wizard step index when loan was saved as draft (null when not a draft)"
+    },
+    "collections_stage": {
+      "type": "string",
+      "enum": ["tier1_reminder", "tier2_plan_offer", "tier3_collections"],
+      "description": "Current collections escalation tier set by monitorRepayments"
+    },
+    "days_overdue": {
+      "type": "number",
+      "description": "Days past due date at last collections check"
+    },
+    "crb_reported": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this loan has been reported to CRB"
     }
   },
   "required": [

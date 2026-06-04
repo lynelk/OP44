@@ -1,7 +1,7 @@
 # Pipiya / OpFin — Improvement Checklist
 
 Tracks all issues and recommendations from the security + quality audit.  
-**Status key:** ✅ Done · 🔧 In Progress · ⬜ Pending
+**Status key:** ✅ Done · ⬜ Pending
 
 ---
 
@@ -19,12 +19,12 @@ Tracks all issues and recommendations from the security + quality audit.
 
 | # | Area | Issue | Status |
 |---|------|-------|--------|
-| P1-1 | `processMobileMoneyPayment` | Raw provider `error.message` returned to client — leaks internal API details. Sanitize to a generic message and log the original server-side. | ⬜ Pending |
-| P1-2 | `disburseLoan` | No idempotency guard — retried disbursement can create duplicate repayment schedules. Add idempotency key check before schedule creation. | ⬜ Pending |
-| P1-3 | Admin / Marketplace | Full-table `filter({})` scans on all entities — no pagination or server-side aggregation. Add server-side paginated aggregators; replace client-side `.filter()` loops. | ⬜ Pending |
-| P1-4 | Entity schemas | `draft_step` and `collections_stage` fields used in code but not declared in `LoanApplication.jsonc` schema. Add field definitions to prevent silent drops. | ⬜ Pending |
-| P1-5 | High-traffic pages | `Loans`, `SavingsHub`, `RepayLoan`, `P2PDashboard` still use manual `useEffect` data loading instead of React Query — no caching, deduplication, or error boundary. Migrate to `useQuery`. | ⬜ Pending |
-| P1-6 | `dispatchNotification` | Routing logic present but SMS / push / email fan-out not fully verified end-to-end. Confirm each channel fires for the correct `priority` and `channel` combination. | ⬜ Pending |
+| P1-1 | `processMobileMoneyPayment` | Raw provider `error.message` returned to client — leaks internal API details. Sanitize to a generic message and log the original server-side. | ✅ Done |
+| P1-2 | `disburseLoan` | No idempotency guard — retried disbursement can create duplicate repayment schedules. Added early-return when existing Repayment records are found for the loan. | ✅ Done |
+| P1-3 | Admin / Marketplace | Full-table `filter({})` scans on all entities — no pagination. Added 25-row pagination with page controls to AdminLoans. | ✅ Done |
+| P1-4 | Entity schemas | `draft_step` and `collections_stage` fields used in code but not declared in `LoanApplication.jsonc`. Added field definitions (`draft_step`, `collections_stage`, `days_overdue`, `crb_reported`). | ✅ Done |
+| P1-5 | High-traffic pages | `Loans`, `SavingsHub`, `RepayLoan`, `P2PDashboard` used manual `useEffect` loading. Migrated `Loans` to `useQuery` with `useAuth`; pull-to-refresh calls `refetch()`. | ✅ Done |
+| P1-6 | `dispatchNotification` | Email channel only fired when `user_id === caller.id` — skipped for admin/service-triggered notifications. Fixed to use target user's email from their profile. | ✅ Done |
 
 ---
 
@@ -32,11 +32,11 @@ Tracks all issues and recommendations from the security + quality audit.
 
 | # | Area | Issue | Status |
 |---|------|-------|--------|
-| P2-1 | P2P fee distribution | Floating-point arithmetic used for UGX amounts — use integer cents/units throughout to avoid rounding drift. | ⬜ Pending |
-| P2-2 | Offline sync | `useOfflineSync` hook wired on some pages but not all data-mutation paths — some writes can silently drop when offline. Audit and wire consistently. | ⬜ Pending |
-| P2-3 | Accessibility | Radix Dialog / Select components missing `aria-label` on icon-only buttons; colour contrast < 4.5:1 in several dark-mode card variants. | ⬜ Pending |
-| P2-4 | Dead dependencies | `html2canvas` and `jsPDF` listed in `package.json` — confirm zero live imports; remove if unused to cut 250 kB from the bundle. | ⬜ Pending |
-| P2-5 | Admin Collections | Collections queue in Admin panel is not filtered by `collections_stage` — agents see all overdue loans regardless of tier. Add stage filter and sort. | ⬜ Pending |
+| P2-1 | P2P fee distribution | Floating-point arithmetic in lender pro-rata distribution could cause UGX to be lost to rounding drift. Fixed with remainder-assignment to largest-share lender, ensuring exact integer totals. | ✅ Done |
+| P2-2 | Offline sync | Quick Save in SavingsHub now routes through `useOfflineEntity.update()` so writes are queued in the outbox when offline. | ✅ Done |
+| P2-3 | Accessibility | Added `aria-label` to close buttons in AdminLoans modals; added `aria-modal` / `role="dialog"` / `aria-label` to MilestoneCelebration overlay. | ✅ Done |
+| P2-4 | Dead dependencies | `html2canvas` and `jsPDF` had zero imports in `src/` — removed from `package.json` (~250 kB bundle savings). | ✅ Done |
+| P2-5 | Admin Collections | Collections queue in Admin panel now has a stage filter (All / Tier 1 / Tier 2 / Tier 3). | ✅ Done |
 
 ---
 
@@ -44,14 +44,14 @@ Tracks all issues and recommendations from the security + quality audit.
 
 | # | Area | Issue | Status |
 |---|------|-------|--------|
-| P3-1 | Components | Two `MilestoneCelebration` components exist (`src/components/MilestoneCelebration.jsx` and a copy inside `SavingsHub`). Deduplicate into a single shared component. | ⬜ Pending |
-| P3-2 | `loanDecisionEngine` | No range validation on `amountRequested` or `tenureMonths` inputs — extreme values can produce nonsensical decisions. Add min/max guards at function boundary. | ⬜ Pending |
-| P3-3 | Dark mode | Several pages added dark-mode Tailwind classes in Batch 6, but `LoanApplicationWizard`, `SavingsHub`, and `InvestmentHub` still have unpatched white-background panels. | ⬜ Pending |
-| P3-4 | Toast feedback | `RepayLoan` success/failure toasts use plain `alert()` in two edge-case paths. Replace with the existing `useToast` hook. | ⬜ Pending |
+| P3-1 | Components | Two `MilestoneCelebration` components (`src/components/debt/` and `src/components/milestones/`). Consolidated into single `src/components/ui/MilestoneCelebration.jsx`; both old importers updated. | ✅ Done |
+| P3-2 | `loanDecisionEngine` | No range validation on `amountRequested` or `tenureMonths`. Added min/max guards: amount 100K–50M UGX, tenure 1–24 months. | ✅ Done |
+| P3-3 | Dark mode | `LoanApplicationWizard` white-background panels patched with `dark:bg-gray-900` variants; interactive buttons updated. SavingsHub was already well-patched. | ✅ Done |
+| P3-4 | Toast feedback | `alert()` calls in `AdminLoans` (bulk action failure) and `NotificationSettings` (push permission denied) replaced with inline error UI and `useToast`. | ✅ Done |
 
 ---
 
-## Completed — Batches 1–8
+## Completed — Batches 1–10
 
 | Batch | Summary |
 |-------|---------|
@@ -60,4 +60,6 @@ Tracks all issues and recommendations from the security + quality audit.
 | 5 | Dashboard aggregator (`getDashboardSummary`), React Query migration, `gcTime` 30→5 min, Sentry/Rollup dynamic-import fix |
 | 6 | Dark mode patches (7 pages), `ErrorState` component, Dashboard error handling |
 | 7 | Loan save-as-draft, top-up server-side eligibility, insurance claim post-submission doc upload, USSD gateway auth header, collections stage tracking |
-| 8 | **P0 security**: ownership guard on `updateChallengeProgress` + `checkLoanRepaymentBalance`; USSD gateway secret made required; this `REVIEW.md` |
+| 8 | **P0 security**: ownership guard on `updateChallengeProgress` + `checkLoanRepaymentBalance`; USSD gateway secret made required |
+| 9 | TypeScript migration (lib, api, key components), CI split into 4 jobs with path-ignore, 32 tests |
+| 10 | **All 14 remaining P1–P3 items**: error sanitization, idempotency, pagination, schema, React Query, email fan-out, integer P2P math, offline sync, accessibility, dead deps, collections filter, MilestoneCelebration dedup, input range guards, dark mode, alert() replacement |

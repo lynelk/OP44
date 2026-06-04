@@ -152,8 +152,12 @@ Deno.serve(async (req) => {
     if (prefs.push && prefs.device_tokens?.length) {
       tasks.push(sendPush(prefs.device_tokens, title, text, action_url).then(r => { channels.push = r.ok ? 'sent' : (r.skipped ? 'skipped' : 'failed'); }));
     }
-    if (prefs.email && caller.email && user_id === caller.id) {
-      tasks.push(sendEmail(caller.email, title, text).then(r => { channels.email = r.ok ? 'sent' : (r.skipped ? 'skipped' : 'failed'); }));
+    // When admin/service calls on behalf of another user, fetch the target's email from their profile.
+    const targetEmail = user_id === caller.id
+      ? caller.email
+      : (profile?.email || profileRows?.[0]?.email_address);
+    if (prefs.email && targetEmail) {
+      tasks.push(sendEmail(targetEmail, title, text).then(r => { channels.email = r.ok ? 'sent' : (r.skipped ? 'skipped' : 'failed'); }));
     }
     await Promise.all(tasks);
 
