@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { ChevronLeft, Search, RefreshCw, CheckCircle2, XCircle, Clock, CalendarClock } from 'lucide-react';
+import { ChevronLeft, Search, RefreshCw, CheckCircle2, XCircle, Clock, CalendarClock, CheckSquare, Square, ListChecks } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const STATUS_COLORS = {
@@ -24,6 +24,34 @@ export default function AdminLoans() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [selected, setSelected] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [checkedIds, setCheckedIds] = useState(new Set());
+  const [bulkSaving, setBulkSaving] = useState(false);
+
+  const toggleCheck = (id) => setCheckedIds(prev => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
+
+  const toggleAll = () => {
+    const submittedIds = filtered.filter(l => l.status === 'submitted').map(l => l.id);
+    if (submittedIds.every(id => checkedIds.has(id))) {
+      setCheckedIds(prev => { const n = new Set(prev); submittedIds.forEach(id => n.delete(id)); return n; });
+    } else {
+      setCheckedIds(prev => { const n = new Set(prev); submittedIds.forEach(id => n.add(id)); return n; });
+    }
+  };
+
+  const handleBulkAction = async (newStatus) => {
+    if (checkedIds.size === 0) return;
+    setBulkSaving(true);
+    await Promise.all([...checkedIds].map(id =>
+      base44.functions.invoke('adminManager', { action: 'update', entity: 'loans', id, data: { status: newStatus } })
+    ));
+    setBulkSaving(false);
+    setCheckedIds(new Set());
+    load();
+  };
 
   const load = async () => {
     setLoading(true);
@@ -92,6 +120,29 @@ export default function AdminLoans() {
           </Select>
         </div>
 
+        {/* Bulk action bar */}
+        {filtered.some(l => l.status === 'submitted') && (
+          <div className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 shadow-sm">
+            <button onClick={toggleAll} className="flex items-center gap-1.5 text-xs text-gray-600 font-medium">
+              {filtered.filter(l => l.status === 'submitted').every(l => checkedIds.has(l.id))
+                ? <CheckSquare className="w-4 h-4 text-[#1a3a6b]" />
+                : <Square className="w-4 h-4 text-gray-400" />}
+              Select submitted
+            </button>
+            {checkedIds.size > 0 && (
+              <>
+                <span className="text-xs text-gray-400 ml-auto">{checkedIds.size} selected</span>
+                <Button size="sm" className="bg-green-600 text-white text-xs h-7 px-3" disabled={bulkSaving} onClick={() => handleBulkAction('approved')}>
+                  <CheckCircle2 className="w-3 h-3 mr-1" /> Approve All
+                </Button>
+                <Button size="sm" className="bg-red-500 text-white text-xs h-7 px-3" disabled={bulkSaving} onClick={() => handleBulkAction('rejected')}>
+                  <XCircle className="w-3 h-3 mr-1" /> Reject All
+                </Button>
+              </>
+            )}
+          </div>
+        )}
+
         {loading ? (
           <div className="text-center py-10"><RefreshCw className="w-6 h-6 animate-spin mx-auto text-gray-400" /></div>
         ) : filtered.map(loan => {
@@ -100,6 +151,16 @@ export default function AdminLoans() {
             <Card key={loan.id} className="cursor-pointer hover:shadow-md" onClick={() => setSelected({...loan})}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
+                  {loan.status === 'submitted' && (
+                    <button
+                      className="mr-2 mt-0.5 flex-shrink-0"
+                      onClick={e => { e.stopPropagation(); toggleCheck(loan.id); }}
+                    >
+                      {checkedIds.has(loan.id)
+                        ? <CheckSquare className="w-4 h-4 text-[#1a3a6b]" />
+                        : <Square className="w-4 h-4 text-gray-300" />}
+                    </button>
+                  )}
                   <div>
                     <p className="font-semibold text-gray-800">{u.full_name || 'Unknown User'}</p>
                     <p className="text-xs text-gray-500">{u.email}</p>

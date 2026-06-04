@@ -23,6 +23,7 @@ const MODULES = [
   { path: '/admin/documents', icon: FileText, label: 'Document Review', desc: 'Verify IDs, payslips & statements', color: 'bg-emerald-600' },
   { path: '/admin/device-maintenance', icon: Wrench, label: 'Device Maintenance', desc: 'Scheduled service & maintenance requests', color: 'bg-orange-500' },
   { path: '/admin/device-verification', icon: ShieldCheck, label: 'Device Verification', desc: 'Review lender device submissions', color: 'bg-purple-500' },
+  { path: '/admin/audit-trail', icon: FileText, label: 'Audit Trail', desc: 'Full log of admin actions and changes', color: 'bg-gray-600' },
 ];
 
 const COLORS = ['#1a3a6b', '#f97316', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];

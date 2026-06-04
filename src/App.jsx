@@ -78,6 +78,7 @@ const RentalDisputeCenter = lazy(() => import('./pages/RentalDisputeCenter'));
 const AdminRevenue = lazy(() => import('./pages/admin/AdminRevenue'));
 const AdminAccountBalances = lazy(() => import('./pages/admin/AdminAccountBalances'));
 const DeviceMaintenance = lazy(() => import('./pages/admin/DeviceMaintenance'));
+const AdminAuditTrail = lazy(() => import('./pages/admin/AdminAuditTrail'));
 const DeviceMarketplace = lazy(() => import('./pages/DeviceMarketplace'));
 const LenderAnalytics = lazy(() => import('./pages/LenderAnalytics'));
 const NetWorthCalculator = lazy(() => import('./pages/NetWorthCalculator'));
@@ -222,6 +223,7 @@ const AuthenticatedApp = () => {
         <Route path="/admin/revenue" element={<AdminRoute><AdminRevenue /></AdminRoute>} />
         <Route path="/admin/account-balances" element={<AdminRoute><AdminAccountBalances /></AdminRoute>} />
         <Route path="/admin/device-maintenance" element={<AdminRoute><DeviceMaintenance /></AdminRoute>} />
+        <Route path="/admin/audit-trail" element={<AdminRoute><AdminAuditTrail /></AdminRoute>} />
       </Route>
 
       <Route path="*" element={<PageNotFound />} />

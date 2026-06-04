@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Shield, FileText, ChevronRight } from 'lucide-react';
+import { Shield, FileText, ChevronRight, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ProductCard from '@/components/insurance/ProductCard';
 import MyPolicies from '@/components/insurance/MyPolicies';
@@ -42,6 +42,14 @@ export default function Insurance() {
   const filteredProducts = category === 'all' ? products : products.filter(p => p.category === category);
   const activePoliciesCount = policies.filter(p => p.status === 'active').length;
 
+  const now = new Date();
+  const thirtyDaysLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const expiringPolicies = policies.filter(p => {
+    if (p.status !== 'active' || !p.end_date) return false;
+    const end = new Date(p.end_date);
+    return end >= now && end <= thirtyDaysLater;
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-28 font-sans">
       <div className="bg-gradient-to-br from-[#1A1D29] via-[#0D1BFF] to-[#32B4FF] text-white px-5 pt-14 pb-8">
@@ -77,6 +85,38 @@ export default function Insurance() {
           </button>
         ))}
       </div>
+
+      {/* Renewal reminders banner */}
+      {!loading && expiringPolicies.length > 0 && (
+        <div className="mx-4 mt-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-3.5">
+          <div className="flex items-center gap-2 mb-2">
+            <Bell className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            <p className="text-xs font-bold text-amber-700 dark:text-amber-300">
+              {expiringPolicies.length} polic{expiringPolicies.length > 1 ? 'ies expire' : 'y expires'} within 30 days
+            </p>
+          </div>
+          {expiringPolicies.map(p => {
+            const product = products.find(pr => pr.id === p.product_id);
+            const daysLeft = Math.ceil((new Date(p.end_date) - now) / (1000 * 60 * 60 * 24));
+            return (
+              <div key={p.id} className="flex items-center justify-between mt-1.5">
+                <p className="text-xs text-amber-600 dark:text-amber-400 truncate flex-1">
+                  {product?.name || 'Policy'} · expires {new Date(p.end_date).toLocaleDateString('en-UG', { day: 'numeric', month: 'short' })}
+                </p>
+                <span className={`text-xs font-semibold ml-2 px-2 py-0.5 rounded-full flex-shrink-0 ${daysLeft <= 7 ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}>
+                  {daysLeft}d left
+                </span>
+              </div>
+            );
+          })}
+          <button
+            onClick={() => setTab('my_policies')}
+            className="mt-2.5 w-full h-8 bg-amber-500 text-white text-xs font-semibold rounded-xl"
+          >
+            Renew Now
+          </button>
+        </div>
+      )}
 
       <div className="px-4 pt-4">
         {loading ? (
