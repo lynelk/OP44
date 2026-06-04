@@ -83,9 +83,12 @@ async function getAllBalances(base44) {
 }
 
 async function calculateEscrowBalance(base44) {
-  // Sum all pending/holding rental payments and P2P funds
-  const rentalPayments = await base44.asServiceRole.entities.RentalPaymentTransaction.filter({ status: 'Successful' });
-  const p2pRepayments = await base44.asServiceRole.entities.P2PRepayment.filter({ status: 'pending' });
+  // Sum pending/holding rental payments and P2P funds (recent 90 days only)
+  const cutoff = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const [rentalPayments, p2pRepayments] = await Promise.all([
+    base44.asServiceRole.entities.RentalPaymentTransaction.filter({ status: 'Successful' }, '-initiated_at', 2000),
+    base44.asServiceRole.entities.P2PRepayment.filter({ status: 'pending' }, '-due_date', 2000),
+  ]);
   
   const rentalTotal = rentalPayments.filter(p => !p.is_overdue_payment).reduce((sum, p) => sum + (p.amount || 0), 0);
   const p2pTotal = p2pRepayments.reduce((sum, p) => sum + (p.amount || 0), 0);

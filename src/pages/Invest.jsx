@@ -28,16 +28,21 @@ export default function Invest() {
 
   const loadData = async () => {
     setLoading(true);
-    const me = await base44.auth.me();
-    setUser(me);
-    const [poolsData, contribs] = await Promise.all([
-      base44.entities.InvestmentPool.filter({ status: 'open_for_funding' }, '-created_date'),
-      base44.entities.InvestorContribution.filter({ user_id: me.id }, '-invested_at'),
-    ]);
-    setPools(poolsData); setMyContributions(contribs);
-    const res = await base44.functions.invoke('portfolioAllocator', { action: 'get_profile' });
-    if (res.data) { setProfile(res.data.profile); setProfileData(res.data); }
-    setLoading(false);
+    try {
+      const me = await base44.auth.me();
+      setUser(me);
+      const [poolsData, contribs] = await Promise.all([
+        base44.entities.InvestmentPool.filter({ status: 'open_for_funding' }, '-created_date'),
+        base44.entities.InvestorContribution.filter({ user_id: me.id }, '-invested_at'),
+      ]);
+      setPools(poolsData); setMyContributions(contribs);
+      const res = await base44.functions.invoke('portfolioAllocator', { action: 'get_profile' });
+      if (res.data) { setProfile(res.data.profile); setProfileData(res.data); }
+    } catch (_err) {
+      // Data failed to load — UI will show empty state
+    } finally {
+      setLoading(false);
+    }
   };
 
   const riskConfig = {

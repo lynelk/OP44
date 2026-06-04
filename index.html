@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <!-- Viewport: required by Apple App Store, Google Play, Huawei guidelines -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Content Security Policy — prevents XSS, clickjacking, and mixed content -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data: https:; img-src 'self' data: blob: https:; connect-src 'self' https://app.base44.app https://*.base44.app wss://app.base44.app wss://*.base44.app; worker-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
 
     <!-- Primary SEO -->
     <title>OpFin — Smart Finance. Simple Solutions.</title>

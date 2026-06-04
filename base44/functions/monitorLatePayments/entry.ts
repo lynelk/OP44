@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
         }
 
         const now = new Date();
-        const allRentals = await base44.entities.RentalAgreement.filter({});
+        const allRentals = await base44.entities.RentalAgreement.filter({ status: 'Active' });
         
         const activeRentals = allRentals.filter(r => 
             r.status === 'Active' && 

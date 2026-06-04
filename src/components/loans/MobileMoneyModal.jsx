@@ -30,16 +30,21 @@ export default function MobileMoneyModal({ loan, onSuccess, onClose }) {
 
   const handleSubmit = async () => {
     setStep('processing');
-    const res = await base44.functions.invoke('processMobileMoneyPayment', {
-      loan_id: loan.id,
-      amount: parseFloat(amount),
-      phone_number: phone,
-      provider: provider.id,
-      pin,
-    });
-    const data = res.data;
-    setResult(data);
-    setStep(data.success ? 'success' : data.pending ? 'pending' : 'failed');
+    try {
+      const res = await base44.functions.invoke('processMobileMoneyPayment', {
+        loan_id: loan.id,
+        amount: parseFloat(amount),
+        phone_number: phone,
+        provider: provider.id,
+        pin,
+      });
+      const data = res.data;
+      setResult(data);
+      setStep(data.success ? 'success' : data.pending ? 'pending' : 'failed');
+    } catch (err) {
+      setResult({ error: err?.message || 'Payment failed. Please try again.' });
+      setStep('failed');
+    }
   };
 
   const handleCheckStatus = async () => {

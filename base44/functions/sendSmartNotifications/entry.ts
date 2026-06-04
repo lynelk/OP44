@@ -22,10 +22,10 @@ Deno.serve(async (req) => {
     const [allMembers, allGroups, allContributions, allBudgets, allExpenses, allLoans] = await Promise.all([
       base44.asServiceRole.entities.GroupMember.filter({ status: 'active' }),
       base44.asServiceRole.entities.SavingsGroup.filter({ status: 'active' }),
-      base44.asServiceRole.entities.GroupContribution.filter({}),
+      base44.asServiceRole.entities.GroupContribution.filter({ created_date: { $gte: monthStartISO } }, '-created_date', 5000),
       base44.asServiceRole.entities.BudgetCategory.filter({ month_year: monthYear }),
-      base44.asServiceRole.entities.Expense.filter({}),
-      base44.asServiceRole.entities.LoanApplication.filter({}),
+      base44.asServiceRole.entities.Expense.filter({ date: { $gte: monthStart, $lte: monthEnd } }, '-date', 10000),
+      base44.asServiceRole.entities.LoanApplication.filter({ status: 'active' }, '-created_date', 5000),
     ]);
 
     // Build lookup maps

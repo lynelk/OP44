@@ -8,7 +8,7 @@ Deno.serve(async (req) => {
   const body = await req.json().catch(() => ({}));
   const requestedUserId = body?.data?.user_id;
   // P0: reject cross-user manipulation unless caller is admin
-  if (requestedUserId && requestedUserId !== user.id && user.admin_tier == null) {
+  if (requestedUserId && requestedUserId !== user.id && user.role !== 'admin' && user.admin_tier == null) {
     return Response.json({ error: 'Forbidden' }, { status: 403 });
   }
   const userId = requestedUserId || user.id;

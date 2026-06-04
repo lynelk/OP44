@@ -36,7 +36,7 @@ export default function Budget() {
   const [showScanner, setShowScanner] = useState(false);
 
   useEffect(() => {
-    base44.auth.me().then(u => { setUser(u); base44.entities.Expense.filter({}, '-created_date', 500).then(setExpenses); });
+    base44.auth.me().then(u => { setUser(u); base44.entities.Expense.filter({ user_id: u?.id }, '-created_date', 500).then(setExpenses).catch(() => null); }).catch(() => null);
   }, []);
 
   const handleAdd = async () => {

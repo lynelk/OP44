@@ -292,6 +292,12 @@ Deno.serve(async (req) => {
 
     // ── 4. FUND LOAN (Lender) — Escrow-backed ───────────────────────────────
     if (action === 'fund_loan') {
+      // Validate amount before any DB calls
+      const fundAmount = Number(params.amount);
+      if (!Number.isFinite(fundAmount) || fundAmount <= 0) {
+        return Response.json({ error: 'amount must be a positive number' }, { status: 400 });
+      }
+
       const [profiles, loanArr] = await Promise.all([
         base44.entities.UserProfile.filter({ user_id: user.id }),
         base44.asServiceRole.entities.P2PLoan.filter({ id: params.loan_id })
@@ -303,17 +309,28 @@ Deno.serve(async (req) => {
       if (profile.kyc_status !== 'verified') return Response.json({ error: 'KYC verification required before investing' }, { status: 403 });
       if (!['awaiting_funding'].includes(p2pLoan?.status)) return Response.json({ error: 'Loan not available for funding' }, { status: 400 });
 
+      // IDOR: lender cannot fund their own loan
+      if (p2pLoan.borrower_id === user.id) {
+        return Response.json({ error: 'You cannot fund your own loan' }, { status: 403 });
+      }
+
       const existingInvestments = await base44.asServiceRole.entities.LenderInvestment.filter({ loan_id: params.loan_id });
       const totalEscrowed = existingInvestments.reduce((s, i) => s + i.amount_invested, 0);
 
+      // Prevent same lender from funding the same loan twice
+      const alreadyFunded = existingInvestments.find(i => i.lender_id === user.id);
+      if (alreadyFunded) {
+        return Response.json({ error: 'You have already invested in this loan' }, { status: 409 });
+      }
+
       // Diversification: max 40% per lender
       const maxAllowed = p2pLoan.amount_approved * 0.4;
-      if (params.amount > maxAllowed) return Response.json({ error: `Max exposure per loan is UGX ${maxAllowed.toLocaleString()} (40%)` }, { status: 400 });
+      if (fundAmount > maxAllowed) return Response.json({ error: `Max exposure per loan is UGX ${maxAllowed.toLocaleString()} (40%)` }, { status: 400 });
 
       const remaining = p2pLoan.amount_approved - totalEscrowed;
-      if (params.amount > remaining) return Response.json({ error: `Only UGX ${remaining.toLocaleString()} remaining to fund` }, { status: 400 });
+      if (fundAmount > remaining) return Response.json({ error: `Only UGX ${remaining.toLocaleString()} remaining to fund` }, { status: 400 });
 
-      const ownershipPct = (params.amount / p2pLoan.amount_approved) * 100;
+      const ownershipPct = (fundAmount / p2pLoan.amount_approved) * 100;
       const maturityDate = new Date();
       maturityDate.setMonth(maturityDate.getMonth() + p2pLoan.tenure_months);
 
@@ -323,9 +340,9 @@ Deno.serve(async (req) => {
         lender_profile_id: profile.id,
         loan_id: params.loan_id,
         investment_type: 'manual',
-        amount_invested: params.amount,
+        amount_invested: fundAmount,
         ownership_pct: ownershipPct,
-        expected_return: Math.round(params.amount * (p2pLoan.final_interest_rate / 100) * p2pLoan.tenure_months),
+        expected_return: Math.round(fundAmount * (p2pLoan.final_interest_rate / 100) * p2pLoan.tenure_months),
         lender_share_pct: 55,
         platform_share_pct: 30,
         reserve_share_pct: 15,
@@ -335,17 +352,25 @@ Deno.serve(async (req) => {
       });
 
       // Update escrowed amount on loan
-      const newEscrowed = totalEscrowed + params.amount;
+      const newEscrowed = totalEscrowed + fundAmount;
       const threshold = p2pLoan.amount_approved * (p2pLoan.funding_threshold_pct / 100);
       const thresholdMet = newEscrowed >= threshold;
 
       if (thresholdMet) {
+        // Idempotency: if already funded/disbursed by a concurrent request, return safely
+        if (['funded', 'disbursed', 'disbursing', 'active'].includes(p2pLoan.status)) {
+          return Response.json({ investment, total_funded: newEscrowed, threshold_met: true, auto_disbursed: false, duplicate: true });
+        }
+
         // Mark loan as funded — escrow threshold met
         await base44.asServiceRole.entities.P2PLoan.update(params.loan_id, {
           status: 'funded',
           amount_funded: newEscrowed,
           escrowed_amount: newEscrowed
         });
+
+        // Optimistic lock: mark as disbursing to prevent concurrent double-disbursement
+        await base44.asServiceRole.entities.P2PLoan.update(params.loan_id, { status: 'disbursing' });
 
         // Auto-trigger disbursement: build repayment schedule and disburse
         const now = new Date();

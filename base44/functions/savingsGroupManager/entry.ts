@@ -71,6 +71,7 @@ Deno.serve(async (req) => {
     const groups = await base44.entities.SavingsGroup.filter({ id: group_id });
     const group = groups[0];
     if (!group) return Response.json({ error: 'Group not found' }, { status: 404 });
+    if (!['active'].includes(group.status)) return Response.json({ error: 'Cannot contribute to a closed or completed group' }, { status: 400 });
 
     const contribution = await base44.entities.GroupContribution.create({
       group_id, user_id: user.id, user_name: user.full_name,

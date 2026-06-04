@@ -26,10 +26,10 @@ Deno.serve(async (req) => {
     const legacyOverdue = legacyScheduled.filter(r => r.due_date < today);
     const p2pOverdue = p2pScheduled.filter(r => r.due_date < today);
 
-    // ── Batch-fetch all affected loans ───────────────────────────────────────
+    // ── Batch-fetch only active/overdue loans (avoids full-table scans) ─────
     const [allLegacyLoans, allP2PLoans] = await Promise.all([
-      base44.asServiceRole.entities.LoanApplication.filter({}),
-      base44.asServiceRole.entities.P2PLoan.filter({}),
+      base44.asServiceRole.entities.LoanApplication.filter({ status: 'active' }, '-created_date', 2000),
+      base44.asServiceRole.entities.P2PLoan.filter({ status: 'active' }, '-created_date', 2000),
     ]);
 
     const legacyLoanMap = Object.fromEntries(allLegacyLoans.map(l => [l.id, l]));
