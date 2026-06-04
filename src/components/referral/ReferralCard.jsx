@@ -13,13 +13,17 @@ export default function ReferralCard({ data }) {
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const share = () => {
+  const share = async () => {
     if (navigator.share) {
-      navigator.share({
-        title: 'Join me on OpFin!',
-        text: `Use my referral code ${data.referral_code} to sign up on OpFin and we both earn loyalty points when you get your first loan!`,
-        url: data.referral_link,
-      });
+      try {
+        await navigator.share({
+          title: 'Join me on OpFin!',
+          text: `Use my referral code ${data.referral_code} to sign up on OpFin and we both earn loyalty points when you get your first loan!`,
+          url: data.referral_link,
+        });
+      } catch {
+        copyLink();
+      }
     } else {
       copyLink();
     }
