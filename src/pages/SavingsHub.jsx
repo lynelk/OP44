@@ -13,19 +13,15 @@ import {
 import { Link } from 'react-router-dom';
 import { savingsInterest } from '@/lib/finance';
 import { toast } from 'sonner';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const ICONS = ['🎯','🏠','📚','✈️','💊','💍','🚗','💼'];
 const TABS  = ['Pockets', 'Goals', 'Challenges', 'Groups'];
 
 export default function SavingsHub() {
   const [tab, setTab]             = useState('Pockets');
-  const [user, setUser]           = useState(null);
-  const [pockets, setPockets]     = useState([]);
-  const [goals, setGoals]         = useState([]);
-  const [challenges, setChallenges] = useState([]);
-  const [groups, setGroups]       = useState([]);
-  const [loading, setLoading]     = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const queryClient = useQueryClient();
 
   // Quick Save state
   const [quickSavePocketId, setQuickSavePocketId] = useState('');
@@ -45,23 +41,55 @@ export default function SavingsHub() {
   const scrollRef   = useRef(null);
   const pullStartY  = useRef(0);
 
-  const loadData = async () => {
-    const u = await base44.auth.me();
-    setUser(u);
-    const [p, g, c, gr] = await Promise.all([
-      base44.entities.SavingsPocket.filter({ user_id: u.id }),
-      base44.entities.SavingsGoal.filter({ user_id: u.id }),
-      base44.entities.UserSavingsChallenge.filter({ user_id: u.id }),
-      base44.entities.SavingsGroup.filter({ created_by: u.email }),
-    ]);
-    setPockets(p);
-    setGoals(g);
-    setChallenges(c.filter(c => c.status === 'active'));
-    setGroups(gr);
-    setLoading(false);
-  };
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+    staleTime: 1000 * 60 * 10,
+    retry: 0,
+  });
 
-  useEffect(() => { loadData(); }, []);
+  const { data: pockets = [], isLoading: loadingPockets, refetch: refetchPockets } = useQuery({
+    queryKey: ['savingsPockets', user?.id],
+    queryFn: () => base44.entities.SavingsPocket.filter({ user_id: user.id }),
+    enabled: !!user?.id,
+    staleTime: 1000 * 60 * 5,
+    retry: 0,
+    refetchOnMount: false,
+  });
+
+  const { data: goals = [], refetch: refetchGoals } = useQuery({
+    queryKey: ['savingsGoals', user?.id],
+    queryFn: () => base44.entities.SavingsGoal.filter({ user_id: user.id }),
+    enabled: !!user?.id,
+    staleTime: 1000 * 60 * 5,
+    retry: 0,
+    refetchOnMount: false,
+  });
+
+  const { data: allChallenges = [], refetch: refetchChallenges } = useQuery({
+    queryKey: ['savingsChallenges', user?.id],
+    queryFn: () => base44.entities.UserSavingsChallenge.filter({ user_id: user.id }),
+    enabled: !!user?.id,
+    staleTime: 1000 * 60 * 5,
+    retry: 0,
+    refetchOnMount: false,
+  });
+
+  const { data: groups = [], refetch: refetchGroups } = useQuery({
+    queryKey: ['savingsGroups', user?.email],
+    queryFn: () => base44.entities.SavingsGroup.filter({ created_by: user.email }),
+    enabled: !!user?.email,
+    staleTime: 1000 * 60 * 5,
+    retry: 0,
+    refetchOnMount: false,
+  });
+
+  const challenges = allChallenges.filter(c => c.status === 'active');
+  const loading = loadingPockets;
+
+  const refreshAll = async () => {
+    await Promise.all([refetchPockets(), refetchGoals(), refetchChallenges(), refetchGroups()]);
+  };
 
   // Pull to refresh
   useEffect(() => {
@@ -72,14 +100,14 @@ export default function SavingsHub() {
       const delta = e.changedTouches[0].clientY - pullStartY.current;
       if (delta > 80 && el.scrollTop === 0) {
         setIsRefreshing(true);
-        await loadData();
+        await refreshAll();
         setTimeout(() => setIsRefreshing(false), 600);
       }
     };
     el.addEventListener('touchstart', onTouchStart, { passive: true });
     el.addEventListener('touchend', onTouchEnd,   { passive: true });
     return () => { el.removeEventListener('touchstart', onTouchStart); el.removeEventListener('touchend', onTouchEnd); };
-  }, []);
+  }, [user]);
 
   const totalBalance = pockets.reduce((s, p) => s + (p.current_balance || 0), 0);
   const totalGoalTarget = goals.reduce((s, g) => s + (g.target_amount || 0), 0);
@@ -90,12 +118,14 @@ export default function SavingsHub() {
     const amt = parseFloat(quickSaveAmount);
     if (!amt || !quickSavePocketId) return;
     setQuickSaving(true);
-    const pocket  = pockets.find(p => p.id === quickSavePocketId);
+    const pocket = pockets.find(p => p.id === quickSavePocketId);
     if (!pocket) { setQuickSaving(false); return; }
     const updated = await base44.entities.SavingsPocket.update(pocket.id, {
       current_balance: (pocket.current_balance || 0) + amt,
     });
-    setPockets(prev => prev.map(p => p.id === pocket.id ? updated : p));
+    queryClient.setQueryData(['savingsPockets', user?.id], prev =>
+      (prev || []).map(p => p.id === pocket.id ? updated : p)
+    );
     setQuickSaveAmount('');
     setShowQS(false);
     setQuickSaving(false);
@@ -112,7 +142,7 @@ export default function SavingsHub() {
       auto_save_amount: newAuto ? parseFloat(newAuto) : undefined,
       status: 'active',
     });
-    setPockets(prev => [pocket, ...prev]);
+    queryClient.setQueryData(['savingsPockets', user?.id], prev => [pocket, ...(prev || [])]);
     setShowCreate(false);
     setNewName(''); setNewGoal(''); setNewIcon('🎯'); setNewFreq('none'); setNewAuto('');
     setCreating(false);
