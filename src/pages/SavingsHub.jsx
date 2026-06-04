@@ -11,6 +11,7 @@ import {
   Vault, Plus, Target, Zap, Users, X, RefreshCw, Trophy, ChevronRight, Flame,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { savingsInterest } from '@/lib/finance';
 
 const ICONS = ['🎯','🏠','📚','✈️','💊','💍','🚗','💼'];
 const TABS  = ['Pockets', 'Goals', 'Challenges', 'Groups'];
@@ -291,7 +292,7 @@ export default function SavingsHub() {
                     )}
                     {pocket.current_balance > 0 && (() => {
                       const annualRate = pocket.interest_rate || 0.06;
-                      const monthlyInterest = Math.round(pocket.current_balance * (annualRate / 12));
+                      const monthlyInterest = savingsInterest(pocket.current_balance, annualRate);
                       if (monthlyInterest <= 0) return null;
                       return (
                         <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1 mt-1">

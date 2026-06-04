@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { Zap, TrendingUp, AlertCircle, ChevronRight, Loader2, Info, BarChart2, X, Check } from 'lucide-react';
+import { monthlyInstallment } from '@/lib/finance';
 
 const RISK_COLORS = {
   A: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
@@ -223,10 +224,8 @@ export default function LoanPreQualify() {
                     { label: 'Max Tenure', fn: p => `${p.max_tenure_months || '—'} mo` },
                     { label: 'Monthly Est.', fn: p => {
                       if (!p.qualified_amount || !p.interest_rate || !p.max_tenure_months) return '—';
-                      const r = p.interest_rate / 100;
-                      const n = p.max_tenure_months;
-                      const installment = p.qualified_amount * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
-                      return `UGX ${Math.round(installment).toLocaleString()}`;
+                      const est = monthlyInstallment(p.qualified_amount, p.interest_rate / 100, p.max_tenure_months);
+                      return `UGX ${est.toLocaleString()}`;
                     }},
                     { label: 'Popular', fn: p => p.popular ? '✓' : '—' },
                   ].map((row, i) => (

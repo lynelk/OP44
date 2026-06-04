@@ -243,6 +243,11 @@ const AuthenticatedApp = () => {
 
 function App() {
   useEffect(() => {
+    // Initialise error monitoring (no-op unless VITE_SENTRY_DSN + @sentry/react present)
+    import('@/lib/monitoring').then(m => m.initMonitoring()).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const apply = (e) => {
       if (e.matches) document.documentElement.classList.add('dark');

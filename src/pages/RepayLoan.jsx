@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import MobileMoneyModal from '@/components/loans/MobileMoneyModal';
+import { prepaymentBreakdown } from '@/lib/finance';
 
 const PAYMENT_METHODS = [
   { value: 'mobile_money', label: 'Mobile Money', icon: Smartphone, sub: 'MTN / Airtel Push', highlight: true },
@@ -78,8 +79,9 @@ export default function RepayLoan() {
     if (!selectedLoan) return;
     const today = new Date().toISOString().split('T')[0];
     const baseAmount = prepayMode ? parseFloat(prepayAmount) : (nextDue?.amount || selectedLoan.monthly_installment);
-    const penaltyRate = prepayMode ? 0.02 : 0;
-    const payAmount = baseAmount + Math.round(baseAmount * penaltyRate);
+    const payAmount = prepayMode
+      ? prepaymentBreakdown(0, baseAmount).totalCharged
+      : baseAmount;
     const txnRef = `TXN-${Date.now()}`;
 
     if (nextDue) {
@@ -245,11 +247,7 @@ export default function RepayLoan() {
                     </div>
                     {prepayMode && (() => {
                       const outstanding = selectedLoan.outstanding_balance || selectedLoan.total_repayable || 0;
-                      const amt = parseFloat(prepayAmount) || 0;
-                      const penaltyRate = 0.02; // 2% early settlement fee
-                      const penalty = amt > 0 ? Math.round(amt * penaltyRate) : 0;
-                      const totalDue = amt + penalty;
-                      const newBal = Math.max(0, outstanding - amt);
+                      const { amount: amt, penalty, totalCharged: totalDue, remaining: newBal } = prepaymentBreakdown(outstanding, prepayAmount);
                       return (
                         <div className="space-y-3">
                           <Input
