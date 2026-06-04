@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CreditCard, PiggyBank, TrendingUp, Target, ArrowRight } from 'lucide-react';
 
-const STORAGE_KEY = 'pipiya_onboarded_v1';
+const STORAGE_KEY = 'opfin_onboarded_v1';
 
 const STEPS = [
-  { icon: Target, title: 'Welcome to Pipiya 👋', body: 'Your all-in-one money app — loans, savings, credit health and more. Here’s a quick 30-second tour.', cta: 'Show me around' },
+  { icon: Target, title: 'Welcome to OpFin 👋', body: "Your all-in-one money app — loans, savings, credit health and more. Here's a quick 30-second tour.", cta: 'Show me around' },
   { icon: CreditCard, title: 'Borrow in minutes', body: 'Check what you qualify for and apply for a loan right from your phone — no paperwork queues.', cta: 'Next', route: '/loans/pre-qualify', routeLabel: 'See my loan offers' },
   { icon: PiggyBank, title: 'Save with a goal', body: 'Create savings pockets, set goals, or join a savings circle to save together with others.', cta: 'Next', route: '/savings', routeLabel: 'Start saving' },
   { icon: TrendingUp, title: 'Grow your credit score', body: 'Track your score, see what moves it, and unlock bigger limits as you build a track record.', cta: 'Get started', route: '/credit-score', routeLabel: 'View my score' },
@@ -49,10 +49,18 @@ export default function OnboardingTour() {
             <button onClick={finish} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/15 flex items-center justify-center">
               <X className="w-4 h-4" />
             </button>
-            <div className="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center mb-3">
-              <Icon className="w-7 h-7" />
+            {/* OpFin logo in tour header */}
+            <div className="mb-3">
+              <img
+                src="https://media.base44.com/images/public/6a0ed744d2266f7b5226f8a2/25416f4d0_OpFin_83x.png"
+                alt="OpFin"
+                className="h-8 w-auto brightness-0 invert mb-3"
+              />
+              <div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center">
+                <Icon className="w-6 h-6" />
+              </div>
             </div>
-            <h2 className="text-xl font-bold tracking-tight">{s.title}</h2>
+            <h2 className="text-xl font-bold tracking-tight font-poppins">{s.title}</h2>
           </div>
 
           <div className="p-6">
@@ -66,7 +74,7 @@ export default function OnboardingTour() {
             </div>
 
             <div className="flex flex-col gap-2 mt-5">
-              <button onClick={next} className="w-full h-11 bg-[#0D1BFF] text-white font-semibold rounded-xl flex items-center justify-center gap-1.5">
+              <button onClick={next} className="w-full h-11 bg-[#0D1BFF] text-white font-semibold rounded-xl flex items-center justify-center gap-1.5 font-poppins">
                 {s.cta} <ArrowRight className="w-4 h-4" />
               </button>
               {s.route && (

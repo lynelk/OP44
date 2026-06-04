@@ -1,7 +1,7 @@
 import Dexie from 'dexie';
 
-// Pipiya offline database - mirrors all Base44 entities
-export const db = new Dexie('PipiyaOfflineDB');
+// OpFin offline database - mirrors all Base44 entities
+export const db = new Dexie('OpFinOfflineDB');
 
 db.version(1).stores({
   // Core user data
