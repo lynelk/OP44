@@ -9,6 +9,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import AdminRoute from './components/AdminRoute';
 import BottomNav from './components/BottomNav';
 import MobileHeader from './components/MobileHeader';
+import CommandPalette from './components/CommandPalette';
 import { useEffect, lazy, Suspense } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { SyncProvider } from './lib/SyncContext';
@@ -129,8 +130,12 @@ function AnimatedRoutes({ children }) {
 const SPINNER = <div className="fixed inset-0 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-100 border-t-[#0D1BFF] rounded-full animate-spin"></div></div>;
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated } = useAuth();
   const location = useLocation();
+
+  // Hide the quick-search launcher on public/auth pages
+  const PUBLIC_PREFIXES = ['/login', '/register', '/forgot-password', '/reset-password', '/landing', '/about', '/contact', '/privacy', '/terms', '/accessibility', '/ussd'];
+  const showPalette = isAuthenticated && !PUBLIC_PREFIXES.some(p => location.pathname.startsWith(p));
 
   if (isLoadingPublicSettings || isLoadingAuth) return SPINNER;
 
@@ -140,6 +145,7 @@ const AuthenticatedApp = () => {
   return (
     <>
     <MobileHeader />
+    {showPalette && <CommandPalette />}
     <AnimatedRoutes>
     <Suspense fallback={SPINNER}>
     <Routes location={location}>
