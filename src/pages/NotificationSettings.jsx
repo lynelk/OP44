@@ -64,7 +64,7 @@ export default function NotificationSettings() {
       <div className="px-4 mt-4 space-y-3">
         {NOTIF_PREFS_STUB && (
           <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/40 p-3 text-xs text-amber-700 dark:text-amber-400">
-            Preview: settings are saved on this device. SMS/push delivery activates once the backend dispatcher is connected.
+            Preferences are saved to your account. SMS &amp; push delivery activate once the backend dispatcher is connected.
           </div>
         )}
 

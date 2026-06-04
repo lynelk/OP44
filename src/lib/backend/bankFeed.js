@@ -1,38 +1,28 @@
 /**
- * Bank / mobile-money feed — STUBBED CLIENT
+ * Bank / mobile-money feed
  * ------------------------------------------------------------------
- * This module is the single integration point for account aggregation
- * (bank + MoMo statement feeds). It currently returns simulated data
- * persisted to localStorage so the UI is fully demoable offline.
+ * Connection management (link / list / remove) is now LIVE against the
+ * BankConnection entity. The TRANSACTION FEED is still simulated because it
+ * depends on an aggregator backend function that doesn't exist yet:
  *
- * TO GO LIVE: replace each function body with the corresponding Base44
- * function call — the request/response shapes below are the contract the
- * backend must honour. No UI changes will be required.
+ *   linkProvider      -> base44.functions.invoke('bankLinkInitiate', { provider })
+ *        (real flow: OAuth consent, then the function creates BankConnection
+ *         server-side with the encrypted token reference)
+ *   syncTransactions  -> base44.functions.invoke('bankSyncTransactions', { connection_id })
+ *        (delta pull, upsert BankTransaction by external_id)
  *
- *   linkInitiate(provider)        -> base44.functions.invoke('bankLinkInitiate', { provider })
- *        returns { redirect_url } | { connection }
- *   listConnections()             -> base44.functions.invoke('bankListConnections', {})
- *        returns { connections: BankConnection[] }
- *   syncTransactions(connId)      -> base44.functions.invoke('bankSyncTransactions', { connection_id })
- *        returns { transactions: BankTransaction[], last_synced_at }
- *   importAsExpenses(ids)         -> base44.functions.invoke('bankImportExpenses', { transaction_ids })
- *        returns { imported: number }
- *
- * BankConnection  = { id, provider, institution, status, last_synced_at }
- * BankTransaction = { id, external_id, amount, direction:'debit'|'credit',
- *                     description, merchant, category, booked_at, imported }
+ * Importing selected transactions already creates real Expense rows (in the
+ * page), so the Budget side is genuinely live.
  */
 
-const KEY_CONN = 'pipiya_stub_bank_connections';
+import { base44 } from '@/api/base44Client';
+
 const KEY_TXN = 'pipiya_stub_bank_txns';
-const delay = (ms = 600) => new Promise(r => setTimeout(r, ms));
+export const BANK_STUB = true; // transaction feed still simulated
 
-export const BANK_STUB = true; // flip to false when wired to real backend
-
-const read = (k, fallback) => {
-  try { return JSON.parse(localStorage.getItem(k)) ?? fallback; } catch { return fallback; }
-};
+const read = (k, fallback) => { try { return JSON.parse(localStorage.getItem(k)) ?? fallback; } catch { return fallback; } };
 const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* ignore */ } };
+const delay = (ms = 600) => new Promise(r => setTimeout(r, ms));
 
 export const PROVIDERS = [
   { id: 'mtn_momo', name: 'MTN Mobile Money', kind: 'momo' },
@@ -53,6 +43,40 @@ const MERCHANTS = [
   { m: 'Shell Fuel', c: 'transport', dir: 'debit' },
   { m: 'Pharmacy Plus', c: 'health', dir: 'debit' },
 ];
+
+// ---- Connections: LIVE (BankConnection entity) ----
+
+export async function listConnections() {
+  try {
+    const me = await base44.auth.me();
+    return await base44.entities.BankConnection.filter({ user_id: me.id }, '-updated_date', 20);
+  } catch {
+    return [];
+  }
+}
+
+export async function linkProvider(providerId) {
+  await delay(700); // simulate the OAuth consent round-trip
+  const me = await base44.auth.me();
+  const provider = PROVIDERS.find(p => p.id === providerId);
+  return base44.entities.BankConnection.create({
+    user_id: me.id,
+    provider: providerId,
+    institution: provider?.name || providerId,
+    kind: provider?.kind || 'bank',
+    status: 'active',
+    last_synced_at: null,
+  });
+}
+
+export async function removeConnection(connId) {
+  try { await base44.entities.BankConnection.delete(connId); } catch { /* ignore */ }
+  const txns = read(KEY_TXN, {});
+  delete txns[connId];
+  write(KEY_TXN, txns);
+}
+
+// ---- Transactions: STUBBED (await aggregator function) ----
 
 function genTxns(connId, n = 12) {
   const out = [];
@@ -75,53 +99,21 @@ function genTxns(connId, n = 12) {
   return out;
 }
 
-export async function listConnections() {
-  await delay(300);
-  return read(KEY_CONN, []);
-}
-
-export async function linkProvider(providerId) {
-  await delay(900); // simulate OAuth round-trip
-  const provider = PROVIDERS.find(p => p.id === providerId);
-  const conns = read(KEY_CONN, []);
-  const conn = {
-    id: `conn_${Date.now()}`,
-    provider: providerId,
-    institution: provider?.name || providerId,
-    kind: provider?.kind || 'bank',
-    status: 'active',
-    last_synced_at: null,
-  };
-  write(KEY_CONN, [conn, ...conns]);
-  return conn;
-}
-
-export async function removeConnection(connId) {
-  await delay(300);
-  write(KEY_CONN, read(KEY_CONN, []).filter(c => c.id !== connId));
-  const txns = read(KEY_TXN, {});
-  delete txns[connId];
-  write(KEY_TXN, txns);
-}
-
 export async function syncTransactions(connId) {
   await delay(1100);
   const store = read(KEY_TXN, {});
-  const fresh = genTxns(connId);
-  store[connId] = [...fresh, ...(store[connId] || [])].slice(0, 40);
+  store[connId] = [...genTxns(connId), ...(store[connId] || [])].slice(0, 40);
   write(KEY_TXN, store);
-  const conns = read(KEY_CONN, []).map(c => c.id === connId ? { ...c, last_synced_at: new Date().toISOString() } : c);
-  write(KEY_CONN, conns);
+  try { await base44.entities.BankConnection.update(connId, { last_synced_at: new Date().toISOString() }); } catch { /* ignore */ }
   return store[connId];
 }
 
 export async function getTransactions(connId) {
-  await delay(200);
+  await delay(150);
   return read(KEY_TXN, {})[connId] || [];
 }
 
 export async function markImported(connId, txnIds) {
-  await delay(200);
   const store = read(KEY_TXN, {});
   store[connId] = (store[connId] || []).map(t => txnIds.includes(t.id) ? { ...t, imported: true } : t);
   write(KEY_TXN, store);

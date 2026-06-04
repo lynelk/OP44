@@ -46,7 +46,7 @@ export default function P2PSecondaryMarket() {
     setBusy(listing.id);
     try {
       const res = await buyPosition(listing.id);
-      flash(`Purchased — paid ${ugx(res.total)} (incl. ${ugx(res.fee)} fee)`);
+      flash(`Reserved at ${ugx(res.total)} (incl. ${ugx(res.fee)} fee) — settlement completes shortly`);
       load();
     } catch (e) {
       flash(e.message || 'Could not complete purchase');

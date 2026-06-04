@@ -1,30 +1,20 @@
 /**
- * Notification channel preferences + delivery — STUBBED CLIENT
+ * Notification channel preferences + delivery
  * ------------------------------------------------------------------
- * Today notifications are in-app only. This module backs a preferences
- * UI (channels, quiet hours, per-category) and a push-registration flow.
- * Persisted to localStorage for now.
+ * Preferences are now persisted LIVE to the NotificationPreference entity.
+ * The DELIVERY side (SMS/push fan-out) still needs a backend function:
  *
- * TO GO LIVE:
- *   getPrefs()        -> base44.entities.NotificationPreference.filter({ user_id }) [0]
- *   savePrefs(prefs)  -> base44.entities.NotificationPreference.create/update(...)
- *   registerPush()    -> base44.functions.invoke('registerDeviceToken', { token, platform })
+ *   dispatchNotification(notification) should write the in-app Notification,
+ *   then for each enabled channel (sms via Africa's Talking, push via Web
+ *   Push/FCM, email) respect quiet_hours + muted_types + UserConsent.
  *
- * Backend dispatcher contract (the key new function):
- *   dispatchNotification(notification) should: write the in-app Notification,
- *   then for each enabled channel (sms via Africa's Talking, push via Web Push/FCM,
- *   email) respect quiet_hours + per-category mutes + UserConsent before sending.
- *
- * NotificationPreference = {
- *   user_id, in_app, sms, push, email,
- *   quiet_hours_enabled, quiet_start, quiet_end,   // "HH:MM" 24h
- *   muted_types: string[],                          // Notification.type values
- *   device_tokens: { token, platform }[]
- * }
+ * registerPush() requests browser permission; obtaining/storing the actual
+ * FCM/Web-Push token still needs a service worker + `registerDeviceToken`.
  */
 
-const KEY = 'pipiya_stub_notification_prefs';
-const delay = (ms = 250) => new Promise(r => setTimeout(r, ms));
+import { base44 } from '@/api/base44Client';
+
+// Delivery (SMS/push) is still simulated; preference storage is live.
 export const NOTIF_PREFS_STUB = true;
 
 export const DEFAULT_PREFS = {
@@ -51,25 +41,43 @@ export const NOTIF_CATEGORIES = [
   { type: 'system', label: 'System & security' },
 ];
 
+const PREF_FIELDS = Object.keys(DEFAULT_PREFS);
+
+// Cache the record id (+ user) between get and save so we update in place.
+let _record = { id: null, user_id: null };
+
+const pick = (obj) => PREF_FIELDS.reduce((o, k) => (o[k] = obj[k], o), {});
+
 export async function getPrefs() {
-  await delay();
   try {
-    const saved = JSON.parse(localStorage.getItem(KEY));
-    return { ...DEFAULT_PREFS, ...(saved || {}) };
+    const me = await base44.auth.me();
+    _record.user_id = me.id;
+    const rows = await base44.entities.NotificationPreference.filter({ user_id: me.id }, '-updated_date', 1);
+    if (rows?.[0]) {
+      _record.id = rows[0].id;
+      return { ...DEFAULT_PREFS, ...pick(rows[0]) };
+    }
+    return { ...DEFAULT_PREFS };
   } catch {
     return { ...DEFAULT_PREFS };
   }
 }
 
 export async function savePrefs(prefs) {
-  await delay();
-  try { localStorage.setItem(KEY, JSON.stringify(prefs)); } catch { /* ignore */ }
+  const data = { ...pick(prefs), user_id: _record.user_id };
+  try {
+    if (_record.id) {
+      await base44.entities.NotificationPreference.update(_record.id, data);
+    } else {
+      const created = await base44.entities.NotificationPreference.create(data);
+      _record.id = created.id;
+    }
+  } catch { /* keep optimistic UI even if the write fails */ }
   return prefs;
 }
 
-// Stub for push permission + token registration (real: navigator.serviceWorker + VAPID).
+// Requests browser permission. Real token capture needs a service worker + VAPID.
 export async function registerPush() {
-  await delay(500);
   if (typeof Notification !== 'undefined' && Notification.requestPermission) {
     try {
       const perm = await Notification.requestPermission();
