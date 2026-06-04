@@ -330,7 +330,7 @@ export default function Dashboard() {
         <UnlockRequirements compact={true} />
 
         {/* Referral Card */}
-        <ReferralCard />
+        <ReferralCard data={summary?.referral} />
 
         {/* Journey teaser — tap to explore more */}
         <Link to="/profile">

@@ -6,9 +6,10 @@ export const queryClientInstance = new QueryClient({
 	defaultOptions: {
 		queries: {
 			refetchOnWindowFocus: false,
-			retry: 1,
-			staleTime: 1000 * 60 * 2,      // 2 min — treat data as fresh, avoid refetch storms
-			gcTime: 1000 * 60 * 5,         // 5 min — limit stale financial data in memory
+			refetchOnMount: false,
+			retry: 0,                       // never retry — 429s must not cascade
+			staleTime: 1000 * 60 * 5,      // 5 min default — treat data as fresh
+			gcTime: 1000 * 60 * 30,        // 30 min — cache survives route transitions
 		},
 	},
 });
