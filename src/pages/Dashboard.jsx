@@ -1,14 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ReferralCard from '@/components/referral/ReferralCard';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity, Handshake, Vault, PieChart } from 'lucide-react';
-import MilestoneProgress from '@/components/milestones/MilestoneProgress';
-import ChallengesBoard from '@/components/dashboard/ChallengesBoard';
+import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Activity, Handshake, Vault, PieChart } from 'lucide-react';
 import CoachingNudges from '@/components/dashboard/CoachingNudges';
 import OnboardingTour from '@/components/dashboard/OnboardingTour';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
-import DailyWellnessJourney from '@/components/wellness/DailyWellnessJourney';
 import ErrorState from '@/components/ui/ErrorState';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
