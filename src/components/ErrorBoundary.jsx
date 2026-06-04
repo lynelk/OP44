@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import { captureError } from '@/lib/monitoring';
 
 /**
  * ErrorBoundary — ISO/IEC 27001 / app store compliance
@@ -17,8 +18,9 @@ export default class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, info) {
-    // Log to console only — never expose to UI
+    // Log to console and report to monitoring (no-op unless Sentry is configured).
     console.error('[Pipiya ErrorBoundary]', error, info);
+    captureError(error, { componentStack: info?.componentStack, errorId: this.state.errorId });
   }
 
   handleReset = () => {

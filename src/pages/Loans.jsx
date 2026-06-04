@@ -25,6 +25,7 @@ export default function Loans() {
   const [topUpLoan, setTopUpLoan] = useState(null);
   const [topUpAmount, setTopUpAmount] = useState('');
   const [topUpLoading, setTopUpLoading] = useState(false);
+  const [topUpError, setTopUpError] = useState(null);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -62,6 +63,8 @@ export default function Loans() {
   const activeLoans = loans.filter(l => ['active', 'disbursed'].includes(l.status));
   const totalOutstanding = activeLoans.reduce((s, l) => s + (l.outstanding_balance || 0), 0);
   const pendingLoans = loans.filter(l => ['submitted', 'under_review', 'approved'].includes(l.status));
+  const draftLoans = loans.filter(l => l.status === 'draft');
+  const nonDraftLoans = loans.filter(l => l.status !== 'draft');
 
   return (
     <div ref={scrollRef} className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-28 font-sans overflow-y-auto">
@@ -151,6 +154,23 @@ export default function Loans() {
           </div>
         </Link>
 
+        {/* Draft — resume application */}
+        {draftLoans.length > 0 && (
+          <button
+            onClick={() => setShowWizard(true)}
+            className="w-full text-left bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-3 flex items-center gap-3"
+          >
+            <FileText className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-200">Continue your application</p>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                You have a saved draft{draftLoans[0].amount_requested ? ` for UGX ${draftLoans[0].amount_requested.toLocaleString()}` : ''}. Tap to resume.
+              </p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-emerald-500" />
+          </button>
+        )}
+
         {/* Pending alert */}
         {pendingLoans.length > 0 && (
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-center gap-3">
@@ -172,7 +192,7 @@ export default function Loans() {
               </div>
             ))}
           </div>
-        ) : loans.length === 0 ? (
+        ) : nonDraftLoans.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <Banknote className="w-10 h-10 text-[#0D1BFF]" />
@@ -189,7 +209,7 @@ export default function Loans() {
         ) : (
           <div className="space-y-3">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Loan History</p>
-            {loans.map(loan => {
+            {nonDraftLoans.map(loan => {
               const cfg = STATUS_CONFIG[loan.status] || STATUS_CONFIG.draft;
               const StatusIcon = cfg.icon;
               const progress = loan.total_repayable > 0
@@ -309,7 +329,7 @@ export default function Loans() {
           <div className="bg-white rounded-t-2xl w-full p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-gray-900">Loan Top-Up Request</h3>
-              <button onClick={() => setTopUpLoan(null)} className="text-gray-400">✕</button>
+              <button onClick={() => { setTopUpLoan(null); setTopUpError(null); }} className="text-gray-400">✕</button>
             </div>
             <div className="bg-blue-50 rounded-xl p-3 text-xs text-blue-700">
               <p className="font-semibold">{topUpLoan.purpose || 'Personal Loan'}</p>
@@ -337,22 +357,42 @@ export default function Loans() {
                 <p className="text-gray-400 pt-1">Subject to credit assessment. Approval in 24–48 hours.</p>
               </div>
             )}
+            {topUpError && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-xs text-red-700 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>{topUpError}</span>
+              </div>
+            )}
             <button
               disabled={!topUpAmount || parseFloat(topUpAmount) <= 0 || topUpLoading}
               onClick={async () => {
                 setTopUpLoading(true);
-                await base44.entities.LoanApplication.create({
-                  user_id: user?.id,
-                  amount_requested: parseFloat(topUpAmount),
-                  purpose: `Top-up on loan ${topUpLoan.id}`,
-                  loan_type: topUpLoan.loan_type || 'personal',
-                  tenure_months: topUpLoan.tenure_months,
-                  status: 'submitted',
-                });
-                setTopUpLoading(false);
-                setTopUpLoan(null);
-                setTopUpAmount('');
-                load();
+                setTopUpError(null);
+                // The combined exposure (existing balance + new top-up) must pass
+                // the same server-side eligibility checks as a fresh application.
+                const combined = (topUpLoan.outstanding_balance || 0) + parseFloat(topUpAmount);
+                try {
+                  const { data } = await base44.functions.invoke('loanDecisionEngine', {
+                    amountRequested: combined,
+                    tenureMonths: topUpLoan.tenure_months || 3,
+                    purpose: `Top-up on loan ${topUpLoan.id}`,
+                    channel: 'app',
+                  });
+                  if (!data || data.error) {
+                    setTopUpError(data?.error || 'Could not assess eligibility. Please try again.');
+                  } else if (!data.approved) {
+                    setTopUpError(data.declineReasons?.[0] || 'Top-up not approved at this time.');
+                  } else {
+                    // loanDecisionEngine already created the LoanApplication on approval.
+                    setTopUpLoan(null);
+                    setTopUpAmount('');
+                    load();
+                  }
+                } catch (e) {
+                  setTopUpError('Something went wrong assessing your request.');
+                } finally {
+                  setTopUpLoading(false);
+                }
               }}
               className="w-full h-12 bg-emerald-600 text-white font-bold rounded-2xl text-sm disabled:opacity-50"
             >

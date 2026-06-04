@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
+import { queryClientInstance } from '@/lib/query-client';
 
 const AuthContext = createContext();
 
@@ -117,7 +118,18 @@ export const AuthProvider = ({ children }) => {
   const logout = (shouldRedirect = true) => {
     setUser(null);
     setIsAuthenticated(false);
-    
+
+    // Clear cached PII/financial data so it isn't visible to the next user on a shared device.
+    try {
+      queryClientInstance.clear();
+    } catch (e) {
+      console.error('Failed to clear query cache on logout:', e);
+    }
+    // Best-effort: clear the offline IndexedDB store too (dynamic import avoids a hard dep cycle).
+    import('@/lib/offlineDb')
+      .then((mod) => mod.clearAllData?.())
+      .catch(() => { /* offline store may not expose a clear fn; ignore */ });
+
     if (shouldRedirect) {
       // Use the SDK's logout method which handles token cleanup and redirect
       base44.auth.logout(window.location.href);

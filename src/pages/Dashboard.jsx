@@ -2,13 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import ReferralCard from '@/components/referral/ReferralCard';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Target, Activity, Handshake, Vault, PieChart } from 'lucide-react';
-import MilestoneProgress from '@/components/milestones/MilestoneProgress';
-import ChallengesBoard from '@/components/dashboard/ChallengesBoard';
+import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Activity, Handshake, Vault, PieChart } from 'lucide-react';
 import CoachingNudges from '@/components/dashboard/CoachingNudges';
 import OnboardingTour from '@/components/dashboard/OnboardingTour';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
-import DailyWellnessJourney from '@/components/wellness/DailyWellnessJourney';
+import ErrorState from '@/components/ui/ErrorState';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const TIP_STYLES = {
@@ -20,55 +18,29 @@ const TIP_STYLES = {
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
-  const [loans, setLoans] = useState([]);
-  const [savings, setSavings] = useState([]);
-  const [notifications, setNotifications] = useState([]);
-  const [badges, setBadges] = useState([]);
-  const [creditScore, setCreditScore] = useState(null);
-  const [totalInvestments, setTotalInvestments] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const scrollRef = useRef(null);
   const pullStartY = useRef(0);
   const queryClient = useQueryClient();
 
-  const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => {});
+  }, []);
 
-  const loadData = async () => {
-    const me = await base44.auth.me();
-    setUser(me);
+  const { data: summary, error: summaryError, refetch: refetchSummary } = useQuery({
+    queryKey: ['dashboardSummary'],
+    queryFn: () => base44.functions.invoke('getDashboardSummary', {}).then(r => r.data),
+    staleTime: 1000 * 60 * 2,
+    gcTime: 1000 * 60 * 5,
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
 
-    // Batch 1
-    const [l, n] = await Promise.all([
-      base44.entities.LoanApplication.filter({ user_id: me.id }),
-      base44.entities.Notification.filter({ user_id: me.id, is_read: false }),
-    ]);
-    setLoans(l);
-    setNotifications(n);
-    await sleep(400);
-
-    // Batch 2
-    const [scores, pockets] = await Promise.all([
-      base44.entities.CreditScore.filter({ user_id: me.id }, '-calculated_at', 1),
-      base44.entities.SavingsPocket.filter({ user_id: me.id }),
-    ]);
-    if (scores.length > 0) setCreditScore(scores[0]);
-    setSavings(pockets);
-    await sleep(400);
-
-    // Batch 3
-    const [b, lenderInv, policies] = await Promise.all([
-      base44.entities.GamificationBadge.filter({ user_id: me.id }),
-      base44.entities.LenderInvestment.filter({ lender_id: me.id }),
-      base44.entities.InsurancePolicy.filter({ user_id: me.id }),
-    ]);
-    setBadges(b);
-    const p2pTotal = lenderInv.reduce((sum, i) => sum + (i.amount_invested || 0), 0);
-    const savingsTotal = pockets.reduce((sum, p) => sum + (p.current_balance || 0), 0);
-    const insuranceTotal = policies.reduce((sum, p) => sum + (p.total_premiums_paid || 0), 0);
-    setTotalInvestments(p2pTotal + savingsTotal + insuranceTotal);
-  };
-
-  useEffect(() => { loadData(); }, []);
+  const loans = summary?.loans ?? [];
+  const notifications = summary?.notifications ?? [];
+  const creditScore = summary?.creditScore ?? null;
+  const savings = summary?.pockets ?? [];
+  const totalInvestments = summary?.totalInvestments ?? 0;
 
   const { data: tipsData, isLoading: loadingTips } = useQuery({
     queryKey: ['financialTips'],
@@ -82,8 +54,10 @@ export default function Dashboard() {
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    await loadData();
-    queryClient.invalidateQueries(['financialTips']);
+    await Promise.all([
+      refetchSummary(),
+      queryClient.invalidateQueries({ queryKey: ['financialTips'] }),
+    ]);
     setTimeout(() => setIsRefreshing(false), 800);
   };
 
@@ -125,6 +99,14 @@ export default function Dashboard() {
     { icon: Handshake, label: 'P2P', path: '/p2p', color: 'bg-[#0D1BFF]/10 text-[#0D1BFF] dark:bg-[#0D1BFF]/20 dark:text-[#32B4FF]' },
     { icon: PieChart, label: 'Net Worth', path: '/net-worth', color: 'bg-[#32B4FF]/10 text-[#32B4FF] dark:bg-[#32B4FF]/20 dark:text-[#32B4FF]' },
   ];
+
+  if (summaryError && !summary) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-6">
+        <ErrorState error={summaryError} onRetry={refetchSummary} retryLabel="Reload dashboard" />
+      </div>
+    );
+  }
 
   return (
     <div ref={scrollRef} className="min-h-screen bg-gray-50 dark:bg-gray-950 overflow-y-auto">

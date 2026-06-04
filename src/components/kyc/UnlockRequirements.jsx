@@ -7,7 +7,15 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Shield, ChevronRight, Lock, CheckCircle2, Zap } from 'lucide-react';
+import { Shield, ChevronRight, Lock, CheckCircle2, Zap, AlertTriangle, RotateCcw } from 'lucide-react';
+
+const DOC_LABELS = {
+  national_id: 'National ID',
+  selfie: 'Selfie verification',
+  bank_statement: 'Bank / Mobile Money statement',
+  employment_letter: 'Employment letter',
+  payslip: 'Payslip',
+};
 
 const UNLOCK_STEPS = [
   {
@@ -77,6 +85,7 @@ const UNLOCK_STEPS = [
 
 export default function UnlockRequirements({ compact = false }) {
   const [steps, setSteps]     = useState([]);
+  const [rejectedDocs, setRejectedDocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
 
@@ -99,6 +108,16 @@ export default function UnlockRequirements({ compact = false }) {
         .filter(s => !s.check(profile, docs, extra))
         .sort((a, b) => a.priority - b.priority);
 
+      // Surface rejected documents so the user knows to resubmit (and why).
+      // Keep only the latest rejection per document type.
+      const rejected = docs.filter(d => d.status === 'rejected');
+      const latestByType = {};
+      rejected.forEach(d => {
+        const prev = latestByType[d.document_type];
+        if (!prev || new Date(d.created_date) > new Date(prev.created_date)) latestByType[d.document_type] = d;
+      });
+
+      setRejectedDocs(Object.values(latestByType));
       setSteps(incomplete);
       setLoading(false);
     };
@@ -106,19 +125,51 @@ export default function UnlockRequirements({ compact = false }) {
   }, []);
 
   if (loading) return null;
-  if (steps.length === 0) return (
-    <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-2xl p-4 flex items-center gap-3">
-      <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-      <div>
-        <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Profile Complete</p>
-        <p className="text-xs text-emerald-600 dark:text-emerald-400">You've unlocked full credit access 🎉</p>
+
+  const RejectedBanner = rejectedDocs.length > 0 ? (
+    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 mb-3">
+      <div className="flex items-center gap-2 mb-2">
+        <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+        <p className="text-sm font-bold text-red-700 dark:text-red-300">
+          {rejectedDocs.length} document{rejectedDocs.length > 1 ? 's' : ''} need{rejectedDocs.length > 1 ? '' : 's'} resubmission
+        </p>
       </div>
+      <div className="space-y-2">
+        {rejectedDocs.map(d => (
+          <div key={d.id} className="text-xs">
+            <p className="font-semibold text-red-700 dark:text-red-300">{DOC_LABELS[d.document_type] || d.document_type}</p>
+            {(d.rejection_reason || d.review_notes) && (
+              <p className="text-red-600 dark:text-red-400 mt-0.5">Reason: {d.rejection_reason || d.review_notes}</p>
+            )}
+          </div>
+        ))}
+      </div>
+      <Link to="/profile">
+        <button className="mt-3 w-full h-9 bg-red-500 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5">
+          <RotateCcw className="w-3.5 h-3.5" /> Resubmit Documents
+        </button>
+      </Link>
     </div>
+  ) : null;
+
+  if (steps.length === 0) return (
+    <>
+      {RejectedBanner}
+      <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 rounded-2xl p-4 flex items-center gap-3">
+        <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
+        <div>
+          <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">Profile Complete</p>
+          <p className="text-xs text-emerald-600 dark:text-emerald-400">You've unlocked full credit access 🎉</p>
+        </div>
+      </div>
+    </>
   );
 
   const visibleSteps = compact && !expanded ? steps.slice(0, 2) : steps;
 
   return (
+    <>
+    {RejectedBanner}
     <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm overflow-hidden">
       <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-gray-50 dark:border-gray-800">
         <div className="w-8 h-8 bg-amber-100 dark:bg-amber-900/40 rounded-xl flex items-center justify-center shrink-0">
@@ -159,5 +210,6 @@ export default function UnlockRequirements({ compact = false }) {
         </button>
       )}
     </div>
+    </>
   );
 }

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import MobileMoneyModal from '@/components/loans/MobileMoneyModal';
+import { prepaymentBreakdown } from '@/lib/finance';
 
 const PAYMENT_METHODS = [
   { value: 'mobile_money', label: 'Mobile Money', icon: Smartphone, sub: 'MTN / Airtel Push', highlight: true },
@@ -78,8 +79,9 @@ export default function RepayLoan() {
     if (!selectedLoan) return;
     const today = new Date().toISOString().split('T')[0];
     const baseAmount = prepayMode ? parseFloat(prepayAmount) : (nextDue?.amount || selectedLoan.monthly_installment);
-    const penaltyRate = prepayMode ? 0.02 : 0;
-    const payAmount = baseAmount + Math.round(baseAmount * penaltyRate);
+    const payAmount = prepayMode
+      ? prepaymentBreakdown(0, baseAmount).totalCharged
+      : baseAmount;
     const txnRef = `TXN-${Date.now()}`;
 
     if (nextDue) {
@@ -105,14 +107,14 @@ export default function RepayLoan() {
         <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-emerald-100">
           <CheckCircle2 className="w-12 h-12 text-emerald-500" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-1">Loan Fully Paid! 🎉</h2>
-        <p className="text-gray-500 text-sm text-center mb-6">Congratulations! Your loan has been completely repaid.</p>
-        <div className="bg-white rounded-2xl shadow-sm p-5 w-full max-w-sm mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">Loan Fully Paid! 🎉</h2>
+        <p className="text-gray-500 dark:text-gray-400 text-sm text-center mb-6">Congratulations! Your loan has been completely repaid.</p>
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 w-full max-w-sm mb-6">
           <p className="text-xs text-gray-400 mb-3">Payment Receipt</p>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-gray-500">Amount</span><span className="font-bold">UGX {successData.amount_paid?.toLocaleString()}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Reference</span><span className="font-mono text-xs">{successData.txn_ref}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Balance</span><span className="font-bold text-emerald-600">Fully Cleared</span></div>
+            <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Amount</span><span className="font-bold">UGX {successData.amount_paid?.toLocaleString()}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Reference</span><span className="font-mono text-xs">{successData.txn_ref}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500 dark:text-gray-400">Balance</span><span className="font-bold text-emerald-600">Fully Cleared</span></div>
           </div>
         </div>
         <Button className="w-full max-w-sm bg-[#1a3a6b]" onClick={() => navigate('/loans')}>Back to Loans</Button>
@@ -121,7 +123,7 @@ export default function RepayLoan() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-28">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-28">
       {/* Header */}
       <div className="bg-gradient-to-br from-[#0f2a55] to-[#1a3a6b] text-white px-4 pt-12 pb-6">
         <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-blue-200 text-sm mb-3">
@@ -134,12 +136,12 @@ export default function RepayLoan() {
       <div className="px-4 pt-4 space-y-4">
         {loading ? (
           <div className="space-y-3">
-            {[1, 2].map(i => <div key={i} className="h-24 bg-white rounded-2xl animate-pulse" />)}
+            {[1, 2].map(i => <div key={i} className="h-24 bg-white dark:bg-gray-800 rounded-2xl animate-pulse" />)}
           </div>
         ) : loans.length === 0 ? (
           <div className="text-center py-16 text-slate-400">
             <CreditCard className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="font-medium text-gray-500">No active loans to repay</p>
+            <p className="font-medium text-gray-500 dark:text-gray-400">No active loans to repay</p>
             <Button variant="outline" className="mt-4" onClick={() => navigate('/loans')}>Go to Loans</Button>
           </div>
         ) : (
@@ -192,7 +194,7 @@ export default function RepayLoan() {
                   {/* Progress */}
                   {selectedLoan.total_repayable > 0 && (
                     <div>
-                      <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-white dark:bg-gray-800/20 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-emerald-400 rounded-full"
                           style={{ width: `${Math.min(100, ((selectedLoan.total_repayable - (selectedLoan.outstanding_balance || selectedLoan.total_repayable)) / selectedLoan.total_repayable) * 100)}%` }}
@@ -227,10 +229,10 @@ export default function RepayLoan() {
 
                 {/* Partial / full prepayment toggle */}
                 {selectedLoan && (
-                  <div className="bg-white rounded-2xl p-4 shadow-sm">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-3">
-                      <p className="text-xs font-semibold text-gray-700">Payment Type</p>
-                      <div className="flex rounded-xl overflow-hidden border border-gray-200">
+                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">Payment Type</p>
+                      <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
                         <button
                           onClick={() => setPrepayMode(false)}
                           className={`px-3 py-1.5 text-xs font-semibold transition-colors ${!prepayMode ? 'bg-[#1a3a6b] text-white' : 'text-gray-500'}`}
@@ -245,11 +247,7 @@ export default function RepayLoan() {
                     </div>
                     {prepayMode && (() => {
                       const outstanding = selectedLoan.outstanding_balance || selectedLoan.total_repayable || 0;
-                      const amt = parseFloat(prepayAmount) || 0;
-                      const penaltyRate = 0.02; // 2% early settlement fee
-                      const penalty = amt > 0 ? Math.round(amt * penaltyRate) : 0;
-                      const totalDue = amt + penalty;
-                      const newBal = Math.max(0, outstanding - amt);
+                      const { amount: amt, penalty, totalCharged: totalDue, remaining: newBal } = prepaymentBreakdown(outstanding, prepayAmount);
                       return (
                         <div className="space-y-3">
                           <Input
@@ -261,13 +259,13 @@ export default function RepayLoan() {
                           />
                           {amt > 0 && (
                             <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 space-y-1.5 text-xs">
-                              <div className="flex justify-between text-gray-700">
+                              <div className="flex justify-between text-gray-700 dark:text-gray-300">
                                 <span>Principal prepaid</span><span className="font-semibold">UGX {amt.toLocaleString()}</span>
                               </div>
                               <div className="flex justify-between text-amber-700">
                                 <span>Early settlement fee (2%)</span><span className="font-semibold">UGX {penalty.toLocaleString()}</span>
                               </div>
-                              <div className="flex justify-between text-gray-900 font-bold border-t border-amber-200 pt-1.5">
+                              <div className="flex justify-between text-gray-900 dark:text-white font-bold border-t border-amber-200 pt-1.5">
                                 <span>Total charged</span><span>UGX {totalDue.toLocaleString()}</span>
                               </div>
                               <div className="flex justify-between text-emerald-700">
@@ -283,7 +281,7 @@ export default function RepayLoan() {
 
                 {/* Payment method selector */}
                 <div>
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Payment Method</p>
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Payment Method</p>
                   <div className="grid grid-cols-2 gap-2">
                     {PAYMENT_METHODS.map(m => {
                       const Icon = m.icon;
@@ -337,8 +335,8 @@ export default function RepayLoan() {
                 {/* Repayment schedule */}
                 {repayments.length > 0 && (
                   <div className="pb-4">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Repayment Schedule</p>
-                    <div className="bg-white rounded-2xl overflow-hidden shadow-sm divide-y divide-gray-50">
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Repayment Schedule</p>
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm divide-y divide-gray-50">
                       {repayments.map((r, i) => (
                         <div key={r.id} className="flex items-center gap-3 px-4 py-3">
                           <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
@@ -349,7 +347,7 @@ export default function RepayLoan() {
                               : <Clock className="w-3.5 h-3.5 text-gray-400" />}
                           </div>
                           <div className="flex-1">
-                            <p className="text-xs font-medium text-gray-700">Instalment {i + 1}</p>
+                            <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Instalment {i + 1}</p>
                             <p className="text-xs text-gray-400">
                               {r.status === 'paid' ? `Paid ${r.paid_date}` : `Due ${new Date(r.due_date).toLocaleDateString('en-UG', { day: 'numeric', month: 'short', year: 'numeric' })}`}
                             </p>

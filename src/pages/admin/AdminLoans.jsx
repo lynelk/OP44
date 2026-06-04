@@ -26,6 +26,7 @@ export default function AdminLoans() {
   const [saving, setSaving] = useState(false);
   const [checkedIds, setCheckedIds] = useState(new Set());
   const [bulkSaving, setBulkSaving] = useState(false);
+  const [bulkConfirm, setBulkConfirm] = useState(null); // { status } pending confirmation
 
   const toggleCheck = (id) => setCheckedIds(prev => {
     const next = new Set(prev);
@@ -45,11 +46,14 @@ export default function AdminLoans() {
   const handleBulkAction = async (newStatus) => {
     if (checkedIds.size === 0) return;
     setBulkSaving(true);
-    await Promise.all([...checkedIds].map(id =>
+    const results = await Promise.allSettled([...checkedIds].map(id =>
       base44.functions.invoke('adminManager', { action: 'update', entity: 'loans', id, data: { status: newStatus } })
     ));
+    const failed = results.filter(r => r.status === 'rejected').length;
     setBulkSaving(false);
+    setBulkConfirm(null);
     setCheckedIds(new Set());
+    if (failed > 0) alert(`${failed} of ${results.length} updates failed. Please retry.`);
     load();
   };
 
@@ -89,7 +93,7 @@ export default function AdminLoans() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
       <div className="bg-[#1a3a6b] text-white px-4 pt-10 pb-5">
         <Link to="/admin" className="flex items-center gap-1 text-blue-200 text-sm mb-3"><ChevronLeft className="w-4 h-4" /> Admin</Link>
         <div className="flex items-center justify-between">
@@ -98,7 +102,7 @@ export default function AdminLoans() {
             <p className="text-blue-200 text-xs">{loans.length} total applications</p>
           </div>
           <Link to="/admin/loans/reschedule">
-            <div className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 px-3 py-1.5 rounded-full text-xs font-semibold text-white transition-colors">
+            <div className="flex items-center gap-1.5 bg-white/15 hover:bg-white dark:bg-gray-800/25 px-3 py-1.5 rounded-full text-xs font-semibold text-white transition-colors">
               <CalendarClock className="w-3.5 h-3.5" /> Reschedules
             </div>
           </Link>
@@ -122,8 +126,8 @@ export default function AdminLoans() {
 
         {/* Bulk action bar */}
         {filtered.some(l => l.status === 'submitted') && (
-          <div className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 shadow-sm">
-            <button onClick={toggleAll} className="flex items-center gap-1.5 text-xs text-gray-600 font-medium">
+          <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-xl px-3 py-2 shadow-sm">
+            <button onClick={toggleAll} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400 font-medium">
               {filtered.filter(l => l.status === 'submitted').every(l => checkedIds.has(l.id))
                 ? <CheckSquare className="w-4 h-4 text-[#1a3a6b]" />
                 : <Square className="w-4 h-4 text-gray-400" />}
@@ -132,10 +136,10 @@ export default function AdminLoans() {
             {checkedIds.size > 0 && (
               <>
                 <span className="text-xs text-gray-400 ml-auto">{checkedIds.size} selected</span>
-                <Button size="sm" className="bg-green-600 text-white text-xs h-7 px-3" disabled={bulkSaving} onClick={() => handleBulkAction('approved')}>
+                <Button size="sm" className="bg-green-600 text-white text-xs h-7 px-3" disabled={bulkSaving} onClick={() => setBulkConfirm({ status: 'approved' })}>
                   <CheckCircle2 className="w-3 h-3 mr-1" /> Approve All
                 </Button>
-                <Button size="sm" className="bg-red-500 text-white text-xs h-7 px-3" disabled={bulkSaving} onClick={() => handleBulkAction('rejected')}>
+                <Button size="sm" className="bg-red-500 text-white text-xs h-7 px-3" disabled={bulkSaving} onClick={() => setBulkConfirm({ status: 'rejected' })}>
                   <XCircle className="w-3 h-3 mr-1" /> Reject All
                 </Button>
               </>
@@ -162,10 +166,10 @@ export default function AdminLoans() {
                     </button>
                   )}
                   <div>
-                    <p className="font-semibold text-gray-800">{u.full_name || 'Unknown User'}</p>
-                    <p className="text-xs text-gray-500">{u.email}</p>
+                    <p className="font-semibold text-gray-800 dark:text-gray-200">{u.full_name || 'Unknown User'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{u.email}</p>
                     <p className="text-sm mt-1">UGX {loan.amount_requested?.toLocaleString()} · {loan.tenure_months}m</p>
-                    {loan.purpose && <p className="text-xs text-gray-500 mt-0.5">{loan.purpose}</p>}
+                    {loan.purpose && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{loan.purpose}</p>}
                   </div>
                   <div className="text-right space-y-1">
                     <Badge className={`text-xs ${STATUS_COLORS[loan.status] || 'bg-gray-100'}`}>{loan.status?.replace(/_/g,' ')}</Badge>
@@ -188,16 +192,46 @@ export default function AdminLoans() {
         })}
       </div>
 
+      {/* Bulk action confirmation */}
+      {bulkConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-[60] flex items-center justify-center px-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-sm p-5 space-y-4">
+            <div className="flex items-center gap-2">
+              {bulkConfirm.status === 'approved'
+                ? <CheckCircle2 className="w-6 h-6 text-green-600" />
+                : <XCircle className="w-6 h-6 text-red-500" />}
+              <h3 className="font-bold text-gray-900 dark:text-white">
+                {bulkConfirm.status === 'approved' ? 'Approve' : 'Reject'} {checkedIds.size} loan{checkedIds.size > 1 ? 's' : ''}?
+              </h3>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              This will set <strong>{checkedIds.size}</strong> submitted application{checkedIds.size > 1 ? 's' : ''} to
+              <strong> {bulkConfirm.status}</strong>. {bulkConfirm.status === 'approved' && 'Approved loans proceed to disbursement.'} This action is logged to the audit trail and cannot be undone in bulk.
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" disabled={bulkSaving} onClick={() => setBulkConfirm(null)}>Cancel</Button>
+              <Button
+                className={`flex-1 text-white ${bulkConfirm.status === 'approved' ? 'bg-green-600' : 'bg-red-500'}`}
+                disabled={bulkSaving}
+                onClick={() => handleBulkAction(bulkConfirm.status)}
+              >
+                {bulkSaving ? 'Processing…' : `Yes, ${bulkConfirm.status === 'approved' ? 'Approve' : 'Reject'} All`}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {selected && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end">
-          <div className="bg-white rounded-t-2xl w-full p-5 space-y-3 max-h-[85vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-t-2xl w-full p-5 space-y-3 max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h3 className="font-bold">Update Loan</h3>
               <button onClick={() => setSelected(null)} className="text-gray-400">✕</button>
             </div>
-            <p className="text-sm text-gray-600">Borrower: {users[selected.user_id]?.full_name} · UGX {selected.amount_requested?.toLocaleString()}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">Borrower: {users[selected.user_id]?.full_name} · UGX {selected.amount_requested?.toLocaleString()}</p>
             <div>
-              <label className="text-xs font-semibold text-gray-600 mb-1 block">Status</label>
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Status</label>
               <Select value={selected.status} onValueChange={v => setSelected(s => ({...s, status: v}))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>{Object.keys(STATUS_COLORS).map(s => <SelectItem key={s} value={s}>{s.replace(/_/g,' ')}</SelectItem>)}</SelectContent>

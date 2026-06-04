@@ -21,6 +21,9 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
 
   const costs = calcLoanCosts(amount, tenure);
   const [extractedDocData, setExtractedDocData] = useState({});
+  const [draftId, setDraftId] = useState(null);
+  const [savingDraft, setSavingDraft] = useState(false);
+  const [resumedDraft, setResumedDraft] = useState(false);
 
   useEffect(() => {
     setLoadingPreQual(true);
@@ -28,6 +31,55 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
       .then(r => setPreQual(r.data))
       .finally(() => setLoadingPreQual(false));
   }, []);
+
+  // Resume an in-progress draft if one exists for this user.
+  useEffect(() => {
+    if (!user?.id) return;
+    base44.entities.LoanApplication.filter({ user_id: user.id, status: 'draft' })
+      .then((drafts) => {
+        const draft = (drafts || []).sort((a, b) => new Date(b.updated_date || 0) - new Date(a.updated_date || 0))[0];
+        if (!draft) return;
+        setDraftId(draft.id);
+        if (draft.amount_requested) setAmount(String(draft.amount_requested));
+        if (draft.tenure_months) setTenure(String(draft.tenure_months));
+        if (draft.purpose) setPurpose(draft.purpose);
+        if (Number.isInteger(draft.draft_step)) setStep(Math.min(draft.draft_step, STEPS.length - 1));
+        setResumedDraft(true);
+      })
+      .catch(() => {});
+  }, [user?.id]);
+
+  // Persist the current wizard state as a draft so the user can resume later.
+  const saveDraft = async (nextStep) => {
+    if (!user?.id || submitted) return;
+    setSavingDraft(true);
+    const payload = {
+      user_id: user.id,
+      amount_requested: amountNum || undefined,
+      tenure_months: parseInt(tenure) || undefined,
+      purpose: purpose || undefined,
+      status: 'draft',
+      draft_step: nextStep,
+    };
+    try {
+      if (draftId) {
+        await base44.entities.LoanApplication.update(draftId, payload);
+      } else {
+        const created = await base44.entities.LoanApplication.create(payload);
+        setDraftId(created.id);
+      }
+    } catch (e) {
+      console.error('Failed to save loan draft:', e);
+    } finally {
+      setSavingDraft(false);
+    }
+  };
+
+  const goToStep = (nextStep) => {
+    setStep(nextStep);
+    // Fire-and-forget; advancing forward checkpoints progress.
+    if (nextStep > step) saveDraft(nextStep);
+  };
 
   const maxAmount = preQual?.max_loan_limit || 2000000;
   const amountNum = parseFloat(amount) || 0;
@@ -47,12 +99,13 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
 
     const initialStatus = eligibleProduct ? 'approved' : 'submitted';
 
-    const loan = await base44.entities.LoanApplication.create({
+    const payload = {
       user_id: user?.id,
       amount_requested: amountNum,
       tenure_months: parseInt(tenure),
       purpose,
       status: initialStatus,
+      draft_step: null,
       risk_band: preQual?.final_risk_band || 'C',
       risk_band_at_application: preQual?.final_risk_band || 'C',
       credit_score_at_application: preQual?.credit_score || null,
@@ -62,7 +115,12 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
       insurance_cost: costs.insuranceCost,
       net_disbursement: costs.netDisbursement,
       outstanding_balance: costs.totalRepayable,
-    });
+    };
+
+    // Promote the existing draft into a real submission, or create fresh.
+    const loan = draftId
+      ? await base44.entities.LoanApplication.update(draftId, payload)
+      : await base44.entities.LoanApplication.create(payload);
 
     // If auto-approved, immediately trigger disbursement
     if (eligibleProduct) {
@@ -186,9 +244,16 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
                 </div>
               </div>
 
+              {resumedDraft && (
+                <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-xs text-emerald-700">
+                  <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                  We saved your progress — you can pick up right where you left off.
+                </div>
+              )}
+
               <button
                 disabled={!amountValid}
-                onClick={() => setStep(1)}
+                onClick={() => goToStep(1)}
                 className="w-full h-12 bg-[#1a3a6b] disabled:opacity-40 text-white font-bold rounded-xl flex items-center justify-center gap-2"
               >
                 Continue <ChevronRight className="w-4 h-4" />
@@ -235,7 +300,7 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
 
               <button
                 disabled={!purpose}
-                onClick={() => setStep(2)}
+                onClick={() => goToStep(2)}
                 className="w-full h-12 bg-[#1a3a6b] disabled:opacity-40 text-white font-bold rounded-xl"
               >
                 Next: Documents →
@@ -254,7 +319,7 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
                 onExtracted={(type, data) => setExtractedDocData(p => ({ ...p, [type]: data }))}
               />
               <button
-                onClick={() => setStep(3)}
+                onClick={() => goToStep(3)}
                 className="w-full h-12 bg-[#1a3a6b] text-white font-bold rounded-xl"
               >
                 See Offer →
@@ -288,7 +353,7 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
               </div>
 
               <button
-                onClick={() => setStep(4)}
+                onClick={() => goToStep(4)}
                 className="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl"
               >
                 Accept & Apply

@@ -5,19 +5,19 @@ import { Button } from '@/components/ui/button';
 import { Link, useSearchParams } from 'react-router-dom';
 
 const DISPUTE_STATUS_CONFIG = {
-  None: { color: 'bg-gray-100 text-gray-600', label: 'No Dispute' },
+  None: { color: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300', label: 'No Dispute' },
   Open: { color: 'bg-orange-100 text-orange-700', label: 'Open' },
-  'Under Mediation': { color: 'bg-blue-100 text-blue-700', label: 'Under Mediation' },
+  'Under Mediation': { color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300', label: 'Under Mediation' },
   Resolved: { color: 'bg-green-100 text-green-700', label: 'Resolved' },
-  Escalated: { color: 'bg-red-100 text-red-700', label: 'Escalated' },
+  Escalated: { color: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300', label: 'Escalated' },
 };
 
 const OUTCOME_CONFIG = {
-  'Favour Borrower': { color: 'bg-blue-100 text-blue-700', emoji: '🏆' },
+  'Favour Borrower': { color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300', emoji: '🏆' },
   'Favour Lender': { color: 'bg-purple-100 text-purple-700', emoji: '🏆' },
-  Compromise: { color: 'bg-amber-100 text-amber-700', emoji: '🤝' },
-  'No Action': { color: 'bg-gray-100 text-gray-600', emoji: '➖' },
-  Pending: { color: 'bg-gray-100 text-gray-500', emoji: '⏳' },
+  Compromise: { color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300', emoji: '🤝' },
+  'No Action': { color: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300', emoji: '➖' },
+  Pending: { color: 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400', emoji: '⏳' },
 };
 
 const ACTION_ICON = {
@@ -183,7 +183,7 @@ export default function RentalDisputeCenter() {
   const disputeStatusCfg = selectedRental ? (DISPUTE_STATUS_CONFIG[selectedRental.dispute_status] || DISPUTE_STATUS_CONFIG.None) : null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
       <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-6">
         <Link to="/p2p" className="flex items-center gap-1 text-green-200 text-sm mb-3">
@@ -197,9 +197,9 @@ export default function RentalDisputeCenter() {
         {/* Rental selector or detail */}
         {!selectedRental ? (
           <>
-            <p className="text-sm font-bold text-gray-700 mb-2">Active Disputes</p>
+            <p className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Active Disputes</p>
             {loading ? (
-              [1, 2].map(i => <div key={i} className="bg-white rounded-2xl h-20 animate-pulse" />)
+              [1, 2].map(i => <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl h-20 animate-pulse" />)
             ) : rentals.length === 0 ? (
               <div className="text-center py-16 text-gray-400">
                 <Scale className="w-10 h-10 mx-auto mb-2 opacity-20" />
@@ -209,11 +209,11 @@ export default function RentalDisputeCenter() {
             ) : rentals.map(rental => {
               const cfg = DISPUTE_STATUS_CONFIG[rental.dispute_status] || DISPUTE_STATUS_CONFIG.None;
               return (
-                <button key={rental.id} onClick={() => selectRental(rental)} className="w-full bg-white rounded-2xl p-4 shadow-sm text-left border border-gray-100 hover:border-orange-300 transition-colors">
+                <button key={rental.id} onClick={() => selectRental(rental)} className="w-full bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm text-left border border-gray-100 dark:border-gray-700 hover:border-orange-300 transition-colors">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-bold text-sm">{rental.rental_ref || `Rental #${rental.id.slice(-6)}`}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{rental.dispute_reason || 'Rental dispute'}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{rental.dispute_reason || 'Rental dispute'}</p>
                       <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-1 inline-block ${cfg.color}`}>{rental.dispute_status}</span>
                     </div>
                     <ChevronLeft className="w-4 h-4 text-gray-300 rotate-180" />
@@ -232,21 +232,21 @@ export default function RentalDisputeCenter() {
         ) : (
           <>
             {/* Back to list */}
-            <button onClick={() => setSelectedRental(null)} className="flex items-center gap-1 text-sm text-gray-500 mb-2">
+            <button onClick={() => setSelectedRental(null)} className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 mb-2">
               <ChevronLeft className="w-4 h-4" /> All Disputes
             </button>
 
             {/* Dispute Header */}
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
               <div className="flex items-center justify-between mb-2">
                 <p className="font-black text-base">{selectedRental.rental_ref || `Rental #${selectedRental.id.slice(-6)}`}</p>
                 <span className={`text-xs font-bold px-2 py-1 rounded-full ${disputeStatusCfg?.color}`}>{selectedRental.dispute_status}</span>
               </div>
               {selectedRental.dispute_reason && (
-                <p className="text-sm text-gray-600 mb-1"><span className="font-semibold">Reason:</span> {selectedRental.dispute_reason}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1"><span className="font-semibold">Reason:</span> {selectedRental.dispute_reason}</p>
               )}
               {selectedRental.dispute_description && (
-                <p className="text-xs text-gray-500">{selectedRental.dispute_description}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{selectedRental.dispute_description}</p>
               )}
               {selectedRental.dispute_opened_at && (
                 <p className="text-xs text-gray-400 mt-1">Opened {new Date(selectedRental.dispute_opened_at).toLocaleDateString()}</p>
@@ -308,7 +308,7 @@ export default function RentalDisputeCenter() {
                 {auditLog.length === 0 ? (
                   <p className="text-center text-sm text-gray-400 py-8">No audit trail yet</p>
                 ) : auditLog.map((log, i) => (
-                  <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
+                  <div key={i} className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
                     <div className="flex items-start gap-3">
                       <span className="text-lg leading-none mt-0.5">{ACTION_ICON[log.action] || '📋'}</span>
                       <div className="flex-1">
@@ -316,11 +316,11 @@ export default function RentalDisputeCenter() {
                           <p className="font-bold text-sm">{log.action}</p>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
                             log.actor_role === 'Admin' ? 'bg-purple-100 text-purple-700'
-                            : log.actor_role === 'Borrower' ? 'bg-blue-100 text-blue-700'
+                            : log.actor_role === 'Borrower' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
                             : 'bg-green-100 text-green-700'
                           }`}>{log.actor_role}</span>
                         </div>
-                        {log.notes && <p className="text-xs text-gray-600 mt-0.5">{log.notes}</p>}
+                        {log.notes && <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">{log.notes}</p>}
                         {log.previous_status && log.new_status && (
                           <p className="text-xs text-gray-400 mt-0.5">{log.previous_status} → {log.new_status}</p>
                         )}
@@ -341,16 +341,16 @@ export default function RentalDisputeCenter() {
                     <p className="text-sm">No evidence submitted yet</p>
                   </div>
                 ) : evidence.map(ev => (
-                  <div key={ev.id} className="bg-white rounded-2xl p-4 shadow-sm">
+                  <div key={ev.id} className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
                       <p className="font-bold text-sm">{ev.title}</p>
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
                         ev.submitter_role === 'Admin' ? 'bg-purple-100 text-purple-700'
-                        : ev.submitter_role === 'Borrower' ? 'bg-blue-100 text-blue-700'
+                        : ev.submitter_role === 'Borrower' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
                         : 'bg-green-100 text-green-700'
                       }`}>{ev.submitter_role}</span>
                     </div>
-                    <p className="text-xs text-gray-500 mb-2">{ev.evidence_type} · {ev.description}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{ev.evidence_type} · {ev.description}</p>
                     {ev.file_urls?.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {ev.file_urls.map((url, fi) => (
@@ -368,10 +368,10 @@ export default function RentalDisputeCenter() {
 
             {/* Comment */}
             {activeTab === 'comment' && (
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
                 <p className="font-bold text-sm mb-3">Add to Audit Trail</p>
                 <textarea
-                  className="w-full border border-gray-200 rounded-xl p-3 text-sm resize-none"
+                  className="w-full border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-sm resize-none"
                   rows={4}
                   placeholder="Add a comment or statement to this dispute's record..."
                   value={comment}
@@ -389,14 +389,14 @@ export default function RentalDisputeCenter() {
       {/* Open Dispute Modal */}
       {showOpenForm && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-end">
-          <div className="bg-white w-full rounded-t-3xl p-6 space-y-4">
+          <div className="bg-white dark:bg-gray-800 w-full rounded-t-3xl p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-lg">Open a Dispute</h3>
               <button onClick={() => setShowOpenForm(false)} className="text-gray-400 text-2xl">×</button>
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-600 mb-1 block">Reason for dispute</label>
-              <select className="w-full border border-gray-200 rounded-xl p-3 text-sm" value={disputeReason} onChange={e => setDisputeReason(e.target.value)}>
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Reason for dispute</label>
+              <select className="w-full border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-sm" value={disputeReason} onChange={e => setDisputeReason(e.target.value)}>
                 <option value="">Select reason</option>
                 {['Device not as described', 'Device damaged during rental', 'Payment dispute', 'Delivery/collection issue', 'Unauthorized use', 'Other'].map(r => (
                   <option key={r} value={r}>{r}</option>
@@ -404,8 +404,8 @@ export default function RentalDisputeCenter() {
               </select>
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-600 mb-1 block">Description</label>
-              <textarea className="w-full border border-gray-200 rounded-xl p-3 text-sm resize-none" rows={4} placeholder="Describe the issue in detail..." value={disputeDesc} onChange={e => setDisputeDesc(e.target.value)} />
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Description</label>
+              <textarea className="w-full border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-sm resize-none" rows={4} placeholder="Describe the issue in detail..." value={disputeDesc} onChange={e => setDisputeDesc(e.target.value)} />
             </div>
             <Button onClick={handleOpenDispute} disabled={!disputeReason || submitting} className="w-full bg-orange-500 hover:bg-orange-600 font-bold">
               {submitting ? 'Opening...' : 'Open Dispute'}
@@ -417,29 +417,29 @@ export default function RentalDisputeCenter() {
       {/* Evidence Submission Modal */}
       {showEvidenceForm && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-end">
-          <div className="bg-white w-full rounded-t-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 w-full rounded-t-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-lg">Submit Evidence</h3>
               <button onClick={() => setShowEvidenceForm(false)} className="text-gray-400 text-2xl">×</button>
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-600 mb-1 block">Evidence Type</label>
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Evidence Type</label>
               <div className="flex flex-wrap gap-2">
                 {['Photo', 'Video', 'Document', 'Receipt', 'Screenshot', 'Statement'].map(t => (
-                  <button key={t} onClick={() => setEvidenceType(t)} className={`px-3 py-1.5 rounded-full text-xs font-semibold ${evidenceType === t ? 'bg-[#006B3C] text-white' : 'bg-gray-100 text-gray-600'}`}>{t}</button>
+                  <button key={t} onClick={() => setEvidenceType(t)} className={`px-3 py-1.5 rounded-full text-xs font-semibold ${evidenceType === t ? 'bg-[#006B3C] text-white' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}>{t}</button>
                 ))}
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-600 mb-1 block">Title</label>
-              <input className="w-full border border-gray-200 rounded-xl p-3 text-sm" placeholder="Brief description of this evidence" value={evidenceTitle} onChange={e => setEvidenceTitle(e.target.value)} />
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Title</label>
+              <input className="w-full border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-sm" placeholder="Brief description of this evidence" value={evidenceTitle} onChange={e => setEvidenceTitle(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-600 mb-1 block">Description</label>
-              <textarea className="w-full border border-gray-200 rounded-xl p-3 text-sm resize-none" rows={3} placeholder="Explain this evidence and its relevance..." value={evidenceDesc} onChange={e => setEvidenceDesc(e.target.value)} />
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Description</label>
+              <textarea className="w-full border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-sm resize-none" rows={3} placeholder="Explain this evidence and its relevance..." value={evidenceDesc} onChange={e => setEvidenceDesc(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-600 mb-1 block">Upload Files</label>
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Upload Files</label>
               <input
                 type="file"
                 multiple
@@ -460,13 +460,13 @@ export default function RentalDisputeCenter() {
       {/* Admin Resolve Modal */}
       {showResolveForm && user?.role === 'admin' && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-end">
-          <div className="bg-white w-full rounded-t-3xl p-6 space-y-4">
+          <div className="bg-white dark:bg-gray-800 w-full rounded-t-3xl p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-lg">Resolve Dispute</h3>
               <button onClick={() => setShowResolveForm(false)} className="text-gray-400 text-2xl">×</button>
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-600 mb-2 block">Outcome</label>
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 block">Outcome</label>
               <div className="grid grid-cols-2 gap-2">
                 {['Favour Borrower', 'Favour Lender', 'Compromise', 'No Action'].map(o => (
                   <button
@@ -478,8 +478,8 @@ export default function RentalDisputeCenter() {
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-600 mb-1 block">Resolution Notes</label>
-              <textarea className="w-full border border-gray-200 rounded-xl p-3 text-sm resize-none" rows={4} placeholder="Explain the resolution and any required actions by either party..." value={resNotes} onChange={e => setResNotes(e.target.value)} />
+              <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Resolution Notes</label>
+              <textarea className="w-full border border-gray-200 dark:border-gray-700 rounded-xl p-3 text-sm resize-none" rows={4} placeholder="Explain the resolution and any required actions by either party..." value={resNotes} onChange={e => setResNotes(e.target.value)} />
             </div>
             <Button onClick={handleResolve} disabled={!resOutcome || !resNotes || submitting} className="w-full bg-[#006B3C] hover:bg-[#005530] font-bold h-12">
               {submitting ? 'Resolving...' : 'Apply Resolution'}

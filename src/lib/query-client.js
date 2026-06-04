@@ -1,14 +1,14 @@
 import { QueryClient } from '@tanstack/react-query';
 
-// Sensible cache defaults reduce redundant API calls at scale (see SCALABILITY_AUDIT §3.2).
-// Individual queries can override staleTime/refetchInterval for real-time data.
+// Financial data must not linger in memory too long on shared devices.
+// gcTime of 5 min is a safe default; non-financial queries (tips, content) override this upward.
 export const queryClientInstance = new QueryClient({
 	defaultOptions: {
 		queries: {
 			refetchOnWindowFocus: false,
 			retry: 1,
 			staleTime: 1000 * 60 * 2,      // 2 min — treat data as fresh, avoid refetch storms
-			gcTime: 1000 * 60 * 30,        // 30 min — keep cache for quick back-navigation
+			gcTime: 1000 * 60 * 5,         // 5 min — limit stale financial data in memory
 		},
 	},
 });

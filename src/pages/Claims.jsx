@@ -35,6 +35,9 @@ export default function Claims() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  // Post-submission document upload (per claim)
+  const [addingDocsTo, setAddingDocsTo] = useState(null);
+
   useEffect(() => {
     const load = async () => {
       const me = await base44.auth.me();
@@ -79,6 +82,28 @@ export default function Claims() {
     setClaims(prev => [claim, ...prev]);
     setSubmitted(true);
     setSubmitting(false);
+  };
+
+  // Append documents to an already-submitted claim. Useful when a reviewer
+  // requests more evidence after the initial submission.
+  const handleAddDocsToClaim = async (claim, e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    setAddingDocsTo(claim.id);
+    try {
+      const uploaded = [];
+      for (const file of files) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        uploaded.push(file_url);
+      }
+      const merged = [...(claim.supporting_docs || []), ...uploaded];
+      const updated = await base44.entities.InsuranceClaim.update(claim.id, { supporting_docs: merged });
+      setClaims(prev => prev.map(c => (c.id === claim.id ? { ...c, ...updated, supporting_docs: merged } : c)));
+    } catch (err) {
+      console.error('Failed to add documents to claim:', err);
+    } finally {
+      setAddingDocsTo(null);
+    }
   };
 
   const resetForm = () => {
@@ -159,6 +184,21 @@ export default function Claims() {
                         <div className="mt-2 bg-blue-50 rounded-lg p-2 text-xs text-blue-700">
                           📋 {claim.reviewer_notes}
                         </div>
+                      )}
+                      {/* Add more documents while the claim is still open */}
+                      {!['paid', 'rejected'].includes(claim.status) && (
+                        <label className={`mt-2 flex items-center justify-center gap-1.5 w-full border border-dashed rounded-lg py-2 text-xs cursor-pointer transition-colors ${addingDocsTo === claim.id ? 'border-slate-300 text-slate-400 bg-slate-50' : 'border-slate-300 text-slate-500 hover:border-slate-400'}`}>
+                          <Upload className="w-3 h-3" />
+                          {addingDocsTo === claim.id ? 'Uploading…' : 'Add supporting documents'}
+                          <input
+                            type="file"
+                            className="hidden"
+                            multiple
+                            accept="image/*,.pdf"
+                            disabled={addingDocsTo === claim.id}
+                            onChange={(e) => handleAddDocsToClaim(claim, e)}
+                          />
+                        </label>
                       )}
                       <ClaimTimeline claim={claim} />
                     </CardContent>

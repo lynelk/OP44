@@ -76,4 +76,14 @@ db.version(2).stores({
   NotificationPreference:'id, user_id, updated_date',
 });
 
+// Wipe all locally-cached data. Called on logout so PII/financial records
+// don't persist for the next user on a shared device.
+export async function clearAllData() {
+  try {
+    await Promise.all(db.tables.map((t) => t.clear()));
+  } catch (e) {
+    console.error('Failed to clear offline DB:', e);
+  }
+}
+
 export default db;

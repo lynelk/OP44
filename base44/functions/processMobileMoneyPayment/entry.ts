@@ -62,7 +62,10 @@ async function mtnRequestToPay({ amount, phone_number, txnRef, note }) {
     if (status.status === 'SUCCESSFUL') return { success: true, txn_ref: txnRef };
     if (status.status === 'FAILED') return { success: false, error: status.reason || 'MTN payment failed' };
   }
-  return { success: false, error: 'MTN payment timed out — awaiting confirmation' };
+  // Not yet resolved within our poll window. This is NOT a failure — the user may
+  // still approve the prompt. Signal "pending" so the caller records a pending
+  // repayment and offers a status-check rather than telling the user it failed.
+  return { success: false, pending: true, txn_ref: txnRef, error: 'Payment is still being confirmed by MTN' };
 }
 
 // ─── Airtel Money: Get access token ──────────────────────────────────────────
@@ -116,7 +119,50 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json();
-    const { loan_id, p2p_loan_id, amount, phone_number, provider, idempotency_key } = body;
+    const { loan_id, p2p_loan_id, amount, phone_number, provider, idempotency_key, action, check_txn_ref } = body;
+
+    // ── Status reconciliation: poll the provider for a previously-pending txn and
+    //    settle the matching pending Repayment if it has now succeeded. ──
+    if (action === 'check_status' && check_txn_ref) {
+      const [legacy, p2p] = await Promise.all([
+        base44.entities.Repayment.filter({ transaction_ref: check_txn_ref }, '-created_date', 1).catch(() => []),
+        base44.entities.P2PRepayment.filter({ transaction_ref: check_txn_ref }, '-created_date', 1).catch(() => []),
+      ]);
+      const rec = legacy[0] || p2p[0];
+      if (!rec) return Response.json({ status: 'not_found' });
+      if (rec.status === 'paid') return Response.json({ status: 'paid', txn_ref: check_txn_ref });
+
+      // Re-query MTN (only MTN supports our poll endpoint here)
+      let confirmed = false;
+      try {
+        const baseUrl = Deno.env.get('MTN_MOMO_BASE_URL');
+        if (baseUrl) {
+          const token = await getMtnAccessToken();
+          const statusRes = await fetch(`${baseUrl}/collection/v1_0/requesttopay/${check_txn_ref}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'X-Target-Environment': baseUrl.includes('sandbox') ? 'sandbox' : 'mtnuganda',
+              'Ocp-Apim-Subscription-Key': Deno.env.get('MTN_MOMO_SUBSCRIPTION_KEY'),
+            },
+          });
+          const s = await statusRes.json();
+          confirmed = s.status === 'SUCCESSFUL';
+          if (s.status === 'FAILED') {
+            const ent = legacy[0] ? 'Repayment' : 'P2PRepayment';
+            await base44.entities[ent].update(rec.id, { status: 'failed' });
+            return Response.json({ status: 'failed', txn_ref: check_txn_ref });
+          }
+        }
+      } catch (_) { /* provider unreachable; stay pending */ }
+
+      if (confirmed) {
+        const today = new Date().toISOString().split('T')[0];
+        const ent = legacy[0] ? 'Repayment' : 'P2PRepayment';
+        await base44.entities[ent].update(rec.id, { status: 'paid', paid_date: today });
+        return Response.json({ status: 'paid', txn_ref: check_txn_ref });
+      }
+      return Response.json({ status: 'pending', txn_ref: check_txn_ref });
+    }
 
     if (!amount || !phone_number || !provider) {
       return Response.json({ error: 'Missing required fields: amount, phone_number, provider' }, { status: 400 });
@@ -157,6 +203,27 @@ Deno.serve(async (req) => {
       result = await airtelRequestToPay({ amount: payAmount, phone_number, txnRef, note });
     } else {
       return Response.json({ error: `Unsupported provider: ${provider}. Use 'mtn' or 'airtel'` }, { status: 400 });
+    }
+
+    // ── Pending: provider hasn't confirmed yet. Record a pending repayment so the
+    //    transaction is traceable and reconcilable, and tell the client to poll. ──
+    if (!result.success && result.pending) {
+      try {
+        if (loan_id) {
+          await base44.entities.Repayment.create({
+            loan_id, user_id: user.id, amount: payAmount,
+            due_date: new Date().toISOString().split('T')[0],
+            status: 'pending', payment_method: 'mobile_money', transaction_ref: txnRef,
+          });
+        } else if (p2p_loan_id) {
+          await base44.entities.P2PRepayment.create({
+            loan_id: p2p_loan_id, user_id: user.id, amount: payAmount,
+            due_date: new Date().toISOString().split('T')[0],
+            status: 'pending', payment_method: 'mobile_money', transaction_ref: txnRef,
+          });
+        }
+      } catch (_) { /* non-critical: pending trace */ }
+      return Response.json({ success: false, pending: true, txn_ref: txnRef, error: result.error });
     }
 
     if (!result.success) {

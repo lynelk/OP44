@@ -1,15 +1,70 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
+// ── Role hierarchy ────────────────────────────────────────────────────────────
+// A flat `role: 'admin'` grants everything (backward compatible). An optional
+// `admin_tier` field on the User narrows capability for back-office staff:
+//   reviewer → read-only (list/get)
+//   approver → reviewer + status changes (update)
+//   ops      → approver + disbursement/collections + create
+//   admin    → everything incl. delete + role changes
+const TIER_RANK: Record<string, number> = { reviewer: 1, approver: 2, ops: 3, admin: 4 };
+
+function effectiveTier(user: any): string {
+  if (user?.role === 'admin') return 'admin';     // legacy flat admin = full access
+  return user?.admin_tier || '';                   // staff tier, or '' for non-staff
+}
+
+function canPerform(tier: string, action: string): boolean {
+  const rank = TIER_RANK[tier] || 0;
+  if (rank === 0) return false;
+  if (['list', 'get', 'get_stats', 'get_dashboard_stats', 'check', 'generate'].includes(action)) return rank >= 1;
+  if (action === 'update' || action === 'toggle') return rank >= 2;
+  if (action === 'create') return rank >= 3;
+  if (action === 'delete') return rank >= 4;
+  return rank >= 4;
+}
+
+// Append an immutable audit record for every write. Never throws (audit failure
+// must not block the operation, but we log it).
+async function writeAudit(base44: any, user: any, { action, entity, id, data }: any) {
+  if (['list', 'get', 'get_stats', 'get_dashboard_stats'].includes(action)) return;
+  try {
+    await base44.asServiceRole.entities.DisputeAuditLog.create({
+      entity_type: entity,
+      entity_id: id || (data && data.id) || 'bulk',
+      action,
+      performed_by: user.id,
+      performed_by_email: user.email,
+      changes: data ? JSON.stringify(data).slice(0, 4000) : null,
+      notes: `${action} on ${entity} via adminManager`,
+      source: 'adminManager',
+    });
+  } catch (e) {
+    console.error('Audit log write failed:', e);
+  }
+}
+
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
   const user = await base44.auth.me();
 
-  if (!user || user.role !== 'admin') {
+  const tier = effectiveTier(user);
+  if (!user || !tier) {
     return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
   }
 
   const body = await req.json();
   const { action, entity, data, id, query } = body;
+
+  if (!canPerform(tier, action)) {
+    return Response.json(
+      { error: `Forbidden: your role (${tier}) cannot perform "${action}"` },
+      { status: 403 }
+    );
+  }
+
+  // Record write actions to the audit trail (fire-and-forget, non-blocking).
+  await writeAudit(base44, user, { action, entity, id, data });
 
   // ---- USER MANAGEMENT ----
   if (entity === 'users') {
