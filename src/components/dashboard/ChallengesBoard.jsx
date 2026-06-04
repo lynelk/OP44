@@ -1,17 +1,21 @@
-import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Flame, ChevronRight, Trophy } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function ChallengesBoard({ userId }) {
-  const [challenges, setChallenges] = useState([]);
-
-  useEffect(() => {
-    if (!userId) return;
-    base44.entities.UserSavingsChallenge.filter({ user_id: userId, status: 'active' }).then(setChallenges);
-  }, [userId]);
+  const { data: challenges = [] } = useQuery({
+    queryKey: ['activeChallenges', userId],
+    queryFn: () => base44.entities.UserSavingsChallenge.filter({ user_id: userId, status: 'active' }),
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 15,
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
   if (challenges.length === 0) {
     return (

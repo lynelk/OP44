@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { CheckCircle2, Circle, Flame, Star, ChevronRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -13,34 +14,38 @@ const DEFAULT_CHECKLIST = [
 
 export default function DailyWellnessJourney({ userId }) {
   const [activity, setActivity] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
 
   const today = new Date().toISOString().split('T')[0];
 
-  useEffect(() => {
-    if (!userId) return;
-    const load = async () => {
+  const { isLoading } = useQuery({
+    queryKey: ['wellnessActivity', userId, today],
+    queryFn: async () => {
       const records = await base44.entities.WellnessActivity.filter({ user_id: userId });
       const todayRecord = records.find(r => r.activity_date === today);
       if (todayRecord) {
         setActivity(todayRecord);
-      } else {
-        // Create today's record
-        const newRecord = await base44.entities.WellnessActivity.create({
-          user_id: userId,
-          activity_date: today,
-          checklist: DEFAULT_CHECKLIST.map(item => ({ ...item, completed: false })),
-          total_points_earned: 0,
-          streak_count: calculateStreak(records),
-          completed_all: false,
-        });
-        setActivity(newRecord);
+        return todayRecord;
       }
-      setLoading(false);
-    };
-    load();
-  }, [userId]);
+      const newRecord = await base44.entities.WellnessActivity.create({
+        user_id: userId,
+        activity_date: today,
+        checklist: DEFAULT_CHECKLIST.map(item => ({ ...item, completed: false })),
+        total_points_earned: 0,
+        streak_count: calculateStreak(records),
+        completed_all: false,
+      });
+      setActivity(newRecord);
+      return newRecord;
+    },
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
   function calculateStreak(records) {
     const sorted = records.filter(r => r.completed_all).sort((a, b) => new Date(b.activity_date) - new Date(a.activity_date));
@@ -75,7 +80,7 @@ export default function DailyWellnessJourney({ userId }) {
     setSaving(false);
   };
 
-  if (loading) return null;
+  if (isLoading) return null;
   if (!activity) return null;
 
   const completedCount = activity.checklist?.filter(i => i.completed).length || 0;

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, X, ChevronRight, Lightbulb, PiggyBank, CreditCard, TrendingUp, Target, Trophy, AlertTriangle } from 'lucide-react';
 import { nudgeRoute } from '@/lib/notificationRoutes';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const NUDGE_ICON = {
   spending_alert: AlertTriangle,
@@ -18,19 +19,26 @@ const NUDGE_ICON = {
 // Surfaces unread AI coaching nudges (CoachingNudge entity) on the dashboard.
 // Renders nothing when there are none. Dismissing marks the nudge as read.
 export default function CoachingNudges({ userId }) {
-  const [nudges, setNudges] = useState([]);
+  const [localDismissed, setLocalDismissed] = useState([]);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!userId) return;
-    base44.entities.CoachingNudge.filter({ user_id: userId, is_read: false }, '-created_date', 5)
-      .then(setNudges)
-      .catch(() => {});
-  }, [userId]);
+  const { data: allNudges = [] } = useQuery({
+    queryKey: ['coachingNudges', userId],
+    queryFn: () => base44.entities.CoachingNudge.filter({ user_id: userId, is_read: false }, '-created_date', 5),
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 15,
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
+
+  const nudges = allNudges.filter(n => !localDismissed.includes(n.id));
 
   const dismiss = async (id, e) => {
     e?.stopPropagation();
-    setNudges(prev => prev.filter(n => n.id !== id));
+    setLocalDismissed(prev => [...prev, id]);
     try { await base44.entities.CoachingNudge.update(id, { is_read: true }); } catch { /* ignore */ }
   };
 

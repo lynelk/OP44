@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Trophy } from 'lucide-react';
 import MilestoneCelebration from './MilestoneCelebration';
@@ -15,13 +16,11 @@ const MILESTONES = [
 ];
 
 export default function MilestoneProgress({ userId }) {
-  const [stats, setStats] = useState(null);
-  const [earnedBadges, setEarnedBadges] = useState([]);
   const [celebration, setCelebration] = useState(null);
 
-  useEffect(() => {
-    if (!userId) return;
-    const load = async () => {
+  const { data } = useQuery({
+    queryKey: ['milestoneProgress', userId],
+    queryFn: async () => {
       const [savings, loans, repayments, expenses, policies, badges] = await Promise.all([
         base44.entities.SavingsPocket.filter({ user_id: userId }),
         base44.entities.LoanApplication.filter({ user_id: userId }),
@@ -36,33 +35,37 @@ export default function MilestoneProgress({ userId }) {
       const onTimeReps = repayments.filter(r => r.status === 'paid').length;
       const expenseCount = expenses.length;
       const activePolicies = policies.length;
-
       const computed = { totalSavings, closedLoans, onTimeReps, expenseCount, activePolicies };
-      setStats(computed);
-      setEarnedBadges(badges.map(b => b.badge_type));
+      const earnedBadgeTypes = badges.map(b => b.badge_type);
 
-      // Check for newly earned milestones
+      // Award newly earned badges (side-effect, non-blocking)
       for (const m of MILESTONES) {
         if (m.check(computed) && !badges.some(b => b.badge_type === m.badge)) {
-          // Award badge
-          await base44.entities.GamificationBadge.create({
+          base44.entities.GamificationBadge.create({
             user_id: userId,
             badge_type: m.badge,
             badge_name: m.name,
             description: m.desc,
             points_awarded: 50,
             earned_at: new Date().toISOString(),
-          });
+          }).catch(() => {});
           setCelebration(m);
-          break; // one at a time
+          break;
         }
       }
-    };
-    load();
-  }, [userId]);
+      return { stats: computed, earnedBadges: earnedBadgeTypes };
+    },
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 15,
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
-  if (!stats) return null;
+  if (!data) return null;
 
+  const { stats, earnedBadges } = data;
   const nextMilestone = MILESTONES.find(m => !earnedBadges.includes(m.badge) && !m.check(stats));
   const completedCount = MILESTONES.filter(m => earnedBadges.includes(m.badge) || m.check(stats)).length;
 
