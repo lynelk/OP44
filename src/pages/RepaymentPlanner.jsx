@@ -38,7 +38,7 @@ export default function RepaymentPlanner() {
   const [customPayment, setCustomPayment] = useState('');
 
   useEffect(() => {
-    base44.entities.LoanApplication.filter({}).then(data => {
+    base44.entities.LoanApplication.filter({}, '-created_date', 50).then(data => {
       const active = data.filter(l => ['active', 'disbursed', 'approved'].includes(l.status));
       setLoans(active);
       if (active.length > 0) {

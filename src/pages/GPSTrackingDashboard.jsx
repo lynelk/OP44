@@ -93,7 +93,7 @@ export default function GPSTrackingDashboard() {
     const [tRes, aRes, gfRes] = await Promise.all([
       base44.functions.invoke('gpsTrackerManager', { action: 'get_lender_trackers' }),
       base44.functions.invoke('gpsTrackerManager', { action: 'get_alerts' }),
-      base44.entities.Geofence.filter({})
+      base44.entities.Geofence.filter({}, '-created_date', 200)
     ]);
     setTrackers(tRes.data?.trackers || []);
     setAlerts(aRes.data?.alerts || []);

@@ -33,7 +33,7 @@ export default function Notifications() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    base44.entities.Notification.filter({}).then(ns =>
+    base44.entities.Notification.filter({}, '-created_date', 100).then(ns =>
       setNotifications(ns.sort((a, b) => new Date(b.created_date) - new Date(a.created_date)))
     );
   }, []);

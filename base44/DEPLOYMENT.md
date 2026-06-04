@@ -25,7 +25,17 @@ Deploy via your normal Base44 sync/publish step (the app source is Base44-manage
 - **Email (Resend):** `RESEND_API_KEY`, `NOTIFY_FROM_EMAIL`
 - **Bank aggregator (Mono example):** `MONO_SECRET_KEY` — without it, `bankSyncTransactions` uses a deterministic dev feed so the pipeline still works end to end
 
+## Security (done on the new entities)
+- **RLS applied** to `BankConnection`, `BankTransaction`, `NotificationPreference`
+  (owner + admin) and `SecondaryListing` (seller/buyer read; service-role/admin
+  writes only, so listings can't be forged from the client).
+
 ## Still recommended (platform-level, deliberately not done piecemeal)
-- **App-wide RLS** on financial entities (read/update scoped to `{{user.id}}`) — see review notes.
+- **App-wide RLS** on the other ~57 entities — several are cross-read (marketplace,
+  P2P loans, savings groups, reference data) so this needs a tested, per-entity pass,
+  not a blanket rule. Use the new entities' rules as the template for strictly-private ones.
 - **Rate limiting** on financial endpoints — needs a KV/store or Base44 middleware.
-- **Pagination** sweep of remaining unbounded `.filter({})` reads (new code is already bounded).
+- **Pagination**: per-user display lists are now bounded (Budget, Notifications,
+  RepaymentPlanner, SavingsChallenges, Profile, GPS). Admin aggregations and
+  cross-user reads were intentionally left unbounded (limiting would change totals);
+  those need server-side aggregation endpoints instead.
