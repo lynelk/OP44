@@ -111,7 +111,8 @@ Deno.serve(async (req) => {
     if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
 
     const body = await req.json();
-    const { loan_id, p2p_loan_id, amount, phone_number, provider, idempotency_key, action, check_txn_ref } = body;
+    const { loan_id, p2p_loan_id, savings_pocket_id, savings_goal_id, savings_group_id,
+            amount, phone_number, provider, idempotency_key, action, check_txn_ref } = body;
 
     // ── Status reconciliation: poll the provider for a previously-pending txn and
     //    settle the matching pending Repayment if it has now succeeded. ──
@@ -159,8 +160,8 @@ Deno.serve(async (req) => {
     if (!amount || !phone_number || !provider) {
       return Response.json({ error: 'Missing required fields: amount, phone_number, provider' }, { status: 400 });
     }
-    if (!loan_id && !p2p_loan_id) {
-      return Response.json({ error: 'Provide either loan_id or p2p_loan_id' }, { status: 400 });
+    if (!loan_id && !p2p_loan_id && !savings_pocket_id && !savings_goal_id && !savings_group_id) {
+      return Response.json({ error: 'Provide loan_id, p2p_loan_id, savings_pocket_id, savings_goal_id, or savings_group_id' }, { status: 400 });
     }
 
     // ── Input validation ──
@@ -184,7 +185,11 @@ Deno.serve(async (req) => {
         return Response.json({ success: true, duplicate: true, txn_ref: idempotency_key });
       }
     }
-    const note = loan_id ? `Loan repayment ${loan_id}` : `P2P loan repayment ${p2p_loan_id}`;
+    const note = loan_id ? `Loan repayment ${loan_id}`
+      : p2p_loan_id ? `P2P loan repayment ${p2p_loan_id}`
+      : savings_pocket_id ? `Savings pocket deposit ${savings_pocket_id}`
+      : savings_goal_id   ? `Savings goal deposit ${savings_goal_id}`
+      : `Savings group deposit ${savings_group_id}`;
 
     // ── Call real provider API ──
     let result;
@@ -300,6 +305,67 @@ Deno.serve(async (req) => {
       return Response.json({
         success: true, txn_ref: txnRef, provider, amount_paid: payAmount,
         new_balance: newBalance, loan_closed: newBalance <= 0, timestamp: new Date().toISOString(),
+      });
+    }
+
+    // ── Handle savings pocket deposit ────────────────────────────────────────
+    if (savings_pocket_id) {
+      const pockets = await base44.entities.SavingsPocket.filter({ user_id: user.id });
+      const pocket = pockets.find(p => p.id === savings_pocket_id);
+      if (!pocket) return Response.json({ error: 'Savings pocket not found' }, { status: 404 });
+
+      const newBalance = ugx((pocket.current_balance || 0) + payAmount);
+      await base44.entities.SavingsPocket.update(savings_pocket_id, { current_balance: newBalance });
+
+      await notify(base44, user.id, {
+        title: 'Savings Deposit Confirmed',
+        body: `UGX ${payAmount.toLocaleString()} deposited to "${pocket.name}" via ${provider.toUpperCase()}. New balance: UGX ${newBalance.toLocaleString()}. Ref: ${txnRef}.`,
+        type: 'system', priority: 'medium', action_url: '/savings',
+      });
+
+      return Response.json({
+        success: true, txn_ref: txnRef, provider, amount_paid: payAmount,
+        new_balance: newBalance, pocket_name: pocket.name, timestamp: new Date().toISOString(),
+      });
+    }
+
+    // ── Handle savings goal deposit ──────────────────────────────────────────
+    if (savings_goal_id) {
+      const res = await base44.functions.invoke('savingsGoalManager', {
+        action: 'contribute', goal_id: savings_goal_id, amount: payAmount,
+        payment_method: 'mobile_money', transaction_ref: txnRef,
+      });
+      if (res?.error) return Response.json({ error: res.error }, { status: 400 });
+
+      await notify(base44, user.id, {
+        title: 'Goal Deposit Confirmed',
+        body: `UGX ${payAmount.toLocaleString()} deposited to your savings goal via ${provider.toUpperCase()}. Ref: ${txnRef}.`,
+        type: 'system', priority: 'medium', action_url: '/savings',
+      });
+
+      return Response.json({
+        success: true, txn_ref: txnRef, provider, amount_paid: payAmount,
+        goal: res?.data?.goal, timestamp: new Date().toISOString(),
+      });
+    }
+
+    // ── Handle savings group contribution ────────────────────────────────────
+    if (savings_group_id) {
+      const res = await base44.functions.invoke('savingsGroupManager', {
+        action: 'contribute', group_id: savings_group_id, amount: payAmount,
+        notes: `Mobile Money via ${provider.toUpperCase()}. Ref: ${txnRef}`,
+      });
+      if (res?.error) return Response.json({ error: res.error }, { status: 400 });
+
+      await notify(base44, user.id, {
+        title: 'Group Contribution Confirmed',
+        body: `UGX ${payAmount.toLocaleString()} group contribution via ${provider.toUpperCase()} confirmed. Ref: ${txnRef}.`,
+        type: 'system', priority: 'medium', action_url: '/savings-groups',
+      });
+
+      return Response.json({
+        success: true, txn_ref: txnRef, provider, amount_paid: payAmount,
+        new_total: res?.data?.new_total, timestamp: new Date().toISOString(),
       });
     }
 

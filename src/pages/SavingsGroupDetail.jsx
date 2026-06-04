@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, ArrowLeft, Copy, CheckCheck, PiggyBank, Receipt, LogOut, Crown, Trophy } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import GroupLeaderboard from '@/components/groups/GroupLeaderboard';
+import DigitalPaymentModal from '@/components/payments/DigitalPaymentModal';
 
 export default function SavingsGroupDetail() {
   const { groupId } = useParams();
@@ -17,7 +18,7 @@ export default function SavingsGroupDetail() {
   const [tab, setTab] = useState('leaderboard');
   const [depositAmt, setDepositAmt] = useState('');
   const [depositNote, setDepositNote] = useState('');
-  const [contributing, setContributing] = useState(false);
+  const [showContributePayment, setShowContributePayment] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -35,16 +36,11 @@ export default function SavingsGroupDetail() {
     base44.auth.me().then(u => { setUser(u); load(u); });
   }, [groupId]);
 
-  const handleContribute = async () => {
-    if (!depositAmt) return;
-    setContributing(true);
-    await base44.functions.invoke('savingsGroupManager', {
-      action: 'contribute', group_id: groupId,
-      amount: parseFloat(depositAmt), notes: depositNote,
-    });
-    setDepositAmt(''); setDepositNote('');
+  const handleContributionSuccess = async () => {
+    setShowContributePayment(false);
+    setDepositAmt('');
+    setDepositNote('');
     await load(user);
-    setContributing(false);
   };
 
   const handleLeave = async () => {
@@ -126,8 +122,8 @@ export default function SavingsGroupDetail() {
               <p className="font-semibold text-sm flex items-center gap-2"><PiggyBank className="w-4 h-4 text-green-600" /> Add Contribution</p>
               <Input type="number" placeholder="Amount (UGX)" value={depositAmt} onChange={e => setDepositAmt(e.target.value)} />
               <Input placeholder="Note (optional)" value={depositNote} onChange={e => setDepositNote(e.target.value)} />
-              <Button className="w-full bg-green-600 text-white" onClick={handleContribute} disabled={contributing || !depositAmt}>
-                {contributing ? 'Contributing...' : 'Contribute'}
+              <Button className="w-full bg-green-600 text-white" onClick={() => parseFloat(depositAmt) && setShowContributePayment(true)} disabled={!depositAmt}>
+                Contribute
               </Button>
             </CardContent>
           </Card>
@@ -213,6 +209,19 @@ export default function SavingsGroupDetail() {
             <LogOut className="w-4 h-4 mr-1" /> {leaving ? 'Leaving...' : 'Leave Group'}
           </Button>
         </div>
+      )}
+
+      {showContributePayment && group && (
+        <DigitalPaymentModal
+          paymentContext={{
+            type: 'savings_group',
+            id: groupId,
+            amount: parseFloat(depositAmt) || 0,
+            label: `Contribute to "${group.name}"`,
+          }}
+          onSuccess={handleContributionSuccess}
+          onClose={() => setShowContributePayment(false)}
+        />
       )}
     </div>
   );

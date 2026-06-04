@@ -13,6 +13,7 @@ import {
   Vault, Plus, Target, Zap, Users, X, RefreshCw, Trophy, ChevronRight, Flame,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import DigitalPaymentModal from '@/components/payments/DigitalPaymentModal';
 import { savingsInterest } from '@/lib/finance';
 import { toast } from 'sonner';
 import { usePageTitle } from '@/lib/usePageTitle';
@@ -36,8 +37,8 @@ export default function SavingsHub() {
   // Quick Save state
   const [quickSavePocketId, setQuickSavePocketId] = useState('');
   const [quickSaveAmount, setQuickSaveAmount]     = useState('');
-  const [quickSaving, setQuickSaving]             = useState(false);
   const [showQS, setShowQS]                       = useState(false);
+  const [showQSPayment, setShowQSPayment]         = useState(false);
 
   // New pocket form
   const [showCreate, setShowCreate] = useState(false);
@@ -91,21 +92,23 @@ export default function SavingsHub() {
   const totalGoalSaved  = goals.reduce((s, g) => s + (g.current_amount || 0), 0);
   const overallGoalPct  = totalGoalTarget > 0 ? Math.min(100, (totalGoalSaved / totalGoalTarget) * 100) : 0;
 
-  const handleQuickSave = async () => {
+  const handleQuickSaveSubmit = () => {
     const amt = parseFloat(quickSaveAmount);
     if (!amt || !quickSavePocketId) return;
-    setQuickSaving(true);
-    const pocket  = pockets.find(p => p.id === quickSavePocketId);
-    if (!pocket) { setQuickSaving(false); return; }
-    const newBalance = (pocket.current_balance || 0) + amt;
-    // Route through offline-entity hook so write is queued when offline
-    const updated = await offlinePockets.update(pocket.id, { current_balance: newBalance })
-      .catch(() => base44.entities.SavingsPocket.update(pocket.id, { current_balance: newBalance }));
-    setPockets(prev => prev.map(p => p.id === pocket.id ? { ...p, current_balance: newBalance, ...updated } : p));
+    setShowQSPayment(true);
+  };
+
+  const handleQuickSavePaymentSuccess = (result) => {
+    const pocket = pockets.find(p => p.id === quickSavePocketId);
+    if (pocket) {
+      setPockets(prev => prev.map(p =>
+        p.id === quickSavePocketId ? { ...p, current_balance: result.new_balance } : p
+      ));
+    }
     setQuickSaveAmount('');
     setShowQS(false);
-    setQuickSaving(false);
-    toast.success(`UGX ${amt.toLocaleString('en-UG')} saved to ${pocket.name}`);
+    setShowQSPayment(false);
+    toast.success(`UGX ${result.amount_paid?.toLocaleString('en-UG')} deposited!`);
   };
 
   const handleCreatePocket = async () => {
@@ -190,10 +193,11 @@ export default function SavingsHub() {
                 value={quickSaveAmount} onChange={e => setQuickSaveAmount(e.target.value)}
               />
               <button
-                onClick={handleQuickSave} disabled={quickSaving || !quickSavePocketId || !quickSaveAmount}
+                onClick={handleQuickSaveSubmit}
+                disabled={!quickSavePocketId || !parseFloat(quickSaveAmount)}
                 className="w-full h-11 bg-[#0D1BFF] text-white rounded-xl font-semibold text-sm disabled:opacity-50 active:scale-95 transition-transform"
               >
-                {quickSaving ? 'Saving…' : 'Save Now'}
+                Save Now
               </button>
             </div>
           </div>
@@ -439,6 +443,19 @@ export default function SavingsHub() {
           </div>
         )}
       </div>
+
+      {showQSPayment && quickSavePocketId && (
+        <DigitalPaymentModal
+          paymentContext={{
+            type: 'savings_pocket',
+            id: quickSavePocketId,
+            amount: parseFloat(quickSaveAmount) || 0,
+            label: `Deposit to "${pockets.find(p => p.id === quickSavePocketId)?.name || 'Savings Pocket'}"`,
+          }}
+          onSuccess={handleQuickSavePaymentSuccess}
+          onClose={() => setShowQSPayment(false)}
+        />
+      )}
     </div>
   );
 }

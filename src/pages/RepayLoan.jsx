@@ -1,19 +1,12 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, CreditCard, Smartphone, Building2, Wallet, Calendar, TrendingDown, Clock, AlertTriangle, Zap } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, CreditCard, Smartphone, Calendar, Clock, AlertTriangle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import MobileMoneyModal from '@/components/loans/MobileMoneyModal';
+import DigitalPaymentModal from '@/components/payments/DigitalPaymentModal';
 import { prepaymentBreakdown } from '@/lib/finance';
-
-const PAYMENT_METHODS = [
-  { value: 'mobile_money', label: 'Mobile Money', icon: Smartphone, sub: 'MTN / Airtel Push', highlight: true },
-  { value: 'bank_transfer', label: 'Bank Transfer', icon: Building2, sub: 'Any bank' },
-  { value: 'wallet', label: 'OpFin Wallet', icon: Wallet, sub: 'Instant debit' },
-  { value: 'cash', label: 'Cash (Agent)', icon: CreditCard, sub: 'Visit agent' },
-];
 
 export default function RepayLoan() {
   const navigate = useNavigate();
@@ -23,8 +16,7 @@ export default function RepayLoan() {
   const [loans, setLoans] = useState([]);
   const [selectedLoan, setSelectedLoan] = useState(null);
   const [repayments, setRepayments] = useState([]);
-  const [paymentMethod, setPaymentMethod] = useState('mobile_money');
-  const [showMobileMoneyModal, setShowMobileMoneyModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [successData, setSuccessData] = useState(null);
@@ -67,39 +59,16 @@ export default function RepayLoan() {
 
   const handlePaymentSuccess = async (result) => {
     setSuccessData(result);
-    setShowMobileMoneyModal(false);
-    // Refresh loan data
+    setShowPaymentModal(false);
     const updated = await base44.entities.LoanApplication.filter({ user_id: user.id });
     const target = updated.find(l => l.id === selectedLoan.id);
     if (target) setSelectedLoan(target);
     await loadRepayments(selectedLoan.id);
   };
 
-  const handleNonMMPayment = async () => {
-    if (!selectedLoan) return;
-    const today = new Date().toISOString().split('T')[0];
-    const baseAmount = prepayMode ? parseFloat(prepayAmount) : (nextDue?.amount || selectedLoan.monthly_installment);
-    const payAmount = prepayMode
-      ? prepaymentBreakdown(0, baseAmount).totalCharged
-      : baseAmount;
-    const txnRef = `TXN-${Date.now()}`;
-
-    if (nextDue) {
-      await base44.entities.Repayment.update(nextDue.id, {
-        status: 'paid', paid_date: today, payment_method: paymentMethod, transaction_ref: txnRef,
-      });
-    }
-    const newBalance = Math.max(0, (selectedLoan.outstanding_balance || 0) - payAmount);
-    await base44.entities.LoanApplication.update(selectedLoan.id, {
-      outstanding_balance: newBalance,
-      status: newBalance <= 0 ? 'closed' : selectedLoan.status,
-    });
-    setSuccessData({ amount_paid: payAmount, txn_ref: txnRef, new_balance: newBalance, loan_closed: newBalance <= 0 });
-    const updated = await base44.entities.LoanApplication.filter({ user_id: user.id });
-    const target = updated.find(l => l.id === selectedLoan.id);
-    if (target) setSelectedLoan(target);
-    await loadRepayments(selectedLoan.id);
-  };
+  const paymentAmount = prepayMode
+    ? prepaymentBreakdown(0, parseFloat(prepayAmount) || 0).totalCharged
+    : (nextDue?.amount || selectedLoan?.monthly_installment || 0);
 
   if (successData && successData.loan_closed) {
     return (
@@ -279,58 +248,18 @@ export default function RepayLoan() {
                   </div>
                 )}
 
-                {/* Payment method selector */}
-                <div>
-                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Payment Method</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {PAYMENT_METHODS.map(m => {
-                      const Icon = m.icon;
-                      return (
-                        <button
-                          key={m.value}
-                          onClick={() => setPaymentMethod(m.value)}
-                          className={`flex items-center gap-2.5 p-3 rounded-xl border-2 text-left transition-all ${
-                            paymentMethod === m.value
-                              ? 'border-[#1a3a6b] bg-[#1a3a6b]/5'
-                              : 'border-gray-100 bg-white'
-                          }`}
-                        >
-                          <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${paymentMethod === m.value ? 'bg-[#1a3a6b]' : 'bg-gray-100'}`}>
-                            <Icon className={`w-4 h-4 ${paymentMethod === m.value ? 'text-white' : 'text-gray-500'}`} />
-                          </div>
-                          <div>
-                            <p className={`text-xs font-semibold ${paymentMethod === m.value ? 'text-[#1a3a6b]' : 'text-gray-700'}`}>{m.label}</p>
-                            <p className="text-xs text-gray-400">{m.sub}</p>
-                          </div>
-                          {m.highlight && <span className="ml-auto text-xs bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded-full font-medium">Fast</span>}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
                 {/* Pay button */}
-                {paymentMethod === 'mobile_money' ? (
-                  <button
-                    onClick={() => setShowMobileMoneyModal(true)}
-                    disabled={prepayMode && !parseFloat(prepayAmount)}
-                    className="w-full h-14 bg-gradient-to-r from-orange-500 to-orange-400 text-white font-bold rounded-2xl text-base shadow-md shadow-orange-100 flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    <Smartphone className="w-5 h-5" />
-                    {prepayMode ? `Prepay UGX ${(parseFloat(prepayAmount) || 0).toLocaleString()} via Mobile Money` : 'Pay via Mobile Money'}
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleNonMMPayment}
-                    disabled={prepayMode && !parseFloat(prepayAmount)}
-                    className="w-full h-14 bg-[#1a3a6b] text-white font-bold rounded-2xl text-base disabled:opacity-50"
-                  >
-                    {prepayMode
-                      ? `Prepay UGX ${(parseFloat(prepayAmount) || 0).toLocaleString()}`
-                      : `Record Payment — UGX ${(nextDue?.amount || selectedLoan?.monthly_installment || 0).toLocaleString()}`
-                    }
-                  </button>
-                )}
+                <button
+                  onClick={() => setShowPaymentModal(true)}
+                  disabled={prepayMode && !parseFloat(prepayAmount)}
+                  className="w-full h-14 bg-gradient-to-r from-orange-500 to-orange-400 text-white font-bold rounded-2xl text-base shadow-md shadow-orange-100 flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  <CreditCard className="w-5 h-5" />
+                  {prepayMode
+                    ? `Prepay UGX ${(parseFloat(prepayAmount) || 0).toLocaleString()}`
+                    : `Pay UGX ${(nextDue?.amount || selectedLoan?.monthly_installment || 0).toLocaleString()}`
+                  }
+                </button>
 
                 {/* Repayment schedule */}
                 {repayments.length > 0 && (
@@ -372,11 +301,16 @@ export default function RepayLoan() {
         )}
       </div>
 
-      {showMobileMoneyModal && selectedLoan && (
-        <MobileMoneyModal
-          loan={selectedLoan}
+      {showPaymentModal && selectedLoan && (
+        <DigitalPaymentModal
+          paymentContext={{
+            type: 'loan',
+            id: selectedLoan.id,
+            amount: paymentAmount,
+            label: `Loan Repayment — ${selectedLoan.purpose || 'Personal Loan'}`,
+          }}
           onSuccess={handlePaymentSuccess}
-          onClose={() => setShowMobileMoneyModal(false)}
+          onClose={() => setShowPaymentModal(false)}
         />
       )}
     </div>

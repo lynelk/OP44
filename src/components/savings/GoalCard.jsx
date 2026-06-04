@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Zap, ChevronDown, ChevronUp, Trash2, CheckCircle } from 'lucide-react';
+import DigitalPaymentModal from '@/components/payments/DigitalPaymentModal';
 
 const STATUS_COLORS = {
   active: 'bg-green-100 text-green-700',
@@ -16,25 +17,26 @@ const STATUS_COLORS = {
 export default function GoalCard({ goal, onUpdated, onDeleted }) {
   const [expanded, setExpanded] = useState(false);
   const [amount, setAmount] = useState('');
-  const [contributing, setContributing] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
 
   const progress = goal.target_amount > 0
     ? Math.min((goal.current_amount / goal.target_amount) * 100, 100)
     : 0;
   const remaining = Math.max(0, (goal.target_amount || 0) - (goal.current_amount || 0));
 
-  const handleContribute = async () => {
-    const amt = parseFloat(amount);
-    if (!amt || amt <= 0) return;
-    setContributing(true);
-    const res = await base44.functions.invoke('savingsGoalManager', {
-      action: 'contribute',
-      goal_id: goal.id,
-      amount: amt
-    });
-    setContributing(false);
+  const handleContributeClick = () => {
+    if (!parseFloat(amount)) return;
+    setShowPayment(true);
+  };
+
+  const handlePaymentSuccess = (result) => {
+    setShowPayment(false);
     setAmount('');
-    if (res.data?.goal) onUpdated(res.data.goal);
+    if (result?.goal) onUpdated(result.goal);
+    else {
+      // Optimistic update with the paid amount
+      onUpdated({ ...goal, current_amount: (goal.current_amount || 0) + (result.amount_paid || 0) });
+    }
   };
 
   const handleDelete = async () => {
@@ -50,6 +52,7 @@ export default function GoalCard({ goal, onUpdated, onDeleted }) {
     : null;
 
   return (
+  <>
     <Card className="shadow-sm overflow-hidden">
       <CardContent className="p-0">
         {/* Top section */}
@@ -103,8 +106,8 @@ export default function GoalCard({ goal, onUpdated, onDeleted }) {
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
               />
-              <Button size="sm" className="bg-green-600 text-white h-8 px-3" onClick={handleContribute} disabled={contributing}>
-                {contributing ? '...' : 'Add'}
+              <Button size="sm" className="bg-green-600 text-white h-8 px-3" onClick={handleContributeClick} disabled={!parseFloat(amount)}>
+                Add
               </Button>
             </div>
           )}
@@ -145,5 +148,19 @@ export default function GoalCard({ goal, onUpdated, onDeleted }) {
         </div>
       </CardContent>
     </Card>
+
+    {showPayment && (
+      <DigitalPaymentModal
+        paymentContext={{
+          type: 'savings_goal',
+          id: goal.id,
+          amount: parseFloat(amount) || 0,
+          label: `Contribute to "${goal.name}"`,
+        }}
+        onSuccess={handlePaymentSuccess}
+        onClose={() => setShowPayment(false)}
+      />
+    )}
+  </>
   );
 }
