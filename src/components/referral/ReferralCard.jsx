@@ -1,19 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Copy, Share2, Users, Star, Gift, CheckCircle2, Loader2 } from 'lucide-react';
+import { Copy, Share2, Gift, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
 
 export default function ReferralCard() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    base44.functions.invoke('referralEngine', { action: 'get_my_referral' }).then(r => {
-      setData(r.data);
-      setLoading(false);
-    });
-  }, []);
+  const { data, isLoading } = useQuery({
+    queryKey: ['referralInfo'],
+    queryFn: () => base44.functions.invoke('referralEngine', { action: 'get_my_referral' }).then(r => r.data),
+    staleTime: 1000 * 60 * 10,   // cache for 10 min
+    gcTime: 1000 * 60 * 30,
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
   const copyLink = () => {
     navigator.clipboard.writeText(data.referral_link);
@@ -33,7 +35,7 @@ export default function ReferralCard() {
     }
   };
 
-  if (loading) return (
+  if (isLoading) return (
     <div className="bg-white rounded-2xl p-5 flex items-center justify-center h-32">
       <Loader2 className="w-5 h-5 animate-spin text-gray-300" />
     </div>
