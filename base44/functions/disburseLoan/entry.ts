@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { ugx } from '../_shared/money.ts';
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
@@ -11,8 +12,8 @@ Deno.serve(async (req) => {
 
   if (!loan_id || !action) return Response.json({ error: 'Missing loan_id or action' }, { status: 400 });
 
-  const loans = await base44.asServiceRole.entities.LoanApplication.filter({});
-  const loan = loans.find(l => l.id === loan_id);
+  const loanRows = await base44.asServiceRole.entities.LoanApplication.filter({ id: loan_id });
+  const loan = loanRows[0];
   if (!loan) return Response.json({ error: 'Loan not found' }, { status: 404 });
 
   const now = new Date().toISOString();
@@ -51,9 +52,19 @@ Deno.serve(async (req) => {
   }
 
   if (action === 'disburse') {
+    if (loan.status === 'disbursed') {
+      return Response.json({ success: true, duplicate: true, message: 'Loan already disbursed' });
+    }
+    if (loan.status === 'disbursing') {
+      return Response.json({ success: false, error: 'Disbursement already in progress — please wait and retry' }, { status: 409 });
+    }
     if (loan.status !== 'approved') {
       return Response.json({ error: 'Loan must be approved before disbursement' }, { status: 400 });
     }
+
+    // Optimistic lock: flip status to 'disbursing' before any writes.
+    // A concurrent request hitting this point will see 'disbursing' and return 409 above.
+    await base44.asServiceRole.entities.LoanApplication.update(loan_id, { status: 'disbursing' });
 
     const amount = loan.amount_approved || loan.amount_requested;
     const tenure = loan.tenure_months || 3;
@@ -86,15 +97,15 @@ Deno.serve(async (req) => {
       }
     }
 
-    disbursementFee = Math.max(0, disbursementFee - feeDiscount);
-    const insuranceCost = amount * 0.01;
-    const netDisbursement = amount - disbursementFee - insuranceCost;
+    disbursementFee = ugx(Math.max(0, disbursementFee - feeDiscount));
+    const insuranceCost = ugx(amount * 0.01);
+    const netDisbursement = ugx(amount - disbursementFee - insuranceCost);
 
     // Proper amortization formula: M = P*r*(1+r)^n / ((1+r)^n - 1)
-    const monthly = r === 0
+    const monthly = ugx(r === 0
       ? amount / tenure
-      : (amount * r * Math.pow(1 + r, tenure)) / (Math.pow(1 + r, tenure) - 1);
-    const totalRepayable = monthly * tenure;
+      : (amount * r * Math.pow(1 + r, tenure)) / (Math.pow(1 + r, tenure) - 1));
+    const totalRepayable = ugx(monthly * tenure);
 
     // P1-2: idempotency — bail out if a schedule already exists to prevent duplicate repayments on retry
     const existingRepayments = await base44.asServiceRole.entities.Repayment.filter({ loan_id });

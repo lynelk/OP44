@@ -16,6 +16,7 @@
  */
 
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { checkRateLimit, rateLimitedResponse } from '../_shared/rateLimit.ts';
 
 // ── Interest rate helpers ─────────────────────────────────────────────────────
 function calcMonthlyInstallment(principal, monthlyRatePct, months) {
@@ -45,6 +46,10 @@ Deno.serve(async (req) => {
     const base44  = createClientFromRequest(req);
     const user    = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // Rate limit: 5 loan decision requests per user per minute (prevents automated scanning)
+    const rl = await checkRateLimit({ scope: 'loan_decision', userId: user.id, limit: 5, windowSecs: 60 });
+    if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
 
     const body = req.method === 'POST' ? await req.json().catch(() => ({})) : {};
     const {

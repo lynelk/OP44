@@ -1,10 +1,15 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { checkRateLimit, rateLimitedResponse } from '../_shared/rateLimit.ts';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // Rate limit: 2 AI tip requests per user per 30 minutes (LLM cost control)
+    const rl = await checkRateLimit({ scope: 'tips', userId: user.id, limit: 2, windowSecs: 1800 });
+    if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
 
     const currentMonth = new Date().toISOString().slice(0, 7);
     const lastMonth = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().slice(0, 7);

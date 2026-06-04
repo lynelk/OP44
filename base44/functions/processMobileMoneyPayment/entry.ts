@@ -1,4 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { ugx, parseUGX } from '../_shared/money.ts';
+import { checkRateLimit, rateLimitedResponse } from '../_shared/rateLimit.ts';
 
 // ─── MTN MoMo: Get access token ───────────────────────────────────────────────
 async function getMtnAccessToken() {
@@ -48,24 +50,10 @@ async function mtnRequestToPay({ amount, phone_number, txnRef, note }) {
 
   if (res.status !== 202) { console.error('[MTN] request failed:', res.status, await res.text()); throw new Error('Mobile money payment could not be initiated'); }
 
-  // Poll for status (up to 30s)
-  for (let i = 0; i < 6; i++) {
-    await new Promise(r => setTimeout(r, 5000));
-    const statusRes = await fetch(`${baseUrl}/collection/v1_0/requesttopay/${txnRef}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'X-Target-Environment': baseUrl.includes('sandbox') ? 'sandbox' : 'mtnuganda',
-        'Ocp-Apim-Subscription-Key': subscriptionKey,
-      },
-    });
-    const status = await statusRes.json();
-    if (status.status === 'SUCCESSFUL') return { success: true, txn_ref: txnRef };
-    if (status.status === 'FAILED') return { success: false, error: status.reason || 'MTN payment failed' };
-  }
-  // Not yet resolved within our poll window. This is NOT a failure — the user may
-  // still approve the prompt. Signal "pending" so the caller records a pending
-  // repayment and offers a status-check rather than telling the user it failed.
-  return { success: false, pending: true, txn_ref: txnRef, error: 'Payment is still being confirmed by MTN' };
+  // Return immediately — the user's handset will receive the payment prompt.
+  // The client must call action:'check_status' with check_txn_ref to settle the
+  // repayment once confirmed. This avoids holding an HTTP thread for 30 seconds.
+  return { success: false, pending: true, txn_ref: txnRef, error: 'Awaiting payment confirmation from MTN' };
 }
 
 // ─── Airtel Money: Get access token ──────────────────────────────────────────
@@ -117,6 +105,10 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // Rate limit: 10 payment requests per user per minute
+    const rl = await checkRateLimit({ scope: 'payment', userId: user.id, limit: 10, windowSecs: 60 });
+    if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
 
     const body = await req.json();
     const { loan_id, p2p_loan_id, amount, phone_number, provider, idempotency_key, action, check_txn_ref } = body;
@@ -172,7 +164,7 @@ Deno.serve(async (req) => {
     }
 
     // ── Input validation ──
-    const payAmount = parseFloat(amount);
+    const payAmount = parseUGX(amount);
     if (!Number.isFinite(payAmount) || payAmount <= 0) {
       return Response.json({ error: 'Amount must be a positive number' }, { status: 400 });
     }
@@ -259,7 +251,7 @@ Deno.serve(async (req) => {
         });
       }
 
-      const newBalance = Math.max(0, (targetLoan.outstanding_balance || targetLoan.total_repayable || 0) - payAmount);
+      const newBalance = ugx(Math.max(0, (targetLoan.outstanding_balance || targetLoan.total_repayable || 0) - payAmount));
       const newStatus = newBalance <= 0 ? 'closed' : targetLoan.status;
       await base44.entities.LoanApplication.update(loan_id, { outstanding_balance: newBalance, status: newStatus });
 
@@ -293,7 +285,7 @@ Deno.serve(async (req) => {
         });
       }
 
-      const newBalance = Math.max(0, (targetP2P.outstanding_balance || 0) - payAmount);
+      const newBalance = ugx(Math.max(0, (targetP2P.outstanding_balance || 0) - payAmount));
       await base44.entities.P2PLoan.update(p2p_loan_id, {
         outstanding_balance: newBalance,
         status: newBalance <= 0 ? 'closed' : targetP2P.status,

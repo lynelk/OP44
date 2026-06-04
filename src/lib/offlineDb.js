@@ -76,6 +76,21 @@ db.version(2).stores({
   NotificationPreference:'id, user_id, updated_date',
 });
 
+// v3: ROSCA, investments, reschedule requests, audit logs, auto-save logs,
+//     USSD sessions, revenue transactions — complete coverage of all entities
+//     used by frontend pages so offline sync writes are never silently dropped.
+db.version(3).stores({
+  ROSCAGroup:            'id, created_by, status, updated_date',
+  ROSCAMember:           'id, group_id, user_id, updated_date',
+  InvestmentPool:        'id, status, updated_date',
+  InvestorContribution:  'id, user_id, pool_id, updated_date',
+  LoanRescheduleRequest: 'id, loan_id, user_id, status, updated_date',
+  AutoSaveLog:           'id, user_id, pocket_id, status, updated_date',
+  DisputeAuditLog:       'id, dispute_id, updated_date',
+  USSDSession:           'id, session_id, user_id, updated_date',
+  RevenueTransaction:    'id, updated_date',
+});
+
 // Wipe all locally-cached data. Called on logout so PII/financial records
 // don't persist for the next user on a shared device.
 export async function clearAllData() {

@@ -350,19 +350,23 @@ Deno.serve(async (req) => {
 
     // ── LENDER RENTAL REPORTS ───────────────────────────────────────────────────
     if (action === 'lender_rental_report') {
-      const { lender_id } = body;
+      // Only senior admins (admin_tier >= 3) may view other lenders' data.
+      // All other callers are scoped to their own lender_id regardless of body.
+      const requestedLenderId = body.lender_id;
+      const isSeniorAdmin = user.admin_tier != null && user.admin_tier >= 3;
+      const effectiveLenderId = isSeniorAdmin ? (requestedLenderId || null) : user.id;
 
       const [rentals, trackers, devices, users] = await Promise.all([
-        base44.asServiceRole.entities.RentalAgreement.list('-created_date', 500),
+        effectiveLenderId
+          ? base44.asServiceRole.entities.RentalAgreement.filter({ lender_id: effectiveLenderId }, '-created_date', 500)
+          : base44.asServiceRole.entities.RentalAgreement.list('-created_date', 500),
         base44.asServiceRole.entities.GPSTracker.list('-created_date', 500),
         base44.asServiceRole.entities.Device.list('-created_date', 500),
         base44.asServiceRole.entities.User.list('-created_date', 500),
       ]);
 
-      // Filter to specific lender or all lenders
-      const targetRentals = lender_id
-        ? rentals.filter(r => r.lender_id === lender_id)
-        : rentals;
+      // targetRentals is already scoped above
+      const targetRentals = rentals;
 
       // Group by lender
       const byLender = {};

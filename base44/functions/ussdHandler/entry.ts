@@ -71,11 +71,17 @@ Deno.serve(async (req) => {
 
   const base44 = createClientFromRequest(req);
 
-  // ── Resolve user by phone number ──────────────────────────────────────────
-  const allUsers = await base44.asServiceRole.entities.User.list();
-  const user = allUsers.find(u =>
-    (u.phone_number || '').replace(/\D/g, '') === phoneNumber.replace(/\D/g, '')
-  );
+  // ── Resolve user by phone number — indexed lookup, not full-table scan ───
+  const normalised = phoneNumber.replace(/\D/g, '');
+  // Try the exact stored format first, then with/without leading 256 prefix
+  const withCountry = normalised.startsWith('256') ? normalised : `256${normalised.replace(/^0/, '')}`;
+  const withZero    = normalised.startsWith('0')   ? normalised : `0${normalised.replace(/^256/, '')}`;
+  const [byNorm, byCountry, byZero] = await Promise.all([
+    base44.asServiceRole.entities.User.filter({ phone_number: normalised }),
+    base44.asServiceRole.entities.User.filter({ phone_number: withCountry }),
+    base44.asServiceRole.entities.User.filter({ phone_number: withZero }),
+  ]);
+  const user = (byNorm[0] || byCountry[0] || byZero[0]) ?? null;
 
   // ── Log / update session ──────────────────────────────────────────────────
   const sessions = await base44.asServiceRole.entities.USSDSession.filter({ session_id: sessionId });
