@@ -18,6 +18,26 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
+  // ── Gateway authentication ─────────────────────────────────────────────────
+  // Africa's Talking does not sign callbacks, so the recommended protection is a
+  // shared secret embedded in the configured callback URL (?gw_secret=…) or sent
+  // as a header. When USSD_GATEWAY_SECRET is set we enforce it; otherwise we stay
+  // open (e.g. for the in-app USSD simulator and local testing).
+  const expectedSecret = Deno.env.get('USSD_GATEWAY_SECRET');
+  if (expectedSecret) {
+    const url = new URL(req.url);
+    const provided =
+      req.headers.get('x-ussd-secret') ||
+      url.searchParams.get('gw_secret') ||
+      '';
+    if (provided !== expectedSecret) {
+      return new Response('END Unauthorized gateway request.', {
+        status: 403,
+        headers: { 'Content-Type': 'text/plain' },
+      });
+    }
+  }
+
   const contentType = req.headers.get('content-type') || '';
   let params = {};
 
@@ -25,7 +45,7 @@ Deno.serve(async (req) => {
     const body = await req.text();
     for (const pair of body.split('&')) {
       const [k, v] = pair.split('=');
-      if (k) params[decodeURIComponent(k)] = decodeURIComponent(v || '');
+      if (k) params[decodeURIComponent(k)] = decodeURIComponent((v || '').replace(/\+/g, ' '));
     }
   } else {
     params = await req.json().catch(() => ({}));

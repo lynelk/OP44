@@ -63,6 +63,7 @@ Deno.serve(async (req) => {
           escalated_to_collections: true,
           days_overdue: daysOverdue,
           crb_reported: true,
+          collections_stage: 'tier3_collections',
         });
 
         await notify(base44, userId, {
@@ -94,6 +95,7 @@ Deno.serve(async (req) => {
           reminder_count: reminderCount,
           last_reminder_sent_date: nowIso,
           days_overdue: daysOverdue,
+          collections_stage: 'tier2_plan_offer',
         });
 
         // Attempt to invoke decideLoanReschedule for a plan offer
@@ -131,6 +133,7 @@ Deno.serve(async (req) => {
         reminder_count: reminderCount,
         last_reminder_sent_date: nowIso,
         days_overdue: daysOverdue,
+        collections_stage: 'tier1_reminder',
       });
 
       await notify(base44, userId, {
