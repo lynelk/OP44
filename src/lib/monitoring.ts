@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * monitoring — lightweight error-tracking wrapper.
  *
@@ -13,7 +15,7 @@ export async function initMonitoring(): Promise<void> {
   if (_initialised) return;
   _initialised = true;
 
-  const dsn = (import.meta as Record<string, unknown> & { env: Record<string, string> }).env?.VITE_SENTRY_DSN;
+  const dsn = import.meta.env.VITE_SENTRY_DSN;
   if (!dsn) return;
 
   try {
@@ -26,7 +28,7 @@ export async function initMonitoring(): Promise<void> {
     }
     Sentry.init({
       dsn,
-      environment: (import.meta as Record<string, unknown> & { env: Record<string, string> }).env?.VITE_APP_ENV || 'production',
+      environment: import.meta.env.VITE_APP_ENV || 'production',
       tracesSampleRate: 0.1,
       sendDefaultPii: false,
     });

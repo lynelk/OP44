@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 interface AppParams {
   appId: string | null;
   token: string | null;
@@ -6,10 +8,21 @@ interface AppParams {
   appBaseUrl: string | null;
 }
 
+interface StorageLike {
+  setItem(key: string, value: string): void;
+  getItem(key: string): string | null;
+  removeItem(key: string): void;
+}
+
+class MapStorage implements StorageLike {
+  private readonly _map = new Map<string, string>();
+  setItem(key: string, value: string): void { this._map.set(key, value); }
+  getItem(key: string): string | null { return this._map.get(key) ?? null; }
+  removeItem(key: string): void { this._map.delete(key); }
+}
+
 const isNode = typeof window === 'undefined';
-const storage: Storage | Map<string, string> = isNode
-  ? new Map<string, string>()
-  : window.localStorage;
+const storage: StorageLike = isNode ? new MapStorage() : window.localStorage;
 
 function toSnakeCase(str: string): string {
   return str.replace(/([A-Z])/g, '_$1').toLowerCase();

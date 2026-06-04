@@ -52,8 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const appClient = createAxiosClient({
         baseURL: `/api/apps/public`,
-        headers: { 'X-App-Id': appParams.appId },
-        token: appParams.token,
+        headers: { 'X-App-Id': appParams.appId ?? '' },
+        token: appParams.token ?? undefined,
         interceptResponses: true,
       });
 
