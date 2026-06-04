@@ -6,7 +6,6 @@ import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, Re
 import CoachingNudges from '@/components/dashboard/CoachingNudges';
 import OnboardingTour from '@/components/dashboard/OnboardingTour';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
-import ErrorState from '@/components/ui/ErrorState';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const TIP_STYLES = {
@@ -27,13 +26,14 @@ export default function Dashboard() {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  const { data: summary, error: summaryError, refetch: refetchSummary } = useQuery({
+  const { data: summary, error: summaryError, isLoading: summaryLoading, refetch: refetchSummary } = useQuery({
     queryKey: ['dashboardSummary'],
     queryFn: () => base44.functions.invoke('getDashboardSummary', {}).then(r => r.data),
     staleTime: 1000 * 60 * 2,
     gcTime: 1000 * 60 * 5,
-    retry: false,
+    retry: 1,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   const loans = summary?.loans ?? [];
@@ -100,13 +100,8 @@ export default function Dashboard() {
     { icon: PieChart, label: 'Net Worth', path: '/net-worth', color: 'bg-[#32B4FF]/10 text-[#32B4FF] dark:bg-[#32B4FF]/20 dark:text-[#32B4FF]' },
   ];
 
-  if (summaryError && !summary) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-6">
-        <ErrorState error={summaryError} onRetry={refetchSummary} retryLabel="Reload dashboard" />
-      </div>
-    );
-  }
+  // Non-blocking — show inline banner rather than replacing the whole page
+  const showSummaryError = summaryError && !summary && !summaryLoading;
 
   return (
     <div ref={scrollRef} className="min-h-screen bg-gray-50 dark:bg-gray-950 overflow-y-auto">
@@ -116,6 +111,16 @@ export default function Dashboard() {
           <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-full px-4 py-2 shadow-lg text-sm text-gray-600 dark:text-gray-300">
             <RefreshCw className="w-4 h-4 animate-spin text-blue-500" /> Refreshing...
           </div>
+        </div>
+      )}
+
+      {/* Inline summary error — page still usable */}
+      {showSummaryError && (
+        <div className="mx-4 mt-3 flex items-center justify-between gap-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 px-4 py-3">
+          <p className="text-xs text-red-700 dark:text-red-300">Could not load dashboard data. Check your connection.</p>
+          <button onClick={refetchSummary} className="text-xs font-semibold text-red-600 dark:text-red-400 whitespace-nowrap flex items-center gap-1">
+            <RefreshCw className="w-3 h-3" /> Retry
+          </button>
         </div>
       )}
 
