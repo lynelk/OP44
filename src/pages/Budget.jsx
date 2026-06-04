@@ -10,6 +10,7 @@ import BudgetLimitsManager from '@/components/budget/BudgetLimitsManager';
 import ReceiptScanner from '@/components/budget/ReceiptScanner';
 import BudgetForecast from '@/components/budget/BudgetForecast';
 import AffordabilityMeter from '@/components/budget/AffordabilityMeter';
+import { usePageTitle } from '@/lib/usePageTitle';
 
 const CATEGORIES = ['food','transport','housing','health','education','entertainment','utilities','clothing','savings','loan_repayment','other'];
 const CATEGORY_COLORS = {
@@ -23,6 +24,7 @@ const CATEGORY_ICONS = {
 };
 
 export default function Budget() {
+  usePageTitle('Budget');
   const [expenses, setExpenses] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
   const [amount, setAmount] = useState('');

@@ -9,12 +9,14 @@ import UnlockRequirements from '@/components/kyc/UnlockRequirements';
 import DailyWellnessJourney from '@/components/wellness/DailyWellnessJourney';
 import ChallengesBoard from '@/components/dashboard/ChallengesBoard';
 import MilestoneProgress from '@/components/milestones/MilestoneProgress';
+import { usePageTitle } from '@/lib/usePageTitle';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
 export default function Profile() {
+  usePageTitle('Profile');
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [kyc, setKyc] = useState([]);

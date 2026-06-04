@@ -30,10 +30,12 @@ export default function ExpenseInsights() {
   const [catResult, setCatResult] = useState(null);
 
   useEffect(() => {
-    base44.entities.Expense.filter({}).then(data => {
+    base44.auth.me().then(u =>
+      base44.entities.Expense.filter({ user_id: u.id })
+    ).then(data => {
       setExpenses(data);
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   }, []);
 
   // Aggregate by category for current month

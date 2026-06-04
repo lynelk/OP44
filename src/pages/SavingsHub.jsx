@@ -15,11 +15,13 @@ import {
 import { Link } from 'react-router-dom';
 import { savingsInterest } from '@/lib/finance';
 import { toast } from 'sonner';
+import { usePageTitle } from '@/lib/usePageTitle';
 
 const ICONS = ['🎯','🏠','📚','✈️','💊','💍','🚗','💼'];
 const TABS  = ['Pockets', 'Goals', 'Challenges', 'Groups'];
 
 export default function SavingsHub() {
+  usePageTitle('Savings');
   const { user } = useAuth();
   const offlinePockets = useOfflineEntity('SavingsPocket', user?.id ? { user_id: user.id } : {});
 

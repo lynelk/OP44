@@ -8,8 +8,10 @@ import PillarBar from '@/components/health/PillarBar';
 import AIAdviceCard from '@/components/health/AIAdviceCard';
 import HealthMetricsGrid from '@/components/health/HealthMetricsGrid';
 import RuleFlags from '@/components/health/RuleFlags';
+import { usePageTitle } from '@/lib/usePageTitle';
 
 export default function FinancialHealth() {
+  usePageTitle('Financial Health');
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);

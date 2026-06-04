@@ -44,7 +44,7 @@ export default function Claims() {
       setUser(me);
       const [pols, prods, cls] = await Promise.all([
         base44.entities.InsurancePolicy.filter({ user_id: me.id, status: 'active' }),
-        base44.entities.InsuranceProduct.filter({}),
+        base44.entities.InsuranceProduct.filter({ is_active: true }),
         base44.entities.InsuranceClaim.filter({ user_id: me.id }),
       ]);
       setPolicies(pols);

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import ProductCard from '@/components/insurance/ProductCard';
 import MyPolicies from '@/components/insurance/MyPolicies';
 import EnrollModal from '@/components/insurance/EnrollModal';
+import { usePageTitle } from '@/lib/usePageTitle';
 
 const CATEGORIES = [
   { key: 'all', label: 'All' },
@@ -18,6 +19,7 @@ const CATEGORIES = [
 ];
 
 export default function Insurance() {
+  usePageTitle('Insurance');
   const [user, setUser] = useState(null);
   const [products, setProducts] = useState([]);
   const [policies, setPolicies] = useState([]);

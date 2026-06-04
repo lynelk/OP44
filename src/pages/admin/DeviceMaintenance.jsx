@@ -30,7 +30,7 @@ export default function DeviceMaintenance() {
 
   const loadRequests = async () => {
     setLoading(true);
-    const all = await base44.asServiceRole.entities.DeviceMaintenanceRequest.filter({});
+    const all = await base44.asServiceRole.entities.DeviceMaintenanceRequest.filter({}, '-created_date', 300);
     setRequests(all.sort((a, b) => new Date(b.created_date) - new Date(a.created_date)));
     setLoading(false);
   };

@@ -147,6 +147,7 @@ const AuthenticatedApp = () => {
     <MobileHeader />
     {showPalette && <CommandPalette />}
     <AnimatedRoutes>
+    <ErrorBoundary>
     <Suspense fallback={SPINNER}>
     <Routes location={location}>
       {/* Auth routes — public */}
@@ -235,6 +236,7 @@ const AuthenticatedApp = () => {
       <Route path="*" element={<PageNotFound />} />
     </Routes>
     </Suspense>
+    </ErrorBoundary>
     </AnimatedRoutes>
     </>
   );

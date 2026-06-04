@@ -7,6 +7,7 @@ import CoachingNudges from '@/components/dashboard/CoachingNudges';
 import OnboardingTour from '@/components/dashboard/OnboardingTour';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { usePageTitle } from '@/lib/usePageTitle';
 
 const TIP_STYLES = {
   warning: { bg: 'bg-amber-50 border-amber-100 dark:bg-amber-900/20 dark:border-amber-800', icon: 'text-amber-500', text: 'text-amber-800 dark:text-amber-200', sub: 'text-amber-600 dark:text-amber-300' },
@@ -16,6 +17,7 @@ const TIP_STYLES = {
 };
 
 export default function Dashboard() {
+  usePageTitle('Home');
   const [user, setUser] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const scrollRef = useRef(null);

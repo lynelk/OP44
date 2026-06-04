@@ -32,8 +32,11 @@ export default function SavingsGroups() {
       setMyMemberships(memberships);
       const groupIds = memberships.map(m => m.group_id);
       if (groupIds.length > 0) {
-        const allGroups = await base44.entities.SavingsGroup.filter({});
-        setGroups(allGroups.filter(g => groupIds.includes(g.id)));
+        // Fetch each group by its own ID in parallel instead of scanning the full table
+        const groupResults = await Promise.all(
+          groupIds.map(id => base44.entities.SavingsGroup.get(id).catch(() => null))
+        );
+        setGroups(groupResults.filter(Boolean));
       }
     });
   }, []);

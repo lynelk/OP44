@@ -6,8 +6,10 @@ import ScoreGauge from '@/components/credit/ScoreGauge';
 import ScoreBreakdown from '@/components/credit/ScoreBreakdown';
 import ReasonCodes from '@/components/credit/ReasonCodes';
 import ScoreSimulator from '@/components/credit/ScoreSimulator';
+import { usePageTitle } from '@/lib/usePageTitle';
 
 export default function CreditScore() {
+  usePageTitle('Credit Score');
   const [scoreData, setScoreData] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);

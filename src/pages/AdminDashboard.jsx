@@ -64,13 +64,14 @@ export default function AdminDashboard() {
     setUser(me);
     if (me?.role !== 'admin') { setLoading(false); return; }
 
+    // Limit to 200 most-recent records for charts — aggregate KPIs come from adminManager
     const [statsRes, loansData, repsData, savingsData, usersData, policiesData] = await Promise.all([
       base44.functions.invoke('adminManager', { action: 'get_stats', entity: 'users' }),
-      base44.entities.LoanApplication.filter({}),
-      base44.entities.Repayment.filter({}),
-      base44.entities.SavingsPocket.filter({}),
+      base44.entities.LoanApplication.filter({}, '-created_date', 200),
+      base44.entities.Repayment.filter({}, '-due_date', 200),
+      base44.entities.SavingsPocket.filter({}, '-created_date', 200),
       base44.entities.User.list(),
-      base44.entities.InsurancePolicy.filter({}),
+      base44.entities.InsurancePolicy.filter({}, '-created_date', 200),
     ]);
 
     setStats(statsRes.data);

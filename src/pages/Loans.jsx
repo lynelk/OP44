@@ -7,6 +7,7 @@ import { CreditCard, FileText, ArrowUpCircle, TrendingDown, Zap, ChevronRight, P
 
 import LoanApplicationWizard from '@/components/loans/LoanApplicationWizard';
 import LoanRescheduleModal from '@/components/loans/LoanRescheduleModal';
+import { usePageTitle } from '@/lib/usePageTitle';
 
 const STATUS_CONFIG = {
   draft:        { label: 'Draft',        color: 'bg-gray-100 text-gray-600', icon: Clock },
@@ -21,6 +22,7 @@ const STATUS_CONFIG = {
 };
 
 export default function Loans() {
+  usePageTitle('My Loans');
   const { user } = useAuth();
   const queryClient = useQueryClient();
 

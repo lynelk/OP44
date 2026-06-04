@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Shield, Database, CheckCircle } from 'lucide-react';
@@ -9,6 +9,9 @@ export default function DeleteAccount() {
   const [confirmText, setConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const logoutTimer = useRef(null);
+
+  useEffect(() => () => { if (logoutTimer.current) clearTimeout(logoutTimer.current); }, []);
 
   const handleDelete = async () => {
     if (confirmText !== 'DELETE MY ACCOUNT') {
@@ -24,8 +27,8 @@ export default function DeleteAccount() {
       toast.success('Account deletion request submitted');
       setDeleted(true);
       
-      // Logout after 3 seconds
-      setTimeout(() => {
+      // Logout after 3 seconds — ref ensures only one timer is ever queued
+      logoutTimer.current = setTimeout(() => {
         base44.auth.logout('/');
       }, 3000);
     } catch (error) {

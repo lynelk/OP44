@@ -164,8 +164,8 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
         <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-2">
             {step > 0 && (
-              <button onClick={() => setStep(s => s - 1)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-                <ChevronLeft className="w-4 h-4 text-gray-600" />
+              <button onClick={() => setStep(s => s - 1)} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                <ChevronLeft className="w-4 h-4 text-gray-600 dark:text-gray-300" />
               </button>
             )}
             <h2 className="text-base font-bold text-gray-900">
@@ -175,11 +175,11 @@ export default function LoanApplicationWizard({ onClose, onSuccess, user }) {
           <div className="flex items-center gap-3">
             <div className="flex gap-1">
               {STEPS.map((_, i) => (
-                <div key={i} className={`w-5 h-1.5 rounded-full transition-colors ${i <= step ? 'bg-[#1a3a6b]' : 'bg-gray-200'}`} />
+                <div key={i} className={`w-5 h-1.5 rounded-full transition-colors ${i <= step ? 'bg-[#1a3a6b] dark:bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'}`} />
               ))}
             </div>
-            <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
-              <X className="w-4 h-4 text-gray-600" />
+            <button onClick={onClose} className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <X className="w-4 h-4 text-gray-600 dark:text-gray-300" />
             </button>
           </div>
         </div>

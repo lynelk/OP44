@@ -45,12 +45,11 @@ export default function DeviceMarketplace() {
     const fetchDevices = async () => {
         setLoading(true);
         try {
-            const allDevices = await base44.entities.Device.filter({});
-            const availableDevices = allDevices.filter(d => 
-                d.status === 'Available' && 
-                d.admin_verification_status === 'Approved' &&
-                d.is_listed_on_marketplace === true
-            );
+            const availableDevices = await base44.entities.Device.filter({
+                status: 'Available',
+                admin_verification_status: 'Approved',
+                is_listed_on_marketplace: true,
+            });
             setDevices(availableDevices);
         } catch (error) {
             console.error('Error fetching devices:', error);

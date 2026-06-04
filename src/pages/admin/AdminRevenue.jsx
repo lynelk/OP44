@@ -48,8 +48,9 @@ export default function AdminRevenue() {
   }, []);
 
   const loadPartners = async () => {
-    const users = await base44.asServiceRole.entities.User.filter({});
-    const lenders = users.filter(u => u.role === 'user'); // Simplified - in reality check UserProfile
+    // Filter server-side for lender account type; list() is intentional here (admin view)
+    const users = await base44.asServiceRole.entities.User.filter({ role: 'user' }, '-created_date', 500);
+    const lenders = users;
     setPartners(lenders);
   };
 

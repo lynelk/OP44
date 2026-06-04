@@ -21,10 +21,10 @@ export default function FutureHealthProjection() {
     base44.auth.me().then(u => {
       setUser(u);
       Promise.all([
-        base44.entities.SavingsPocket.filter({}),
-        base44.entities.AutoSaveLog.filter({}),
-        base44.entities.LoanApplication.filter({}),
-        base44.entities.Repayment.filter({})
+        base44.entities.SavingsPocket.filter({ user_id: u.id }),
+        base44.entities.AutoSaveLog.filter({ user_id: u.id }),
+        base44.entities.LoanApplication.filter({ user_id: u.id }),
+        base44.entities.Repayment.filter({ user_id: u.id }),
       ]).then(([s, al, l, r]) => {
         setSavings(s);
         setAutoLogs(al);
