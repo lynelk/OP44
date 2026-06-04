@@ -16,14 +16,14 @@ const TIER_CONFIG = {
 };
 
 const STATUS_COLOR = {
-  draft: 'bg-gray-100 text-gray-600',
-  pending_approval: 'bg-amber-100 text-amber-700',
-  awaiting_funding: 'bg-blue-100 text-blue-700',
-  funded: 'bg-indigo-100 text-indigo-700',
-  active: 'bg-emerald-100 text-emerald-700',
-  overdue: 'bg-red-100 text-red-700',
-  closed: 'bg-gray-100 text-gray-500',
-  defaulted: 'bg-red-200 text-red-800',
+  draft: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
+  pending_approval: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  awaiting_funding: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+  funded: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300',
+  active: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+  overdue: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+  closed: 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400',
+  defaulted: 'bg-red-200 text-red-800 dark:bg-red-900/60 dark:text-red-200',
 };
 
 export default function P2PDashboard() {
@@ -47,18 +47,18 @@ export default function P2PDashboard() {
   useEffect(() => { load(); }, []);
 
   if (loading) return (
-    <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center">
+    <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950 flex items-center justify-center">
       <div className="w-8 h-8 border-4 border-green-200 border-t-[#006B3C] rounded-full animate-spin" />
     </div>
   );
 
   if (!data?.profile) return (
-    <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center px-6 text-center">
+    <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950 flex flex-col items-center justify-center px-6 text-center">
       <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-4">
         <Users className="w-10 h-10 text-[#7BC943]" />
       </div>
-      <h2 className="text-xl font-bold text-gray-800 mb-2">Set Up Your P2P Profile</h2>
-      <p className="text-sm text-gray-500 mb-6">Join our peer-to-peer lending marketplace as a borrower, lender, or both.</p>
+      <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Set Up Your P2P Profile</h2>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Join our peer-to-peer lending marketplace as a borrower, lender, or both.</p>
       <Button onClick={() => navigate('/p2p/onboarding')} className="bg-[#006B3C] hover:bg-[#005530] gap-2">
         Get Started <ArrowRight className="w-4 h-4" />
       </Button>
@@ -75,7 +75,7 @@ export default function P2PDashboard() {
   const totalReturns = investments.reduce((s, i) => s + (i.actual_return_earned || 0), 0);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] pb-28 font-poppins">
+    <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950 pb-28 font-poppins">
       {/* Header */}
       <div className="bg-gradient-to-br from-[#004d2b] via-[#006B3C] to-[#007a44] text-white px-5 pt-14 pb-6">
         <div className="flex items-center justify-between mb-4">
@@ -83,13 +83,13 @@ export default function P2PDashboard() {
             <h1 className="text-2xl font-black tracking-tight">P2P Marketplace</h1>
             <p className="text-green-200 text-sm">Peer-to-Peer Lending</p>
           </div>
-          <button onClick={load} className="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center">
+          <button onClick={load} className="w-9 h-9 bg-white dark:bg-gray-800/10 rounded-full flex items-center justify-center">
             <RefreshCw className="w-4 h-4 text-green-200" />
           </button>
         </div>
 
         {/* Profile Card */}
-        <div className="bg-white/10 rounded-2xl p-4">
+        <div className="bg-white dark:bg-gray-800/10 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${tier.color} ${tier.text}`}>
@@ -129,7 +129,7 @@ export default function P2PDashboard() {
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-white border-b border-gray-100 sticky top-0 z-10">
+      <div className="flex bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 sticky top-0 z-10">
         {[
           { id: 'overview', label: 'Overview' },
           { id: 'borrow', label: 'Borrow' },
@@ -152,26 +152,26 @@ export default function P2PDashboard() {
           <div className="space-y-3">
             {/* Quick Stats */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-8 h-8 bg-green-50 rounded-xl flex items-center justify-center">
                     <Banknote className="w-4 h-4 text-[#006B3C]" />
                   </div>
-                  <span className="text-xs text-gray-500">Active Loans</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Active Loans</span>
                 </div>
-                <p className="text-xl font-black text-gray-900">{activeLoans.length}</p>
+                <p className="text-xl font-black text-gray-900 dark:text-white">{activeLoans.length}</p>
                 <p className="text-xs text-gray-400 mt-0.5">
                   {activeLoans.length > 0 ? `UGX ${(activeLoans.reduce((s, l) => s + (l.outstanding_balance || 0), 0) / 1000).toFixed(0)}K outstanding` : 'No active loans'}
                 </p>
               </div>
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center">
                     <TrendingUp className="w-4 h-4 text-emerald-600" />
                   </div>
-                  <span className="text-xs text-gray-500">Invested</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Invested</span>
                 </div>
-                <p className="text-xl font-black text-gray-900">{totalInvested > 0 ? `${(totalInvested / 1000000).toFixed(1)}M` : '—'}</p>
+                <p className="text-xl font-black text-gray-900 dark:text-white">{totalInvested > 0 ? `${(totalInvested / 1000000).toFixed(1)}M` : '—'}</p>
                 <p className="text-xs text-emerald-600 font-medium mt-0.5">+UGX {totalReturns.toLocaleString()} earned</p>
               </div>
             </div>
@@ -204,12 +204,12 @@ export default function P2PDashboard() {
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Recent Applications</p>
                 <div className="space-y-2">
                   {loans.slice(0, 3).map(loan => (
-                    <div key={loan.id} className="bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                    <div key={loan.id} className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm flex items-center justify-between">
                       <div>
-                        <p className="font-bold text-gray-900 text-sm">UGX {loan.amount_requested?.toLocaleString()}</p>
-                        <p className="text-xs text-gray-500">{loan.purpose} · {loan.tenure_months}mo · #{loan.loan_ref}</p>
+                        <p className="font-bold text-gray-900 dark:text-white text-sm">UGX {loan.amount_requested?.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{loan.purpose} · {loan.tenure_months}mo · #{loan.loan_ref}</p>
                       </div>
-                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${STATUS_COLOR[loan.status] || 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${STATUS_COLOR[loan.status] || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}>
                         {loan.status?.replace(/_/g, ' ')}
                       </span>
                     </div>
@@ -223,23 +223,23 @@ export default function P2PDashboard() {
         {/* BORROW TAB */}
         {activeTab === 'borrow' && (
           <div className="space-y-3">
-            <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
-              <p className="font-bold text-gray-900">Your Borrowing Profile</p>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm space-y-3">
+              <p className="font-bold text-gray-900 dark:text-white">Your Borrowing Profile</p>
               <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="bg-gray-50 rounded-xl p-3">
-                  <p className="text-xs text-gray-500">Max Limit</p>
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Max Limit</p>
                   <p className="font-bold text-[#006B3C]">UGX {scoring?.max_loan_limit?.toLocaleString() || '—'}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-3">
-                  <p className="text-xs text-gray-500">Interest Rate</p>
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Interest Rate</p>
                   <p className="font-bold text-orange-600">{scoring?.rates?.final_interest_rate?.toFixed(1) || '—'}%/mo</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-3">
-                  <p className="text-xs text-gray-500">Risk Band</p>
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Risk Band</p>
                   <p className="font-bold">{scoring?.band || '—'}</p>
                 </div>
-                <div className="bg-gray-50 rounded-xl p-3">
-                  <p className="text-xs text-gray-500">Consecutive Payments</p>
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-xl p-3">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Consecutive Payments</p>
                   <p className="font-bold text-emerald-600">{profile.consecutive_on_time_payments || 0}</p>
                 </div>
               </div>
@@ -251,23 +251,23 @@ export default function P2PDashboard() {
             </Link>
             <div className="space-y-2">
               {loans.map(loan => (
-                <div key={loan.id} className="bg-white rounded-2xl p-4 shadow-sm">
+                <div key={loan.id} className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
                   <div className="flex justify-between items-start mb-2">
                     <div>
-                      <p className="font-bold text-gray-900">UGX {loan.amount_requested?.toLocaleString()}</p>
-                      <p className="text-xs text-gray-500">{loan.loan_ref} · {loan.purpose}</p>
+                      <p className="font-bold text-gray-900 dark:text-white">UGX {loan.amount_requested?.toLocaleString()}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{loan.loan_ref} · {loan.purpose}</p>
                     </div>
-                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_COLOR[loan.status] || 'bg-gray-100 text-gray-600'}`}>
+                    <span className={`text-xs font-bold px-2 py-1 rounded-full ${STATUS_COLOR[loan.status] || 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}>
                       {loan.status?.replace(/_/g, ' ')}
                     </span>
                   </div>
                   {['active', 'disbursed'].includes(loan.status) && (
                     <div className="mt-2">
-                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                      <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                         <span>Outstanding</span>
                         <span>UGX {loan.outstanding_balance?.toLocaleString()}</span>
                       </div>
-                      <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-emerald-500 rounded-full"
                           style={{ width: `${Math.min(100, ((loan.total_repayable - loan.outstanding_balance) / loan.total_repayable) * 100)}%` }}
@@ -324,14 +324,14 @@ export default function P2PDashboard() {
             </Link>
             <div className="space-y-2">
               {investments.map(inv => (
-                <div key={inv.id} className="bg-white rounded-2xl p-4 shadow-sm">
+                <div key={inv.id} className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
                   <div className="flex justify-between items-center mb-1">
                     <p className="font-bold text-sm">UGX {inv.amount_invested?.toLocaleString()}</p>
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${inv.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600'}`}>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${inv.status === 'active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}>
                       {inv.status}
                     </span>
                   </div>
-                  <p className="text-xs text-gray-500">{inv.ownership_pct?.toFixed(1)}% ownership · Matures {inv.maturity_date}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{inv.ownership_pct?.toFixed(1)}% ownership · Matures {inv.maturity_date}</p>
                   <p className="text-xs text-emerald-600 font-medium mt-1">+UGX {(inv.actual_return_earned || 0).toLocaleString()} earned</p>
                 </div>
               ))}
@@ -348,34 +348,34 @@ export default function P2PDashboard() {
         {/* REWARDS TAB */}
         {activeTab === 'rewards' && (
           <div className="space-y-3">
-            <div className="bg-white rounded-2xl p-4 shadow-sm">
-              <p className="font-bold text-gray-900 mb-3">Loyalty & Rewards</p>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+              <p className="font-bold text-gray-900 dark:text-white mb-3">Loyalty & Rewards</p>
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="bg-amber-50 rounded-xl p-3">
                   <p className="text-lg font-black text-amber-600">{profile.loyalty_points || 0}</p>
-                  <p className="text-xs text-gray-500">Points</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Points</p>
                 </div>
                 <div className="bg-blue-50 rounded-xl p-3">
                   <p className="text-lg font-black text-blue-600">{profile.consecutive_on_time_payments || 0}</p>
-                  <p className="text-xs text-gray-500">On-Time Streak</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">On-Time Streak</p>
                 </div>
                 <div className="bg-emerald-50 rounded-xl p-3">
                   <p className="text-lg font-black text-emerald-600">{profile.total_loans_completed || 0}</p>
-                  <p className="text-xs text-gray-500">Completed</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Completed</p>
                 </div>
               </div>
             </div>
             <div className="space-y-2">
               {rewards.length > 0 ? rewards.map(r => (
-                <div key={r.id} className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-3">
+                <div key={r.id} className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm flex items-center gap-3">
                   <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
                     <Star className="w-5 h-5 text-amber-500" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-sm text-gray-900 capitalize">{r.reward_type?.replace(/_/g, ' ')}</p>
-                    <p className="text-xs text-gray-500 capitalize">{r.reward_reason?.replace(/_/g, ' ')}</p>
+                    <p className="font-semibold text-sm text-gray-900 dark:text-white capitalize">{r.reward_type?.replace(/_/g, ' ')}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{r.reward_reason?.replace(/_/g, ' ')}</p>
                   </div>
-                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${r.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${r.status === 'active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}>
                     {r.status}
                   </span>
                 </div>

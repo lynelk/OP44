@@ -9,6 +9,7 @@ import CoachingNudges from '@/components/dashboard/CoachingNudges';
 import OnboardingTour from '@/components/dashboard/OnboardingTour';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
 import DailyWellnessJourney from '@/components/wellness/DailyWellnessJourney';
+import ErrorState from '@/components/ui/ErrorState';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const TIP_STYLES = {
@@ -29,7 +30,7 @@ export default function Dashboard() {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  const { data: summary, refetch: refetchSummary } = useQuery({
+  const { data: summary, error: summaryError, refetch: refetchSummary } = useQuery({
     queryKey: ['dashboardSummary'],
     queryFn: () => base44.functions.invoke('getDashboardSummary', {}).then(r => r.data),
     staleTime: 1000 * 60 * 2,
@@ -101,6 +102,14 @@ export default function Dashboard() {
     { icon: Handshake, label: 'P2P', path: '/p2p', color: 'bg-[#0D1BFF]/10 text-[#0D1BFF] dark:bg-[#0D1BFF]/20 dark:text-[#32B4FF]' },
     { icon: PieChart, label: 'Net Worth', path: '/net-worth', color: 'bg-[#32B4FF]/10 text-[#32B4FF] dark:bg-[#32B4FF]/20 dark:text-[#32B4FF]' },
   ];
+
+  if (summaryError && !summary) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-6">
+        <ErrorState error={summaryError} onRetry={refetchSummary} retryLabel="Reload dashboard" />
+      </div>
+    );
+  }
 
   return (
     <div ref={scrollRef} className="min-h-screen bg-gray-50 dark:bg-gray-950 overflow-y-auto">

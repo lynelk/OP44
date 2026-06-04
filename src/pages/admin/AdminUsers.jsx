@@ -51,7 +51,7 @@ export default function AdminUsers() {
   const riskColor = { A: 'bg-green-100 text-green-700', B: 'bg-blue-100 text-blue-700', C: 'bg-yellow-100 text-yellow-700', D: 'bg-red-100 text-red-700' };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
       <div className="bg-[#1a3a6b] text-white px-4 pt-10 pb-5">
         <Link to="/admin" className="flex items-center gap-1 text-blue-200 text-sm mb-3"><ChevronLeft className="w-4 h-4" /> Admin</Link>
         <h1 className="text-xl font-bold">User Management</h1>
@@ -83,8 +83,8 @@ export default function AdminUsers() {
                 {u.full_name?.[0] || u.email?.[0] || '?'}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-gray-800 truncate">{u.full_name || 'No name'}</p>
-                <p className="text-xs text-gray-500 truncate">{u.email}</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-200 truncate">{u.full_name || 'No name'}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{u.email}</p>
                 {u.business_profile && <p className="text-xs text-blue-600 truncate">{u.business_profile.business_name}</p>}
               </div>
               <div className="text-right space-y-1">
@@ -99,12 +99,12 @@ export default function AdminUsers() {
       {/* Edit Modal */}
       {selected && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end">
-          <div className="bg-white rounded-t-2xl w-full p-5 space-y-4 max-h-[80vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-t-2xl w-full p-5 space-y-4 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-lg">{selected.full_name}</h3>
               <button onClick={() => setSelected(null)} className="text-gray-400">✕</button>
             </div>
-            <div className="text-sm text-gray-500 flex items-center gap-1.5 flex-wrap">
+            <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5 flex-wrap">
               <span>{selected.email}</span>
               <span>•</span>
               <span className="font-mono">{phoneRevealed ? selected.phone_number : maskPhone(selected.phone_number)}</span>
@@ -126,7 +126,7 @@ export default function AdminUsers() {
             )}
             <div className="space-y-3">
               <div>
-                <label className="text-xs font-semibold text-gray-600 mb-1 block">Role</label>
+                <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Role</label>
                 <Select value={selected.role} onValueChange={v => setSelected(s => ({...s, role: v}))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -136,7 +136,7 @@ export default function AdminUsers() {
                 </Select>
               </div>
               <div>
-                <label className="text-xs font-semibold text-gray-600 mb-1 block">Back-office Tier <span className="font-normal text-gray-400">(optional)</span></label>
+                <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Back-office Tier <span className="font-normal text-gray-400">(optional)</span></label>
                 <Select value={selected.admin_tier || 'none'} onValueChange={v => setSelected(s => ({...s, admin_tier: v === 'none' ? null : v}))}>
                   <SelectTrigger><SelectValue placeholder="No staff access" /></SelectTrigger>
                   <SelectContent>
@@ -149,7 +149,7 @@ export default function AdminUsers() {
                 <p className="text-xs text-gray-400 mt-1">Grants scoped back-office access without full admin. Ignored if Role is Admin.</p>
               </div>
               <div>
-                <label className="text-xs font-semibold text-gray-600 mb-1 block">Risk Band</label>
+                <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1 block">Risk Band</label>
                 <Select value={selected.current_risk_band || ''} onValueChange={v => setSelected(s => ({...s, current_risk_band: v}))}>
                   <SelectTrigger><SelectValue placeholder="Select band" /></SelectTrigger>
                   <SelectContent>

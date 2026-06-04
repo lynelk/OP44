@@ -66,7 +66,7 @@ export default function AdminAuditTrail() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
       <div className="bg-[#1a3a6b] text-white px-4 pt-10 pb-5">
         <Link to="/admin" className="flex items-center gap-1 text-blue-200 text-sm mb-3">
           <ChevronLeft className="w-4 h-4" /> Admin
@@ -78,7 +78,7 @@ export default function AdminAuditTrail() {
             </h1>
             <p className="text-blue-200 text-xs">{logs.length} total entries</p>
           </div>
-          <button onClick={load} className="p-2 bg-white/15 rounded-full">
+          <button onClick={load} className="p-2 bg-white dark:bg-gray-800/15 rounded-full">
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
@@ -123,14 +123,14 @@ export default function AdminAuditTrail() {
               <CardContent className="p-3.5">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600 flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-400 flex-shrink-0">
                       {actor ? actor.full_name?.[0] || actor.email?.[0] || '?' : '?'}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-semibold text-gray-800 truncate">
+                      <p className="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">
                         {actor?.full_name || actor?.email || log.performed_by_email || log.performed_by || 'System'}
                       </p>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                         {log.entity_type} · {log.entity_id?.slice(-8)}
                       </p>
                     </div>
@@ -144,14 +144,14 @@ export default function AdminAuditTrail() {
                     </p>
                   </div>
                 </div>
-                {log.notes && <p className="text-xs text-gray-500 mt-2 pl-10 truncate">{log.notes}</p>}
+                {log.notes && <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 pl-10 truncate">{log.notes}</p>}
                 {isExpanded && log.changes && (
-                  <div className="mt-2 ml-10 bg-gray-50 rounded-lg p-2">
-                    <p className="text-xs font-semibold text-gray-500 mb-1">Changes</p>
+                  <div className="mt-2 ml-10 bg-gray-50 dark:bg-gray-900 rounded-lg p-2">
+                    <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Changes</p>
                     {/* React escapes text children, so this cannot inject HTML. We also
                         normalise through JSON.parse/stringify to pretty-print and strip
                         anything that isn't valid serialised data. */}
-                    <pre className="text-xs text-gray-700 overflow-x-auto whitespace-pre-wrap break-all">
+                    <pre className="text-xs text-gray-700 dark:text-gray-300 overflow-x-auto whitespace-pre-wrap break-all">
                       {formatChanges(log.changes)}
                     </pre>
                   </div>
