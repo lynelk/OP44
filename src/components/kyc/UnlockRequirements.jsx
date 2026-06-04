@@ -4,10 +4,11 @@
  * mapped to concrete unlock benefits (loan limits, P2P access, savings features).
  * Used on Dashboard and Profile pages.
  */
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Shield, ChevronRight, Lock, CheckCircle2, Zap, AlertTriangle, RotateCcw } from 'lucide-react';
+import { ChevronRight, Lock, CheckCircle2, Zap, AlertTriangle, RotateCcw } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
 const DOC_LABELS = {
   national_id: 'National ID',
@@ -84,13 +85,11 @@ const UNLOCK_STEPS = [
 ];
 
 export default function UnlockRequirements({ compact = false }) {
-  const [steps, setSteps]     = useState([]);
-  const [rejectedDocs, setRejectedDocs] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(false);
 
-  useEffect(() => {
-    const load = async () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['unlockRequirements'],
+    queryFn: async () => {
       const user = await base44.auth.me();
       const [profiles, docs, pockets, policies] = await Promise.all([
         base44.entities.UserProfile.filter({ user_id: user.id }),
@@ -99,17 +98,14 @@ export default function UnlockRequirements({ compact = false }) {
         base44.entities.InsurancePolicy.filter({ user_id: user.id }),
       ]);
       const profile = profiles[0] || {};
-      const extra   = {
-        pocketsCount:   pockets.length,
+      const extra = {
+        pocketsCount: pockets.length,
         activePolicies: policies.filter(p => p.status === 'active').length,
       };
-
       const incomplete = UNLOCK_STEPS
         .filter(s => !s.check(profile, docs, extra))
         .sort((a, b) => a.priority - b.priority);
 
-      // Surface rejected documents so the user knows to resubmit (and why).
-      // Keep only the latest rejection per document type.
       const rejected = docs.filter(d => d.status === 'rejected');
       const latestByType = {};
       rejected.forEach(d => {
@@ -117,14 +113,19 @@ export default function UnlockRequirements({ compact = false }) {
         if (!prev || new Date(d.created_date) > new Date(prev.created_date)) latestByType[d.document_type] = d;
       });
 
-      setRejectedDocs(Object.values(latestByType));
-      setSteps(incomplete);
-      setLoading(false);
-    };
-    load();
-  }, []);
+      return { steps: incomplete, rejectedDocs: Object.values(latestByType) };
+    },
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 15,
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
-  if (loading) return null;
+  if (isLoading) return null;
+
+  const steps = data?.steps ?? [];
+  const rejectedDocs = data?.rejectedDocs ?? [];
 
   const RejectedBanner = rejectedDocs.length > 0 ? (
     <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 mb-3">
