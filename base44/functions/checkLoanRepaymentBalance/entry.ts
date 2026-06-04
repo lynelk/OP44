@@ -5,9 +5,13 @@ Deno.serve(async (req) => {
   const user = await base44.auth.me();
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-  // Fetch all active users' loan data (admin scheduled check) OR current user
   const body = await req.json().catch(() => ({}));
-  const targetUserId = body.user_id || user.id;
+  const requestedUserId = body.user_id;
+  // P0: reject cross-user balance disclosure unless caller is admin
+  if (requestedUserId && requestedUserId !== user.id && user.admin_tier == null) {
+    return Response.json({ error: 'Forbidden' }, { status: 403 });
+  }
+  const targetUserId = requestedUserId || user.id;
 
   // Get active/disbursed loans for user
   const loans = await base44.asServiceRole.entities.LoanApplication.filter({ user_id: targetUserId });

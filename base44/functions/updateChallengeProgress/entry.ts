@@ -6,7 +6,12 @@ Deno.serve(async (req) => {
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));
-  const userId = body?.data?.user_id || user.id;
+  const requestedUserId = body?.data?.user_id;
+  // P0: reject cross-user manipulation unless caller is admin
+  if (requestedUserId && requestedUserId !== user.id && user.admin_tier == null) {
+    return Response.json({ error: 'Forbidden' }, { status: 403 });
+  }
+  const userId = requestedUserId || user.id;
   const pocketId = body?.data?.id; // pocket that was updated
   const depositAmount = body?.data?.current_balance && body?.old_data?.current_balance
     ? (body.data.current_balance - body.old_data.current_balance)

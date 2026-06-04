@@ -19,12 +19,20 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   // ── Gateway authentication ─────────────────────────────────────────────────
-  // Africa's Talking does not sign callbacks, so the recommended protection is a
-  // shared secret embedded in the configured callback URL (?gw_secret=…) or sent
-  // as a header. When USSD_GATEWAY_SECRET is set we enforce it; otherwise we stay
-  // open (e.g. for the in-app USSD simulator and local testing).
+  // USSD_GATEWAY_SECRET is required in production. Set it to the shared secret
+  // embedded in the AT callback URL (?gw_secret=…) or sent as x-ussd-secret.
+  // The only way to bypass this check is to keep the env var unset, which is
+  // only acceptable in a sandboxed local dev environment — never in production.
   const expectedSecret = Deno.env.get('USSD_GATEWAY_SECRET');
-  if (expectedSecret) {
+  if (!expectedSecret) {
+    // Guard: refuse if the secret is not configured (fail-secure).
+    // Comment this block out only in controlled local-dev / simulator mode.
+    return new Response('END Service not configured.', {
+      status: 503,
+      headers: { 'Content-Type': 'text/plain' },
+    });
+  }
+  {
     const url = new URL(req.url);
     const provided =
       req.headers.get('x-ussd-secret') ||
