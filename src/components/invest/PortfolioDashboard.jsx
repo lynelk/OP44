@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { base44 } from '@/api/base44Client';
-import { TrendingUp, Zap, RefreshCw, PieChart } from 'lucide-react';
+import { TrendingUp, Zap, PieChart } from 'lucide-react';
 import { PieChart as RPie, Pie, Cell, Tooltip, ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 const ALLOC_COLORS = {

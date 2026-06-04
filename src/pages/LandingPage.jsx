@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { TrendingUp, Shield, PiggyBank, Zap, Users, BarChart2, ChevronRight, Star, CheckCircle, Phone, Mail, MapPin } from 'lucide-react';
+import { TrendingUp, Shield, PiggyBank, Zap, Users, BarChart2, ChevronRight, Star, CheckCircle, Phone, Mail } from 'lucide-react';
 
 const LOGO_TEXT = 'OpFin';
 

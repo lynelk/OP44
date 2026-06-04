@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { X, Calendar, TrendingDown, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { X, TrendingDown, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const TENURE_OPTIONS = [3, 6, 9, 12, 18, 24, 36];

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Upload, CheckCircle2, Loader2, FileText, Camera, X, Sparkles, AlertCircle } from 'lucide-react';
+import { Upload, CheckCircle2, Loader2, FileText, Sparkles, AlertCircle } from 'lucide-react';
 
 const DOC_TYPES = [
   { id: 'national_id',        label: 'National ID',          icon: '🪪', hint: 'Front & back of your NIN card' },

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Shield, Wallet, ChevronRight, SlidersHorizontal, BarChart2, ArrowUpRight } from 'lucide-react';
+import { Shield, Wallet, ChevronRight, SlidersHorizontal, BarChart2, ArrowUpRight } from 'lucide-react';
 import InvestModal from '@/components/invest/InvestModal';
 import MyContributions from '@/components/invest/MyContributions';
 import RiskProfileSetup from '@/components/invest/RiskProfileSetup';

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Shield, ArrowLeft, Mail, Phone } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 const SECTIONS = [
   {

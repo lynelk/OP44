@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, CreditCard, Smartphone, Calendar, Clock, AlertTriangle, Zap } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, CreditCard, Calendar, Clock, AlertTriangle, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';

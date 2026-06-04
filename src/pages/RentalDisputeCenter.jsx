@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { ChevronLeft, Scale, Upload, MessageSquare, CheckCircle2, AlertTriangle, Clock, Shield, FileText, Plus } from 'lucide-react';
+import { ChevronLeft, Scale, Upload, MessageSquare, CheckCircle2, AlertTriangle, Clock, Shield, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useSearchParams } from 'react-router-dom';
 

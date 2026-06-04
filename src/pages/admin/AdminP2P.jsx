@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, RefreshCw, Settings, TrendingUp, AlertTriangle, CheckCircle2, Users, Banknote, BarChart3, Shield } from 'lucide-react';
+import { ChevronLeft, RefreshCw, Settings, TrendingUp, Users, Banknote, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const STATUS_COLOR = {
   pending_approval: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',

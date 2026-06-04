@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Users, TrendingUp, CreditCard, Sparkles, RefreshCw, Loader2, Info } from 'lucide-react';
-import { RadialBarChart, RadialBar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 const TIP_STYLES = {
   warning: 'bg-amber-50 border-amber-100 text-amber-800',

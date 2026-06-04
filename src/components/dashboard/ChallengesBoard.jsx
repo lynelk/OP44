@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Flame, ChevronRight, Trophy } from 'lucide-react';
+import { Flame, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function ChallengesBoard({ userId }) {

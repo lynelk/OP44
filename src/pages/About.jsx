@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart, Target, Users, Shield, TrendingUp, Globe, ChevronRight, CheckCircle } from 'lucide-react';
+import { Heart, Target, Shield, Globe, ChevronRight } from 'lucide-react';
 
 const VALUES = [
   { icon: Heart, title: 'Community First', desc: 'We build for the everyday earner — not the elite. Every feature is designed with real Ugandan lives in mind.' },

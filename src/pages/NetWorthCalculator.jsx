@@ -3,9 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { 
-  TrendingUp, TrendingDown, Plus, Upload, CheckCircle, AlertCircle, 
-  ChevronRight, Wallet, CreditCard, ArrowLeft, RefreshCw, Info,
-  PieChart, FileText
+  TrendingUp, TrendingDown, Plus, CheckCircle, AlertCircle, Wallet, CreditCard, ArrowLeft, Info,
+  PieChart
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';

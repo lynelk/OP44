@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { X, ChevronRight, ChevronLeft, Zap, Calculator, CheckCircle2, Loader2, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import LoanCostBreakdown, { calcLoanCosts } from '@/components/loans/LoanCostBreakdown';
 import KYCDocumentUploader from '@/components/loans/KYCDocumentUploader';
 

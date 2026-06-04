@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Users, ArrowLeft, Copy, CheckCheck, PiggyBank, Receipt, LogOut, Crown, Trophy } from 'lucide-react';
+import { Users, ArrowLeft, Copy, CheckCheck, PiggyBank, Receipt, LogOut, Crown } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import GroupLeaderboard from '@/components/groups/GroupLeaderboard';
 import DigitalPaymentModal from '@/components/payments/DigitalPaymentModal';

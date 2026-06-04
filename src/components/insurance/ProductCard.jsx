@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Shield, ExternalLink, Zap, Clock } from 'lucide-react';
+import { ExternalLink, Zap, Clock } from 'lucide-react';
 
 const CATEGORY_META = {
   life:             { label: 'Life',            emoji: '❤️',  color: 'bg-red-100 text-red-700' },

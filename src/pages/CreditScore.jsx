@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Button } from '@/components/ui/button';
-import { RefreshCw, TrendingUp, Info, ShieldCheck, Wallet } from 'lucide-react';
+import { RefreshCw, TrendingUp, Info, Wallet } from 'lucide-react';
 import ScoreGauge from '@/components/credit/ScoreGauge';
 import ScoreBreakdown from '@/components/credit/ScoreBreakdown';
 import ReasonCodes from '@/components/credit/ReasonCodes';

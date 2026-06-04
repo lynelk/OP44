@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Zap, ChevronDown, ChevronUp, Trash2, CheckCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Trash2, CheckCircle } from 'lucide-react';
 import DigitalPaymentModal from '@/components/payments/DigitalPaymentModal';
 
 const STATUS_COLORS = {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { syncManager } from '@/lib/syncManager';
-import { WifiOff, RefreshCw, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { WifiOff, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function OfflineStatusBar() {
   const [syncState, setSyncState] = useState({ status: navigator.onLine ? 'idle' : 'offline' });

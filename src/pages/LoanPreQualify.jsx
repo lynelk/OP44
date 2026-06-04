@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Zap, TrendingUp, AlertCircle, ChevronRight, Loader2, Info, BarChart2, X, Check } from 'lucide-react';
+import { Zap, TrendingUp, AlertCircle, ChevronRight, Loader2, Info, BarChart2, X } from 'lucide-react';
 import { monthlyInstallment } from '@/lib/finance';
 
 const RISK_COLORS = {

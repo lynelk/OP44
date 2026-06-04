@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { TrendingDown, Zap, Target, AlertCircle, CheckCircle2, ArrowRight, PiggyBank, Trophy } from 'lucide-react';
+import { Zap, Target, CheckCircle2, PiggyBank } from 'lucide-react';
 import MilestoneCelebration from '@/components/ui/MilestoneCelebration';
 import { useRef } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function DebtPayoff() {
   const [method, setMethod] = useState('snowball');

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Copy, Share2, Users, Star, Gift, CheckCircle2, Loader2 } from 'lucide-react';
+import { Copy, Share2, Gift, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function ReferralCard() {

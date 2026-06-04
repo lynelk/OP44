@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download, CheckCircle, Clock, AlertTriangle, CreditCard } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Clock, AlertTriangle, CreditCard } from 'lucide-react';
 
 const STATUS_CONFIG = {
   draft:        { label: 'Draft',        color: 'bg-gray-100 text-gray-600' },

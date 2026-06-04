@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, AlertTriangle, CheckCircle2, RefreshCw, Play, Loader2, Bell, Scale, AlertOctagon } from 'lucide-react';
+import { ChevronLeft, CheckCircle2, Play, Loader2, Bell, Scale, AlertOctagon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const TIER_COLOR = {

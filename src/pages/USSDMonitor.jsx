@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Phone, Activity, CheckCircle, XCircle, Clock, RefreshCw, Wifi } from 'lucide-react';
+import { Phone, Activity, CheckCircle, Clock, RefreshCw, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const STATUS_STYLES = {

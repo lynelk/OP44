@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { Shield, Bell, LogOut, ChevronRight, Star, Award, ToggleLeft, LayoutDashboard, User, AlertCircle, TrendingUp, Gift, Users, LifeBuoy } from 'lucide-react';
+import { Shield, Bell, LogOut, ChevronRight, Award, ToggleLeft, LayoutDashboard, User, AlertCircle, TrendingUp, Gift, Users, LifeBuoy } from 'lucide-react';
 import AchievementHub from '@/components/profile/AchievementHub';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
 import DailyWellnessJourney from '@/components/wellness/DailyWellnessJourney';

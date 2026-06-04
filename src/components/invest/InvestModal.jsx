@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { X, Shield, TrendingUp, AlertCircle } from 'lucide-react';
 
 export default function InvestModal({ pool, user, onClose, onSuccess }) {

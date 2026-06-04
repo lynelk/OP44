@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Users, Plus, Target, ChevronRight, Copy, CheckCheck, LogIn } from 'lucide-react';
+import { Users, Plus, Copy, CheckCheck, LogIn } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const GROUP_ICONS = ['🏦', '🏠', '✈️', '📚', '💍', '🚗', '🎓', '🏥', '🌾', '💼'];

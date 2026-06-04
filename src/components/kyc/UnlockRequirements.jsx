@@ -7,7 +7,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Shield, ChevronRight, Lock, CheckCircle2, Zap, AlertTriangle, RotateCcw } from 'lucide-react';
+import { ChevronRight, Lock, CheckCircle2, Zap, AlertTriangle, RotateCcw } from 'lucide-react';
 
 const DOC_LABELS = {
   national_id: 'National ID',

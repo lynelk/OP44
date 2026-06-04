@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, MessageCircle, Send, ChevronRight, CheckCircle, Clock, Facebook, Twitter, Instagram } from 'lucide-react';
+import { Mail, Phone, MapPin, MessageCircle, Send, CheckCircle, Clock, Facebook, Twitter, Instagram } from 'lucide-react';
 
 const CONTACT_METHODS = [
   { icon: Mail, title: 'Email Us', value: 'hello@opfin.ug', sub: 'We reply within 24 hours', href: 'mailto:hello@opfin.ug', color: 'bg-blue-50 text-[#0D1BFF]' },

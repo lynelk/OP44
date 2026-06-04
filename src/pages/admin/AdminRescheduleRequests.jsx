@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, RefreshCw, CheckCircle2, XCircle, Clock, Calendar, TrendingDown } from 'lucide-react';
+import { ChevronLeft, RefreshCw, CheckCircle2, XCircle, Calendar, TrendingDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const STATUS_COLORS = {

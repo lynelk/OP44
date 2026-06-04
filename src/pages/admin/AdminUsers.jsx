@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, Search, User, Building2, CheckCircle2, XCircle, RefreshCw, Eye, EyeOff } from 'lucide-react';
+import { ChevronLeft, Search, Building2, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 // Mask all but the last two digits for list/detail display (Uganda DPA / data minimisation).

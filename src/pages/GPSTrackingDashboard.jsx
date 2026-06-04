@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { Bell, MapPin, Zap, Shield, Clock, ChevronLeft, RefreshCw, AlertTriangle, Battery, Navigation, Plus, Trash2, Eye } from 'lucide-react';
+import { Bell, MapPin, Shield, Clock, ChevronLeft, RefreshCw, Navigation, Plus, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Link } from 'react-router-dom';

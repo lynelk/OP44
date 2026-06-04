@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import {
-  Users, ShieldCheck, Settings, FileText, BarChart2, ChevronRight, Landmark,
+  Users, ShieldCheck, Settings, FileText, BarChart2, Landmark,
   TrendingDown, TrendingUp, AlertTriangle, CheckCircle2, Banknote, PiggyBank,
   Shield, Activity, RefreshCw, BarChart3, XCircle, Clock, Wrench, Wallet
 } from 'lucide-react';

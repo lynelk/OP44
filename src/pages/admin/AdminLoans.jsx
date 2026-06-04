@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/use-toast';
-import { ChevronLeft, Search, RefreshCw, CheckCircle2, XCircle, Clock, CalendarClock, CheckSquare, Square, ChevronRight } from 'lucide-react';
+import { ChevronLeft, Search, RefreshCw, CheckCircle2, XCircle, CalendarClock, CheckSquare, Square, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const PAGE_SIZE = 25;

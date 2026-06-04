@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, Download, Mail, RefreshCw, FileText, TrendingUp, Users, Banknote, Filter, CheckCircle2, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 
 const REPORT_TYPES = [

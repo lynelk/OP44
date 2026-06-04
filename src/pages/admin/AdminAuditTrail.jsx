@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, Search, RefreshCw, FileText, User, AlertCircle } from 'lucide-react';
+import { ChevronLeft, Search, RefreshCw, FileText, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ACTION_COLORS = {

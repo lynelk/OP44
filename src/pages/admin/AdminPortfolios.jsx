@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, TrendingUp, RefreshCw, Search, User, Activity, DollarSign } from 'lucide-react';
+import { ChevronLeft, TrendingUp, RefreshCw, Search, Activity, DollarSign } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
