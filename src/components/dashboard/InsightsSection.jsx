@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Sparkles, RefreshCw, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 const TYPE_STYLES = {
   warning: 'bg-amber-50 dark:bg-amber-900/20 border-amber-100 dark:border-amber-800',
@@ -11,17 +11,20 @@ const TYPE_STYLES = {
 };
 
 export default function InsightsSection() {
-  const [tips, setTips] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  const load = async () => {
-    setLoading(true);
-    const res = await base44.functions.invoke('financialTipsGenerator', {});
-    setTips(res.data?.tips || []);
-    setLoading(false);
-  };
+  const { data: tipsData, isLoading: loading } = useQuery({
+    queryKey: ['financialTips'],
+    queryFn: () => base44.functions.invoke('financialTipsGenerator', {}).then(r => r.data),
+    staleTime: 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 60,
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
-  useEffect(() => { load(); }, []);
+  const tips = tipsData?.tips || [];
+  const load = () => queryClient.invalidateQueries({ queryKey: ['financialTips'] });
 
   return (
     <div>

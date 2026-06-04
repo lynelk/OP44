@@ -34,6 +34,7 @@ export default function Dashboard() {
     gcTime: 1000 * 60 * 5,
     retry: false,
     refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   const loans = summary?.loans ?? [];
