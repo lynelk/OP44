@@ -1,26 +1,54 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { syncManager } from '@/lib/syncManager';
-import { WifiOff, RefreshCw, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { WifiOff, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
+
+const CONFIGS = {
+  offline: {
+    icon: WifiOff,
+    text: 'Offline — saved locally',
+    className: 'bg-gray-800 text-white',
+  },
+  syncing: {
+    icon: RefreshCw,
+    text: 'Syncing…',
+    className: 'bg-gray-700 text-white',
+    spin: true,
+  },
+  synced: {
+    icon: CheckCircle,
+    text: 'Synced',
+    className: 'bg-emerald-600 text-white',
+  },
+  error: {
+    icon: AlertCircle,
+    text: 'Sync failed — will retry',
+    className: 'bg-gray-800 text-amber-300',
+  },
+};
 
 export default function OfflineStatusBar() {
   const [syncState, setSyncState] = useState({ status: navigator.onLine ? 'idle' : 'offline' });
   const [visible, setVisible] = useState(!navigator.onLine);
-  const [hideTimer, setHideTimer] = useState(null);
+  const hideTimerRef = useRef(null);
+
+  const scheduleHide = (ms) => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    hideTimerRef.current = setTimeout(() => setVisible(false), ms);
+  };
 
   useEffect(() => {
     const unsub = syncManager.subscribe((state) => {
       setSyncState(state);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
 
-      if (state.status === 'offline') {
+      if (state.status === 'offline' || state.status === 'syncing') {
         setVisible(true);
-        if (hideTimer) clearTimeout(hideTimer);
       } else if (state.status === 'synced') {
         setVisible(true);
-        const t = setTimeout(() => setVisible(false), 3000);
-        setHideTimer(t);
-      } else if (state.status === 'syncing' || state.status === 'error') {
+        scheduleHide(2500);
+      } else if (state.status === 'error') {
         setVisible(true);
-        if (hideTimer) clearTimeout(hideTimer);
+        scheduleHide(5000); // auto-hide error after 5s
       }
     });
 
@@ -33,43 +61,23 @@ export default function OfflineStatusBar() {
       unsub();
       window.removeEventListener('online', onOnline);
       window.removeEventListener('offline', onOffline);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     };
   }, []);
 
   if (!visible) return null;
 
-  const configs = {
-    offline: {
-      bg: 'bg-red-600',
-      icon: <WifiOff className="w-3.5 h-3.5" />,
-      text: 'You\'re offline — changes saved locally',
-    },
-    syncing: {
-      bg: 'bg-amber-500',
-      icon: <RefreshCw className="w-3.5 h-3.5 animate-spin" />,
-      text: 'Syncing your data…',
-    },
-    synced: {
-      bg: 'bg-emerald-600',
-      icon: <CheckCircle className="w-3.5 h-3.5" />,
-      text: 'All changes synced',
-    },
-    error: {
-      bg: 'bg-red-500',
-      icon: <AlertCircle className="w-3.5 h-3.5" />,
-      text: 'Sync failed — will retry',
-    },
-    idle: null,
-  };
-
-  const cfg = configs[syncState.status];
+  const cfg = CONFIGS[syncState.status];
   if (!cfg) return null;
 
+  const Icon = cfg.icon;
+
   return (
-    <div className={`fixed top-0 left-0 right-0 z-[9999] ${cfg.bg} text-white text-xs font-medium flex items-center justify-center gap-2 py-1.5 transition-all duration-300`}
-      style={{ paddingTop: `calc(env(safe-area-inset-top) + 6px)` }}
+    <div
+      className={`fixed bottom-20 right-3 z-[9999] flex items-center gap-1.5 px-3 py-1.5 rounded-full shadow-lg text-xs font-medium transition-all duration-300 ${cfg.className}`}
+      style={{ backdropFilter: 'blur(8px)' }}
     >
-      {cfg.icon}
+      <Icon className={`w-3 h-3 flex-shrink-0 ${cfg.spin ? 'animate-spin' : ''}`} />
       <span>{cfg.text}</span>
     </div>
   );
