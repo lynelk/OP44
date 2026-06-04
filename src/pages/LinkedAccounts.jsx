@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, RefreshCw, Building2, Smartphone, Trash2, ArrowDownToLine, Repeat, Check, Info, X } from 'lucide-react';
 import {
   PROVIDERS, listConnections, linkProvider, removeConnection, syncTransactions,
-  getTransactions, markImported, detectRecurring, BANK_STUB,
+  getTransactions, importTransactions, detectRecurring, BANK_STUB,
 } from '@/lib/backend/bankFeed';
 
 const ugx = (n) => `UGX ${(n || 0).toLocaleString()}`;
@@ -72,26 +72,10 @@ export default function LinkedAccounts() {
     if (selectedIds.length === 0 || !user) return;
     setBusy('import');
     try {
-      // Create Expense rows from selected transactions (matches Budget module).
-      const toImport = importable.filter(t => selected[t.id]);
-      await Promise.all(toImport.map(t =>
-        base44.entities.Expense.create({
-          user_id: user.id,
-          amount: t.amount,
-          category: t.category,
-          description: `${t.merchant} (imported)`,
-          date: t.booked_at.split('T')[0],
-        }).catch(() => null)
-      ));
-      // Mark imported per connection
-      const byConn = {};
-      toImport.forEach(t => {
-        const conn = connections.find(c => (txns[c.id] || []).some(x => x.id === t.id));
-        if (conn) (byConn[conn.id] = byConn[conn.id] || []).push(t.id);
-      });
-      await Promise.all(Object.entries(byConn).map(([cid, ids]) => markImported(cid, ids)));
+      // Server-side, idempotent: creates Expense rows and marks transactions imported.
+      const n = await importTransactions(selectedIds);
       setSelected({});
-      flash(`Imported ${toImport.length} transaction${toImport.length > 1 ? 's' : ''} to your budget`);
+      flash(`Imported ${n} transaction${n === 1 ? '' : 's'} to your budget`);
       load();
     } finally { setBusy(null); }
   };

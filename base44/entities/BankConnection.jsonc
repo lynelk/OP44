@@ -1,0 +1,21 @@
+{
+  "name": "BankConnection",
+  "type": "object",
+  "properties": {
+    "user_id": { "type": "string", "description": "Owner user id" },
+    "provider": {
+      "type": "string",
+      "enum": ["mtn_momo", "airtel_money", "stanbic", "centenary", "equity", "other"],
+      "description": "Aggregation provider / institution code"
+    },
+    "institution": { "type": "string", "description": "Human-readable institution name" },
+    "kind": { "type": "string", "enum": ["bank", "momo"], "default": "bank" },
+    "provider_account_id": { "type": "string", "description": "Account/handle id at the provider" },
+    "access_ref": { "type": "string", "description": "Reference to the encrypted access token held in secrets vault (never store the raw token)" },
+    "status": { "type": "string", "enum": ["active", "expired", "revoked", "error"], "default": "active" },
+    "consent_id": { "type": "string", "description": "Linked UserConsent record id" },
+    "consent_expires_at": { "type": "string", "format": "date-time" },
+    "last_synced_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["user_id", "provider"]
+}

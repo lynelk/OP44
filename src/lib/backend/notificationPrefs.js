@@ -14,8 +14,9 @@
 
 import { base44 } from '@/api/base44Client';
 
-// Delivery (SMS/push) is still simulated; preference storage is live.
-export const NOTIF_PREFS_STUB = true;
+// Preferences persist live; SMS/push *delivery* depends on provider secrets
+// configured in Base44 (AFRICASTALKING_*, FCM_SERVER_KEY / VAPID).
+export const NOTIF_PREFS_STUB = false;
 
 export const DEFAULT_PREFS = {
   in_app: true,
@@ -76,13 +77,42 @@ export async function savePrefs(prefs) {
   return prefs;
 }
 
-// Requests browser permission. Real token capture needs a service worker + VAPID.
+const urlBase64ToUint8Array = (base64) => {
+  const padding = '='.repeat((4 - (base64.length % 4)) % 4);
+  const b64 = (base64 + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(b64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+};
+
+/**
+ * Requests permission, registers the service worker, and (when a VAPID public
+ * key is configured) subscribes to Web Push and persists the subscription as a
+ * device token on the user's NotificationPreference. Degrades gracefully:
+ * returns true if at least permission was granted.
+ */
 export async function registerPush() {
-  if (typeof Notification !== 'undefined' && Notification.requestPermission) {
-    try {
-      const perm = await Notification.requestPermission();
-      return perm === 'granted';
-    } catch { return false; }
-  }
-  return false;
+  if (typeof Notification === 'undefined' || !Notification.requestPermission) return false;
+  let granted = false;
+  try {
+    granted = (await Notification.requestPermission()) === 'granted';
+  } catch { return false; }
+  if (!granted) return false;
+
+  try {
+    if ('serviceWorker' in navigator) {
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      const vapid = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      if (vapid && reg.pushManager) {
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(vapid),
+        });
+        // Persist the subscription so the backend dispatcher can target this device.
+        const prefs = await getPrefs();
+        const tokens = [...(prefs.device_tokens || []), { token: JSON.stringify(sub), platform: 'web', registered_at: new Date().toISOString() }];
+        await savePrefs({ ...prefs, push: true, device_tokens: tokens });
+      }
+    }
+  } catch { /* permission still granted; token registration is best-effort */ }
+  return true;
 }

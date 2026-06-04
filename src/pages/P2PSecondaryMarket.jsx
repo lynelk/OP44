@@ -46,7 +46,8 @@ export default function P2PSecondaryMarket() {
     setBusy(listing.id);
     try {
       const res = await buyPosition(listing.id);
-      flash(`Reserved at ${ugx(res.total)} (incl. ${ugx(res.fee)} fee) — settlement completes shortly`);
+      if (res?.duplicate) flash('Already purchased');
+      else flash(`Purchased for ${ugx(res.total)} (incl. ${ugx(res.fee)} fee)`);
       load();
     } catch (e) {
       flash(e.message || 'Could not complete purchase');

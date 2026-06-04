@@ -1,0 +1,23 @@
+{
+  "name": "BankTransaction",
+  "type": "object",
+  "properties": {
+    "user_id": { "type": "string" },
+    "connection_id": { "type": "string", "description": "Parent BankConnection id" },
+    "external_id": { "type": "string", "description": "Provider transaction id — unique key for idempotent re-sync" },
+    "amount": { "type": "number" },
+    "direction": { "type": "string", "enum": ["debit", "credit"] },
+    "description": { "type": "string" },
+    "merchant": { "type": "string" },
+    "category": {
+      "type": "string",
+      "enum": ["food", "transport", "housing", "health", "education", "entertainment", "utilities", "clothing", "savings", "loan_repayment", "other"],
+      "description": "Auto-categorised; mirrors Expense.category"
+    },
+    "booked_at": { "type": "string", "format": "date-time" },
+    "imported": { "type": "boolean", "default": false, "description": "Whether an Expense row has been created from this transaction" },
+    "expense_id": { "type": "string", "description": "Linked Expense id once imported" },
+    "raw": { "type": "string", "description": "Raw provider payload (JSON string) for audit" }
+  },
+  "required": ["user_id", "connection_id", "external_id", "amount"]
+}

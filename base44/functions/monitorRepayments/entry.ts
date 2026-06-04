@@ -65,12 +65,12 @@ Deno.serve(async (req) => {
           crb_reported: true,
         });
 
-        await base44.asServiceRole.entities.Notification.create({
-          user_id: userId,
+        await notify(base44, userId, {
           title: '🚨 Urgent: Loan Escalated to Collections',
-          message: `Your payment of UGX ${repayment.amount?.toLocaleString()} is ${daysOverdue} days overdue. Your account has been escalated to our collections team and reported to CRB. Contact us immediately on 0800-PIPIYA to avoid legal action.`,
-          type: 'error',
-          is_read: false,
+          body: `Your payment of UGX ${repayment.amount?.toLocaleString()} is ${daysOverdue} days overdue. Your account has been escalated to our collections team and reported to CRB. Contact us immediately on 0800-PIPIYA to avoid legal action.`,
+          type: 'repayment_due',
+          priority: 'urgent',
+          action_url: '/loans/repay',
         });
 
         // Admin notification
@@ -104,12 +104,12 @@ Deno.serve(async (req) => {
         const proposedInstallment = rate === 0 ? Math.round(outstanding / proposedTenure)
           : Math.round((outstanding * rate * Math.pow(1 + rate, proposedTenure)) / (Math.pow(1 + rate, proposedTenure) - 1));
 
-        await base44.asServiceRole.entities.Notification.create({
-          user_id: userId,
+        await notify(base44, userId, {
           title: '💬 We Can Help — Repayment Plan Available',
-          message: `Your payment of UGX ${repayment.amount?.toLocaleString()} is ${daysOverdue} days overdue. We're offering a revised plan: UGX ${proposedInstallment.toLocaleString()}/month over ${proposedTenure} months. Open the app or call us to accept.`,
-          type: 'warning',
-          is_read: false,
+          body: `Your payment of UGX ${repayment.amount?.toLocaleString()} is ${daysOverdue} days overdue. We're offering a revised plan: UGX ${proposedInstallment.toLocaleString()}/month over ${proposedTenure} months. Open the app or call us to accept.`,
+          type: 'repayment_due',
+          priority: 'high',
+          action_url: '/loans/planner',
         });
 
         await base44.asServiceRole.entities.CoachingNudge.create({
@@ -133,12 +133,12 @@ Deno.serve(async (req) => {
         days_overdue: daysOverdue,
       });
 
-      await base44.asServiceRole.entities.Notification.create({
-        user_id: userId,
+      await notify(base44, userId, {
         title: `⏰ Friendly Reminder — Payment Due`,
-        message: `Hi! Your loan repayment of UGX ${repayment.amount?.toLocaleString()} was due on ${repayment.due_date}. Please make your payment soon to keep your account in good standing.`,
-        type: 'warning',
-        is_read: false,
+        body: `Hi! Your loan repayment of UGX ${repayment.amount?.toLocaleString()} was due on ${repayment.due_date}. Please make your payment soon to keep your account in good standing.`,
+        type: 'repayment_due',
+        priority: 'medium',
+        action_url: '/loans/repay',
       });
 
       reminders++;
@@ -168,3 +168,13 @@ Deno.serve(async (req) => {
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
+
+// Route through the central dispatcher (channels + quiet hours + correct schema),
+// falling back to a direct in-app write if the dispatcher is unavailable.
+async function notify(base44, userId, { title, body, type, action_url, priority = 'medium' }) {
+  try {
+    await base44.functions.invoke('dispatchNotification', { user_id: userId, title, body, type, action_url, priority });
+  } catch {
+    await base44.asServiceRole.entities.Notification.create({ user_id: userId, title, body, type, action_url, priority, is_read: false }).catch(() => null);
+  }
+}
