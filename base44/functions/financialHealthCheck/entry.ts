@@ -1,11 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
+// Rule-based financial health check — no LLM credits consumed.
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
   const user = await base44.auth.me();
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-  // ── 1. Gather raw data ──────────────────────────────────────────────────────
   const [creditScores, savings, expenses, loans, repayments] = await Promise.all([
     base44.entities.CreditScore.filter({ user_id: user.id }),
     base44.entities.SavingsPocket.filter({ user_id: user.id }),
@@ -14,13 +14,10 @@ Deno.serve(async (req) => {
     base44.entities.Repayment.filter({ user_id: user.id }),
   ]);
 
-  // ── 2. Rule-based calculations ──────────────────────────────────────────────
-  // Credit
   const latestCredit = creditScores.sort((a, b) => new Date(b.calculated_at) - new Date(a.calculated_at))[0];
   const creditScore = latestCredit?.score || 0;
   const creditPillar = Math.min(100, Math.round((creditScore / 850) * 100));
 
-  // Savings
   const totalSavings = savings.reduce((s, p) => s + (p.current_balance || 0), 0);
   const avgGoalProgress = savings.length > 0
     ? savings.reduce((s, p) => s + Math.min(100, p.goal_amount > 0 ? (p.current_balance / p.goal_amount) * 100 : 0), 0) / savings.length
@@ -31,14 +28,12 @@ Deno.serve(async (req) => {
     (totalSavings > 100000 ? 20 : totalSavings > 50000 ? 10 : 0)
   ));
 
-  // Spending (last 30 days)
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
   const recentExpenses = expenses.filter(e => new Date(e.date) >= thirtyDaysAgo);
   const totalExpenses30 = recentExpenses.reduce((s, e) => s + (e.amount || 0), 0);
   const categoryTotals = recentExpenses.reduce((acc, e) => { acc[e.category] = (acc[e.category] || 0) + e.amount; return acc; }, {});
   const topCategory = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || 'none';
-  // Score spending: penalise if >80% in one category, reward diversity
   const categoryCount = Object.keys(categoryTotals).length;
   const topCategoryRatio = totalExpenses30 > 0 ? (categoryTotals[topCategory] || 0) / totalExpenses30 : 0;
   const spendingPillar = Math.min(100, Math.round(
@@ -47,7 +42,6 @@ Deno.serve(async (req) => {
     (totalExpenses30 === 0 ? 0 : 20)
   ));
 
-  // Debt / Repayments
   const activeLoans = loans.filter(l => ['active', 'disbursed'].includes(l.status));
   const overdueReps = repayments.filter(r => r.status === 'overdue');
   const paidReps = repayments.filter(r => r.status === 'paid');
@@ -59,12 +53,8 @@ Deno.serve(async (req) => {
     (activeLoans.length <= 1 ? 20 : activeLoans.length <= 2 ? 10 : 0)
   ));
 
-  // Overall score (weighted)
   const overallScore = Math.round(
-    creditPillar * 0.30 +
-    savingsPillar * 0.25 +
-    spendingPillar * 0.20 +
-    debtPillar * 0.25
+    creditPillar * 0.30 + savingsPillar * 0.25 + spendingPillar * 0.20 + debtPillar * 0.25
   );
 
   const grade =
@@ -73,7 +63,6 @@ Deno.serve(async (req) => {
     overallScore >= 50 ? 'Fair' :
     overallScore >= 35 ? 'Needs Work' : 'Critical';
 
-  // Rule flags
   const flags = [];
   if (overdueReps.length > 0) flags.push(`${overdueReps.length} overdue repayment(s) dragging your score`);
   if (savings.length === 0) flags.push('No savings pockets created yet');
@@ -82,36 +71,27 @@ Deno.serve(async (req) => {
   if (creditScore < 400) flags.push('Credit score is below 400 — focus on repayments');
   if (activeLoans.length > 2) flags.push('Multiple active loans increase financial risk');
 
-  // ── 3. AI narrative ─────────────────────────────────────────────────────────
-  const prompt = `You are a friendly financial wellness coach for an African fintech app called Pipiya.
-Analyse this user's financial data and write:
-1. A short personalised 2-3 sentence summary of their financial health (conversational, encouraging tone)
-2. Exactly 4 specific, actionable tips tailored to their situation
+  // Rule-based tips (no LLM)
+  const tips = [];
+  if (overdueReps.length > 0) tips.push('Clear your overdue repayments immediately to protect your credit score.');
+  if (savings.length === 0) tips.push('Open a savings pocket and set a goal to start building your financial cushion.');
+  if (topCategoryRatio > 0.6) tips.push(`Diversify your spending — "${topCategory}" is taking up too much of your budget.`);
+  if (creditScore < 500) tips.push('Complete your KYC documents and maintain consistent savings to boost your score.');
+  if (tips.length < 4) tips.push('Log your expenses regularly to unlock more personalised insights.');
+  if (tips.length < 4) tips.push('Set up auto-save on your savings pocket to build your balance effortlessly.');
+  if (tips.length < 4) tips.push('Check your credit score monthly and track progress over time.');
+  if (tips.length < 4) tips.push('Review your budget limits and adjust them to match your income patterns.');
 
-User data:
-- Overall health score: ${overallScore}/100 (${grade})
-- Credit score: ${creditScore}/850
-- Credit pillar: ${creditPillar}/100
-- Savings pillar: ${savingsPillar}/100 (${savings.length} pockets, avg goal progress ${Math.round(avgGoalProgress)}%, total UGX ${totalSavings.toLocaleString()})
-- Spending pillar: ${spendingPillar}/100 (UGX ${totalExpenses30.toLocaleString()} spent in last 30 days, top category: ${topCategory})
-- Debt pillar: ${debtPillar}/100 (${activeLoans.length} active loans, ${overdueReps.length} overdue, on-time rate ${onTimeRate}%)
-- Warnings: ${flags.length > 0 ? flags.join('; ') : 'None'}
+  const summaries = {
+    Excellent: 'Your financial health is excellent! You\'re managing your money well across all areas.',
+    Good: 'Your finances are in good shape. A few tweaks can push you into the excellent range.',
+    Fair: 'You\'re making progress but there are some areas that need attention.',
+    'Needs Work': 'Your financial health needs some improvement. Focus on the tips below.',
+    Critical: 'Your finances need urgent attention. Start with the most critical action below.',
+  };
 
-Respond ONLY with valid JSON:
-{"summary": "...", "tips": ["tip1", "tip2", "tip3", "tip4"]}`;
+  const aiSummary = summaries[grade] || 'Keep working on your financial health.';
 
-  const aiResult = await base44.integrations.Core.InvokeLLM({
-    prompt,
-    response_json_schema: {
-      type: 'object',
-      properties: {
-        summary: { type: 'string' },
-        tips: { type: 'array', items: { type: 'string' } }
-      }
-    }
-  });
-
-  // ── 4. Persist report ───────────────────────────────────────────────────────
   const reportData = {
     user_id: user.id,
     overall_score: overallScore,
@@ -121,8 +101,8 @@ Respond ONLY with valid JSON:
     savings_pillar_score: savingsPillar,
     spending_pillar_score: spendingPillar,
     debt_pillar_score: debtPillar,
-    ai_summary: aiResult?.summary || '',
-    ai_tips: aiResult?.tips || [],
+    ai_summary: aiSummary,
+    ai_tips: tips.slice(0, 4),
     rule_flags: flags,
     total_savings: totalSavings,
     savings_goal_progress: Math.round(avgGoalProgress),
@@ -134,7 +114,6 @@ Respond ONLY with valid JSON:
     generated_at: new Date().toISOString(),
   };
 
-  // Upsert: delete old reports for user, create fresh
   const oldReports = await base44.entities.FinancialHealthReport.filter({ user_id: user.id });
   for (const r of oldReports) {
     await base44.entities.FinancialHealthReport.delete(r.id);

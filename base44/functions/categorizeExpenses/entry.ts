@@ -1,14 +1,36 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
+// Keyword-based categorization — no LLM credits consumed.
+const CATEGORY_KEYWORDS = {
+  food: ['restaurant', 'food', 'eat', 'lunch', 'dinner', 'breakfast', 'cafe', 'grocery', 'market', 'supermarket', 'kfc', 'pizza', 'chicken', 'rice', 'posho', 'matoke', 'rolex'],
+  transport: ['taxi', 'uber', 'boda', 'bodaboda', 'bus', 'fuel', 'petrol', 'diesel', 'transport', 'fare', 'ride', 'motorcycle', 'airtime'],
+  housing: ['rent', 'house', 'apartment', 'landlord', 'water', 'compound', 'lease'],
+  health: ['hospital', 'clinic', 'doctor', 'pharmacy', 'medicine', 'drugs', 'health', 'medical', 'dental', 'lab', 'test'],
+  education: ['school', 'tuition', 'fees', 'books', 'stationery', 'university', 'college', 'training', 'course'],
+  entertainment: ['cinema', 'movie', 'concert', 'show', 'bar', 'club', 'game', 'sport', 'gym', 'hotel', 'event'],
+  utilities: ['electricity', 'power', 'umeme', 'internet', 'wifi', 'tv', 'cable', 'phone', 'bill', 'subscription'],
+  clothing: ['clothes', 'shoes', 'shirt', 'dress', 'fashion', 'fabric', 'tailor', 'boutique'],
+  savings: ['savings', 'save', 'deposit', 'pocket'],
+  loan_repayment: ['loan', 'repayment', 'installment', 'debt', 'credit'],
+};
+
+function categorize(description) {
+  if (!description) return 'other';
+  const lower = description.toLowerCase();
+  for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    if (keywords.some(kw => lower.includes(kw))) return cat;
+  }
+  return 'other';
+}
+
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
   const user = await base44.auth.me();
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json();
-  const { expense_ids } = body; // optional: array of specific expense IDs to re-categorize
+  const { expense_ids } = body;
 
-  // Fetch expenses needing AI categorization (those with category 'other' or uncategorized)
   let expenses;
   if (expense_ids && expense_ids.length > 0) {
     expenses = await base44.entities.Expense.filter({ user_id: user.id });
@@ -21,42 +43,15 @@ Deno.serve(async (req) => {
     return Response.json({ message: 'No expenses to categorize', updated: 0 });
   }
 
-  // Build the AI prompt with transaction descriptions
-  const transactionList = expenses
-    .filter(e => e.description)
-    .map((e, i) => `${i + 1}. ID: ${e.id} | Description: "${e.description}" | Amount: UGX ${e.amount}`)
-    .join('\n');
-
-  if (!transactionList) {
-    return Response.json({ message: 'No descriptions to analyze', updated: 0 });
-  }
-
-  const result = await base44.integrations.Core.InvokeLLM({
-    prompt: `You are a financial transaction categorizer for a Ugandan fintech app. 
-Analyze each transaction description and assign the best category from this list:
-food, transport, housing, health, education, entertainment, utilities, clothing, savings, loan_repayment, other
-
-Transactions:
-${transactionList}
-
-Return a JSON object where keys are the expense IDs and values are the category strings.
-Example: { "abc123": "food", "def456": "transport" }
-Only return categories from the allowed list. Be conservative — if truly unclear, use "other".`,
-    response_json_schema: {
-      type: 'object',
-      additionalProperties: { type: 'string' }
-    }
-  });
-
-  // Update each expense with its AI-assigned category
   let updated = 0;
-  for (const [expenseId, category] of Object.entries(result || {})) {
-    const validCategories = ['food', 'transport', 'housing', 'health', 'education', 'entertainment', 'utilities', 'clothing', 'savings', 'loan_repayment', 'other'];
-    if (validCategories.includes(category)) {
-      await base44.entities.Expense.update(expenseId, { category, ai_categorized: true });
-      updated++;
-    }
+  const categorizations = {};
+  for (const expense of expenses) {
+    if (!expense.description) continue;
+    const category = categorize(expense.description);
+    categorizations[expense.id] = category;
+    await base44.entities.Expense.update(expense.id, { category });
+    updated++;
   }
 
-  return Response.json({ message: `Categorized ${updated} expense(s) using AI`, updated, categorizations: result });
+  return Response.json({ message: `Categorized ${updated} expense(s) using keyword matching`, updated, categorizations });
 });
