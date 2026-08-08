@@ -8,6 +8,7 @@ import OnboardingTour from '@/components/dashboard/OnboardingTour';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
 import ErrorState from '@/components/ui/ErrorState';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchDashboardSummary, fetchFinancialTips } from '@/lib/dashboardUtils';
 
 const TIP_STYLES = {
   warning: { bg: 'bg-amber-50 border-amber-100 dark:bg-amber-900/20 dark:border-amber-800', icon: 'text-amber-500', text: 'text-amber-800 dark:text-amber-200', sub: 'text-amber-600 dark:text-amber-300' },
@@ -29,7 +30,7 @@ export default function Dashboard() {
 
   const { data: summary, error: summaryError, refetch: refetchSummary } = useQuery({
     queryKey: ['dashboardSummary'],
-    queryFn: () => base44.functions.invoke('getDashboardSummary', {}).then(r => r.data),
+    queryFn: () => fetchDashboardSummary(),
     staleTime: 1000 * 60 * 2,
     gcTime: 1000 * 60 * 5,
     retry: false,
@@ -45,7 +46,7 @@ export default function Dashboard() {
 
   const { data: tipsData, isLoading: loadingTips } = useQuery({
     queryKey: ['financialTips'],
-    queryFn: () => base44.functions.invoke('financialTipsGenerator', {}).then(r => r.data),
+    queryFn: () => fetchFinancialTips(),
     staleTime: 1000 * 60 * 30,   // cache for 30 min
     gcTime: 1000 * 60 * 60,      // keep in cache for 1 hour
     retry: false,                  // don't retry on 429

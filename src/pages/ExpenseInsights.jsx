@@ -6,6 +6,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import { TrendingUp, Wallet, AlertCircle, ChevronLeft, Sparkles, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { categorizeExpensesClient, generateRuleBasedSavingsTips } from '@/lib/budgetUtils';
 
 const CATEGORY_COLORS = {
   food: '#f97316', transport: '#3b82f6', housing: '#8b5cf6',
@@ -90,9 +91,9 @@ export default function ExpenseInsights() {
   const runAICategorizer = async () => {
     setCategorizing(true);
     setCatResult(null);
-    const res = await base44.functions.invoke('categorizeExpenses', {});
-    setCatResult(res.data);
-    if (res.data?.updated > 0) {
+    const data = await categorizeExpensesClient();
+    setCatResult(data);
+    if (data?.updated > 0) {
       const updated = await base44.entities.Expense.filter({});
       setExpenses(updated);
     }
@@ -101,19 +102,9 @@ export default function ExpenseInsights() {
 
   const getAIInsights = async () => {
     setLoadingSuggestions(true);
-    try {
-      const summary = budgetSuggestions.slice(0, 5).map(b =>
-        `${b.label}: avg UGX ${b.avgMonthly.toLocaleString('en-UG', { maximumFractionDigits: 0 })}/month`
-      ).join(', ');
-      const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `I am a user of a savings & loan app in Uganda. My monthly spending: ${summary}. Give me 3 short, actionable tips to reduce spending and save faster. Each tip max 1 sentence. Return as JSON array of strings.`,
-        response_json_schema: {
-          type: 'object',
-          properties: { tips: { type: 'array', items: { type: 'string' } } }
-        }
-      });
-      setSuggestions(res.tips || []);
-    } catch(e) { /* silent */ }
+    // Rule-based tips — no LLM credits used
+    const tips = generateRuleBasedSavingsTips(budgetSuggestions);
+    setSuggestions(tips);
     setLoadingSuggestions(false);
   };
 

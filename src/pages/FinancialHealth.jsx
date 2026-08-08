@@ -8,6 +8,7 @@ import PillarBar from '@/components/health/PillarBar';
 import AIAdviceCard from '@/components/health/AIAdviceCard';
 import HealthMetricsGrid from '@/components/health/HealthMetricsGrid';
 import RuleFlags from '@/components/health/RuleFlags';
+import { runFinancialHealthCheckClient } from '@/lib/financialHealthUtils';
 
 export default function FinancialHealth() {
   const [report, setReport] = useState(null);
@@ -27,8 +28,8 @@ export default function FinancialHealth() {
 
   const runHealthCheck = async () => {
     setGenerating(true);
-    const res = await base44.functions.invoke('financialHealthCheck', {});
-    setReport(res.data.report);
+    const data = await runFinancialHealthCheckClient();
+    setReport(data.report);
     setGenerating(false);
   };
 

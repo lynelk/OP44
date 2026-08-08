@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { listPendingDocLoans, updateDocStatus, detectAnomaliesClient } from '@/lib/documentReviewUtils';
 
 const DOC_TYPES = [
   { key: 'payslip', label: 'Payslips', urlKey: 'payslip_urls', statusKey: 'payslip_status', notesKey: 'payslip_admin_notes' },
@@ -29,13 +30,7 @@ function DocSection({ loan, docType, onUpdate, aiRunning }) {
 
   const update = async (newStatus) => {
     setSaving(true);
-    await base44.functions.invoke('reviewLoanDocument', {
-      action: 'update_doc_status',
-      loan_id: loan.id,
-      document_type: docType.key,
-      status: newStatus,
-      admin_notes: notes,
-    });
+    await updateDocStatus(loan.id, docType.key, newStatus, notes);
     setSaving(false);
     onUpdate();
   };
@@ -99,13 +94,12 @@ export default function AdminDocumentReview() {
 
   const load = async () => {
     setLoading(true);
-    const [docsRes, usersRes] = await Promise.all([
-      base44.functions.invoke('reviewLoanDocument', { action: 'list_docs_pending', loan_id: 'all' }),
-      base44.functions.invoke('adminManager', { action: 'list', entity: 'users' }),
+    const [loanList, userList] = await Promise.all([
+      listPendingDocLoans(),
+      base44.entities.User.list(),
     ]);
-    const loanList = docsRes.data?.loans || [];
     const userMap = {};
-    (usersRes.data?.users || []).forEach(u => { userMap[u.id] = u; });
+    userList.forEach(u => { userMap[u.id] = u; });
     setLoans(loanList);
     setUsers(userMap);
     setLoading(false);
@@ -116,13 +110,9 @@ export default function AdminDocumentReview() {
   const runAI = async (loan) => {
     setAiRunning(true);
     setAiResult(null);
-    const res = await base44.functions.invoke('reviewLoanDocument', {
-      action: 'detect_anomalies',
-      loan_id: loan.id,
-    });
-    setAiResult(res.data);
+    const data = await detectAnomaliesClient(loan.id);
+    setAiResult(data);
     setAiRunning(false);
-    load();
   };
 
   const filtered = loans.filter(l => {

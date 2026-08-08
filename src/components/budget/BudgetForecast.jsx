@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Sparkles, TrendingUp, AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+import { predictBudgetShortfallsClient } from '@/lib/budgetUtils';
 
 const CATEGORY_ICONS = {
   food: '🍔', transport: '🚌', housing: '🏠', health: '💊', education: '📚',
@@ -28,8 +29,8 @@ export default function BudgetForecast() {
   const runForecast = async () => {
     setLoading(true);
     setExpanded(true);
-    const res = await base44.functions.invoke('predictBudgetShortfalls', {});
-    setForecast(res.data);
+    const data = await predictBudgetShortfallsClient();
+    setForecast(data);
     setLoading(false);
     setRan(true);
   };

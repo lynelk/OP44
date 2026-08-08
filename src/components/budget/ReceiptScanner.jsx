@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Camera, X, CheckCircle, ScanLine, Upload } from 'lucide-react';
+import { scanReceiptClient } from '@/lib/budgetUtils';
 
 const CATEGORIES = ['food', 'transport', 'housing', 'health', 'education', 'entertainment', 'utilities', 'clothing', 'savings', 'loan_repayment', 'other'];
 
@@ -35,10 +36,8 @@ export default function ReceiptScanner({ userId, onExpenseAdded, onClose }) {
     setScanning(true);
     setStep('scanning');
 
-    const { file_url } = await base44.integrations.Core.UploadFile({ file: imageFile });
-    const result = await base44.functions.invoke('scanReceipt', { image_url: file_url });
-
-    const data = result.data;
+    // AI scanning disabled — prompt manual entry instead
+    const data = await scanReceiptClient(null);
     setScanned(data);
     setEditAmount(data?.amount?.toString() || '');
     setEditCategory(data?.category || 'other');
@@ -110,15 +109,15 @@ export default function ReceiptScanner({ userId, onExpenseAdded, onClose }) {
         {step === 'scanning' && (
           <div className="flex flex-col items-center py-10 gap-3">
             <div className="w-12 h-12 border-4 border-[#1a3a6b] border-t-transparent rounded-full animate-spin" />
-            <p className="text-sm text-gray-500">Extracting expense details with AI…</p>
+            <p className="text-sm text-gray-500">Preparing manual entry…</p>
           </div>
         )}
 
         {step === 'confirm' && (
           <div className="space-y-3">
-            <div className="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
-              <p className="text-xs text-green-700">Receipt scanned! Review and confirm below.</p>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+              <p className="text-xs text-amber-700">Auto-scan unavailable — please enter the details manually below.</p>
             </div>
             {imagePreview && <img src={imagePreview} alt="Receipt" className="w-full max-h-28 object-contain rounded-lg border" />}
             <div className="space-y-2">
