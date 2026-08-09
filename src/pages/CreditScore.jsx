@@ -6,12 +6,14 @@ import ScoreGauge from '@/components/credit/ScoreGauge';
 import ScoreBreakdown from '@/components/credit/ScoreBreakdown';
 import ReasonCodes from '@/components/credit/ReasonCodes';
 import ScoreSimulator from '@/components/credit/ScoreSimulator';
+import { calculateCreditScoreClient } from '@/lib/creditScoreUtils';
 
 export default function CreditScore() {
   const [scoreData, setScoreData] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [calculating, setCalculating] = useState(false);
+  const [calcError, setCalcError] = useState(null);
   const [user, setUser] = useState(null);
 
   useEffect(() => { loadData(); }, []);
@@ -28,10 +30,16 @@ export default function CreditScore() {
 
   const recalculate = async () => {
     setCalculating(true);
-    const res = await base44.functions.invoke('calculateCreditScore', {});
-    setScoreData(res.data);
-    await loadData();
-    setCalculating(false);
+    setCalcError(null);
+    try {
+      const data = await calculateCreditScoreClient();
+      setScoreData(data);
+      await loadData();
+    } catch (err) {
+      setCalcError(err?.message || 'Could not calculate your score. Please try again.');
+    } finally {
+      setCalculating(false);
+    }
   };
 
   const riskBandConfig = {
@@ -72,6 +80,12 @@ export default function CreditScore() {
       </div>
 
       <div className="px-4 mt-4 space-y-4">
+        {calcError && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-3.5 flex items-start gap-2">
+            <Info className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-red-700 dark:text-red-300">{calcError}</p>
+          </div>
+        )}
         {loading ? (
           <div className="space-y-3">
             {[1,2,3].map(i => <div key={i} className="bg-white dark:bg-gray-900 rounded-2xl h-32 animate-pulse" />)}
