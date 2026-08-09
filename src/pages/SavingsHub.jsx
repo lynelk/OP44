@@ -4,6 +4,7 @@
  * into a single lightweight view with Quick Save and progress bars.
  */
 import { useState, useEffect, useRef } from 'react';
+// eslint-disable-next-line
 import { base44 } from '@/api/base44Client';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
