@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+// force re-transform — clears stale Vite chunk cache
 import { Link } from 'react-router-dom';
 import { CreditCard, FileText, ArrowUpCircle, TrendingDown, Zap, ChevronRight, Plus, Clock, CheckCircle2, XCircle, AlertTriangle, Banknote, RefreshCw, CalendarClock, Phone, PlusCircle } from 'lucide-react';
 
