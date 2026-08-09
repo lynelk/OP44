@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import ReferralCard from '@/components/referral/ReferralCard';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
-import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Activity, Handshake, Vault, PieChart } from 'lucide-react';
+import { Bell, ChevronRight, ArrowUpRight, ArrowDownRight, Sparkles, Loader2, RefreshCw, TrendingUp, CreditCard, Shield, Wallet, TrendingDown, Users, Activity, Handshake, Vault, PieChart, ListChecks, Home as HomeIcon, Compass } from 'lucide-react';
 import CoachingNudges from '@/components/dashboard/CoachingNudges';
 import OnboardingTour from '@/components/dashboard/OnboardingTour';
 import UnlockRequirements from '@/components/kyc/UnlockRequirements';
 import ErrorState from '@/components/ui/ErrorState';
+import TaskHub from '@/components/dashboard/TaskHub';
+import ExploreTab from '@/components/dashboard/ExploreTab';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { fetchDashboardSummary, fetchFinancialTips } from '@/lib/dashboardUtils';
 
@@ -17,8 +19,15 @@ const TIP_STYLES = {
   tip: { bg: 'bg-purple-50 border-purple-100 dark:bg-purple-900/20 dark:border-purple-800', icon: 'text-purple-500', text: 'text-purple-800 dark:text-purple-200', sub: 'text-purple-600 dark:text-purple-300' },
 };
 
+const TABS = [
+  { id: 'home',    label: 'Home',    icon: HomeIcon },
+  { id: 'tasks',   label: 'Tasks',   icon: ListChecks },
+  { id: 'explore', label: 'Explore', icon: Compass },
+];
+
 export default function Dashboard() {
   const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('home');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const scrollRef = useRef(null);
   const pullStartY = useRef(0);
@@ -47,9 +56,9 @@ export default function Dashboard() {
   const { data: tipsData, isLoading: loadingTips } = useQuery({
     queryKey: ['financialTips'],
     queryFn: () => fetchFinancialTips(),
-    staleTime: 1000 * 60 * 30,   // cache for 30 min
-    gcTime: 1000 * 60 * 60,      // keep in cache for 1 hour
-    retry: false,                  // don't retry on 429
+    staleTime: 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 60,
+    retry: false,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   });
@@ -59,6 +68,7 @@ export default function Dashboard() {
     await Promise.all([
       refetchSummary(),
       queryClient.invalidateQueries({ queryKey: ['financialTips'] }),
+      queryClient.invalidateQueries({ queryKey: ['dashboardTasks'] }),
     ]);
     setTimeout(() => setIsRefreshing(false), 800);
   };
@@ -80,10 +90,6 @@ export default function Dashboard() {
   const activeLoan = loans.find(l => l.status === 'active' || l.status === 'disbursed');
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  // OpFin brand colors
-  const PRIMARY = '#0D1BFF';
-  const LIGHT = '#32B4FF';
-  const SUCCESS = '#00C48C';
 
   const formatCurrency = (amount) => {
     if (!amount) return 'UGX 0';
@@ -99,7 +105,6 @@ export default function Dashboard() {
     { icon: Users, label: 'Groups', path: '/savings-groups', color: 'bg-[#0D1BFF]/10 text-[#0D1BFF] dark:bg-[#0D1BFF]/20 dark:text-[#32B4FF]' },
     { icon: Activity, label: 'Health', path: '/financial-health', color: 'bg-[#00C48C]/10 text-[#00C48C] dark:bg-[#00C48C]/20 dark:text-[#00C48C]' },
     { icon: Handshake, label: 'P2P', path: '/p2p', color: 'bg-[#0D1BFF]/10 text-[#0D1BFF] dark:bg-[#0D1BFF]/20 dark:text-[#32B4FF]' },
-    { icon: PieChart, label: 'Net Worth', path: '/net-worth', color: 'bg-[#32B4FF]/10 text-[#32B4FF] dark:bg-[#32B4FF]/20 dark:text-[#32B4FF]' },
   ];
 
   if (summaryError && !summary) {
@@ -112,7 +117,6 @@ export default function Dashboard() {
 
   return (
     <div ref={scrollRef} className="min-h-screen bg-gray-50 dark:bg-gray-950 overflow-y-auto">
-      {/* Pull to refresh indicator */}
       {isRefreshing && (
         <div className="flex justify-center pt-4 pb-2">
           <div className="flex items-center gap-2 bg-white dark:bg-gray-800 rounded-full px-4 py-2 shadow-lg text-sm text-gray-600 dark:text-gray-300">
@@ -121,7 +125,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Hero Header */}
+      {/* Hero Header — always visible */}
       <div className="bg-gradient-to-br from-[#1A1D29] via-[#0D1BFF] to-[#32B4FF] text-white px-5 pt-14 pb-20">
         <div className="flex items-center justify-between mb-5">
           <div>
@@ -183,171 +187,214 @@ export default function Dashboard() {
       </div>
 
       <OnboardingTour />
-      <div className="px-4 -mt-10 space-y-5 pb-32">
-        <CoachingNudges userId={user?.id} />
 
-        {/* Quick Stats Cards */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-[#00C48C]/10 dark:bg-[#00C48C]/20 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-[#00C48C]" />
-              </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Investments</span>
-            </div>
-            <p className="text-xl font-bold text-gray-900 dark:text-white">{formatCurrency(totalInvestments)}</p>
-            <p className="text-xs text-[#00C48C] flex items-center gap-0.5 mt-1">
-              <ArrowUpRight className="w-3 h-3" /> {savings.length} pockets
-            </p>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20 rounded-xl flex items-center justify-center">
-                <CreditCard className="w-4 h-4 text-[#0D1BFF] dark:text-[#32B4FF]" />
-              </div>
-              <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Active Loan</span>
-            </div>
-            {activeLoan ? (
-              <>
-                <p className="text-xl font-bold text-gray-900 dark:text-white">
-                  {formatCurrency(activeLoan.outstanding_balance || activeLoan.amount_approved || 0)}
-                </p>
-                <p className="text-xs text-[#32B4FF] flex items-center gap-0.5 mt-1">
-                  <ArrowDownRight className="w-3 h-3" /> Outstanding
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="text-xl font-bold text-gray-900 dark:text-white">None</p>
-                <p className="text-xs text-gray-400 mt-1">No active loans</p>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
-          <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-4 gap-3">
-            {QUICK_ACTIONS.map(({ icon: Icon, label, path, color }) => (
-              <Link key={label} to={path} className="flex flex-col items-center gap-1.5">
-                <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center transition-transform active:scale-95`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] text-gray-500 dark:text-gray-400 text-center leading-tight font-medium">{label}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* AI Financial Insights */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-purple-500" /> Your Insights
-            </h2>
-            <button onClick={handleRefresh} className="text-[#0D1BFF] text-xs font-bold flex items-center gap-1 hover:text-[#32B4FF] transition-colors">
-              <RefreshCw className="w-3 h-3" /> Refresh
+      {/* Tab Bar */}
+      <div className="px-4 -mt-8 mb-2">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md flex p-1">
+          {TABS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                activeTab === id
+                  ? 'bg-[#0D1BFF] text-white dark:bg-[#32B4FF] dark:text-gray-900'
+                  : 'text-gray-400 dark:text-gray-500'
+              }`}
+            >
+              <Icon className="w-4 h-4" /> {label}
             </button>
-          </div>
+          ))}
+        </div>
+      </div>
 
-          {loadingTips ? (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 flex items-center justify-center gap-2 text-gray-400 shadow-sm">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm">Analysing your finances…</span>
-            </div>
-          ) : (
-            <div className="space-y-2.5">
-              {(tipsData?.tips || []).map((tip, i) => {
-                const style = TIP_STYLES[tip.type] || TIP_STYLES.tip;
-                return (
-                  <div key={i} className={`rounded-2xl p-4 border ${style.bg}`}>
-                    <div className="flex items-start gap-3">
-                      <span className="text-xl leading-none mt-0.5">{tip.icon}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-semibold ${style.text}`}>{tip.title}</p>
-                        <p className={`text-xs mt-0.5 leading-relaxed ${style.sub}`}>{tip.body}</p>
-                      </div>
-                    </div>
+      <div className="px-4 space-y-5 pb-32">
+        {/* HOME TAB */}
+        {activeTab === 'home' && (
+          <>
+            <CoachingNudges userId={user?.id} />
+
+            {/* Quick Stats Cards */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 bg-[#00C48C]/10 dark:bg-[#00C48C]/20 rounded-xl flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-[#00C48C]" />
                   </div>
-                );
-              })}
-              {(!tipsData?.tips || tipsData.tips.length === 0) && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 text-center shadow-sm">
-                  <Sparkles className="w-8 h-8 text-gray-200 mx-auto mb-2" />
-                  <p className="text-sm text-gray-400">Log more transactions to unlock insights</p>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Total Investments</span>
+                </div>
+                <p className="text-xl font-bold text-gray-900 dark:text-white">{formatCurrency(totalInvestments)}</p>
+                <p className="text-xs text-[#00C48C] flex items-center gap-0.5 mt-1">
+                  <ArrowUpRight className="w-3 h-3" /> {savings.length} pockets
+                </p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-8 h-8 bg-[#0D1BFF]/10 dark:bg-[#0D1BFF]/20 rounded-xl flex items-center justify-center">
+                    <CreditCard className="w-4 h-4 text-[#0D1BFF] dark:text-[#32B4FF]" />
+                  </div>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Active Loan</span>
+                </div>
+                {activeLoan ? (
+                  <>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">
+                      {formatCurrency(activeLoan.outstanding_balance || activeLoan.amount_approved || 0)}
+                    </p>
+                    <p className="text-xs text-[#32B4FF] flex items-center gap-0.5 mt-1">
+                      <ArrowDownRight className="w-3 h-3" /> Outstanding
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">None</p>
+                    <p className="text-xs text-gray-400 mt-1">No active loans</p>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+              <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm mb-4">Quick Actions</h2>
+              <div className="grid grid-cols-4 gap-3">
+                {QUICK_ACTIONS.map(({ icon: Icon, label, path, color }) => (
+                  <Link key={label} to={path} className="flex flex-col items-center gap-1.5">
+                    <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center transition-transform active:scale-95`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] text-gray-500 dark:text-gray-400 text-center leading-tight font-medium">{label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* AI Financial Insights */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-purple-500" /> Your Insights
+                </h2>
+                <button onClick={handleRefresh} className="text-[#0D1BFF] text-xs font-bold flex items-center gap-1 hover:text-[#32B4FF] transition-colors">
+                  <RefreshCw className="w-3 h-3" /> Refresh
+                </button>
+              </div>
+
+              {loadingTips ? (
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 flex items-center justify-center gap-2 text-gray-400 shadow-sm">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Analysing your finances…</span>
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  {(tipsData?.tips || []).map((tip, i) => {
+                    const style = TIP_STYLES[tip.type] || TIP_STYLES.tip;
+                    return (
+                      <div key={i} className={`rounded-2xl p-4 border ${style.bg}`}>
+                        <div className="flex items-start gap-3">
+                          <span className="text-xl leading-none mt-0.5">{tip.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-sm font-semibold ${style.text}`}>{tip.title}</p>
+                            <p className={`text-xs mt-0.5 leading-relaxed ${style.sub}`}>{tip.body}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {(!tipsData?.tips || tipsData.tips.length === 0) && (
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 text-center shadow-sm">
+                      <Sparkles className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+                      <p className="text-sm text-gray-400">Log more transactions to unlock insights</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
-        </div>
 
-        {/* Savings Pockets */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">My Savings</h2>
-            <Link to="/savings" className="text-[#0D1BFF] text-xs font-medium flex items-center gap-0.5">
-              View all <ChevronRight className="w-3 h-3" />
-            </Link>
-          </div>
-          {savings.length === 0 ? (
-            <Link to="/savings">
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 shadow-sm">
-                <Vault className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-gray-400 dark:text-gray-500">Create your first savings pocket</p>
+            {/* Savings Pockets */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm">My Savings</h2>
+                <Link to="/savings" className="text-[#0D1BFF] text-xs font-medium flex items-center gap-0.5">
+                  View all <ChevronRight className="w-3 h-3" />
+                </Link>
               </div>
-            </Link>
-          ) : (
-            <div className="space-y-2.5">
-              {savings.slice(0, 2).map(pocket => {
-                const progress = pocket.goal_amount ? Math.min((pocket.current_balance / pocket.goal_amount) * 100, 100) : 0;
-                return (
-                  <div key={pocket.id} className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-xl">{pocket.icon || '🎯'}</span>
-                        <div>
-                          <p className="font-semibold text-sm text-gray-900 dark:text-white">{pocket.name}</p>
-                          <p className="text-xs text-gray-400">Goal: {formatCurrency(pocket.goal_amount)}</p>
-                        </div>
-                      </div>
-                      <span className="text-sm font-bold text-[#0D1BFF] dark:text-[#32B4FF]">
-                        {formatCurrency(pocket.current_balance)}
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
-                      <div className="bg-gradient-to-r from-[#0D1BFF] to-[#32B4FF] h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1">{progress.toFixed(0)}% of goal</p>
+              {savings.length === 0 ? (
+                <Link to="/savings">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-5 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 shadow-sm">
+                    <Vault className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-400 dark:text-gray-500">Create your first savings pocket</p>
                   </div>
-                );
-              })}
+                </Link>
+              ) : (
+                <div className="space-y-2.5">
+                  {savings.slice(0, 2).map(pocket => {
+                    const progress = pocket.goal_amount ? Math.min((pocket.current_balance / pocket.goal_amount) * 100, 100) : 0;
+                    return (
+                      <div key={pocket.id} className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-xl">{pocket.icon || '🎯'}</span>
+                            <div>
+                              <p className="font-semibold text-sm text-gray-900 dark:text-white">{pocket.name}</p>
+                              <p className="text-xs text-gray-400">Goal: {formatCurrency(pocket.goal_amount)}</p>
+                            </div>
+                          </div>
+                          <span className="text-sm font-bold text-[#0D1BFF] dark:text-[#32B4FF]">
+                            {formatCurrency(pocket.current_balance)}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                          <div className="bg-gradient-to-r from-[#0D1BFF] to-[#32B4FF] h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                        </div>
+                        <p className="text-xs text-gray-400 mt-1">{progress.toFixed(0)}% of goal</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Unlock Requirements */}
-        <UnlockRequirements compact={true} />
+            {/* Unlock Requirements */}
+            <UnlockRequirements compact={true} />
 
-        {/* Referral Card */}
-        <ReferralCard data={summary?.referral} />
+            {/* Referral Card */}
+            <ReferralCard data={summary?.referral} />
 
-        {/* Journey teaser — tap to explore more */}
-        <Link to="/profile">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-50 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
-                <Activity className="w-5 h-5 text-purple-500" />
+            {/* Journey teaser */}
+            <Link to="/profile">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-purple-50 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                    <Activity className="w-5 h-5 text-purple-500" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-gray-900 dark:text-white">My Journey</p>
+                    <p className="text-xs text-gray-400">Challenges, milestones & badges</p>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600" />
               </div>
-              <div>
-                <p className="font-semibold text-sm text-gray-900 dark:text-white">My Journey</p>
-                <p className="text-xs text-gray-400">Challenges, milestones & badges</p>
-              </div>
+            </Link>
+          </>
+        )}
+
+        {/* TASKS TAB */}
+        {activeTab === 'tasks' && (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-semibold text-gray-800 dark:text-gray-200 text-sm flex items-center gap-1.5">
+                <ListChecks className="w-4 h-4 text-[#0D1BFF] dark:text-[#32B4FF]" /> Action Items
+              </h2>
+              <button onClick={handleRefresh} className="text-[#0D1BFF] text-xs font-bold flex items-center gap-1 hover:text-[#32B4FF] transition-colors">
+                <RefreshCw className="w-3 h-3" /> Refresh
+              </button>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-300 dark:text-gray-600" />
+            <TaskHub userId={user?.id} />
           </div>
-        </Link>
+        )}
+
+        {/* EXPLORE TAB */}
+        {activeTab === 'explore' && <ExploreTab />}
       </div>
     </div>
   );
