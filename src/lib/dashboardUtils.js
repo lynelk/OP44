@@ -6,7 +6,8 @@ export async function fetchDashboardSummary() {
   const uid = (await base44.auth.me())?.id;
   if (!uid) throw new Error('Unauthorized');
 
-  const [loans, notifications, scores, pockets, badges, lenderInv, policies, referralEvents, profile] = await Promise.all([
+  // Use allSettled so a single failed entity call doesn't crash the entire dashboard
+  const settled = await Promise.allSettled([
     base44.entities.LoanApplication.filter({ user_id: uid }),
     base44.entities.Notification.filter({ user_id: uid, is_read: false }),
     base44.entities.CreditScore.filter({ user_id: uid }, '-calculated_at', 1),
@@ -17,6 +18,22 @@ export async function fetchDashboardSummary() {
     base44.entities.ReferralEvent.filter({ referrer_id: uid }),
     base44.entities.UserProfile.filter({ user_id: uid }),
   ]);
+
+  // Log any failures for debugging, but use empty arrays as fallback
+  settled.forEach((r, i) => {
+    if (r.status === 'rejected') console.warn(`[Dashboard] entity ${i} failed:`, r.reason?.message || r.reason);
+  });
+
+  const val = (i, fallback = []) => settled[i].status === 'fulfilled' ? settled[i].value : fallback;
+  const loans = val(0);
+  const notifications = val(1);
+  const scores = val(2);
+  const pockets = val(3);
+  const badges = val(4);
+  const lenderInv = val(5);
+  const policies = val(6);
+  const referralEvents = val(7);
+  const profile = val(8);
 
   const p2pTotal = lenderInv.reduce((s, i) => s + (i.amount_invested || 0), 0);
   const savingsTotal = pockets.reduce((s, p) => s + (p.current_balance || 0), 0);
@@ -55,11 +72,14 @@ export async function fetchFinancialTips() {
   const currentMonth = new Date().toISOString().slice(0, 7);
   const lastMonth = new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().slice(0, 7);
 
-  const [expenses, goals, loans] = await Promise.all([
+  const settled = await Promise.allSettled([
     base44.entities.Expense.filter({ user_id: uid }),
     base44.entities.SavingsGoal.filter({ user_id: uid }),
     base44.entities.LoanApplication.filter({ user_id: uid }),
   ]);
+  const expenses = settled[0].status === 'fulfilled' ? settled[0].value : [];
+  const goals = settled[1].status === 'fulfilled' ? settled[1].value : [];
+  const loans = settled[2].status === 'fulfilled' ? settled[2].value : [];
 
   const thisMonthExp = expenses.filter(e => e.date?.startsWith(currentMonth));
   const lastMonthExp = expenses.filter(e => e.date?.startsWith(lastMonth));
@@ -140,9 +160,11 @@ export async function fetchFinancialTips() {
   const activeLoans = loans.filter(l => l.status === 'active' || l.status === 'disbursed');
   if (activeLoans.length > 0) {
     const totalRepayments = activeLoans.reduce((s, l) => s + (l.monthly_installment || 0), 0);
-    const profiles = await base44.entities.UserProfile.filter({ user_id: uid });
-    const profile = profiles[0];
-    const income = profile?.monthly_income || 0;
+    let income = 0;
+    try {
+      const profiles = await base44.entities.UserProfile.filter({ user_id: uid });
+      income = profiles[0]?.monthly_income || 0;
+    } catch (e) { /* ignore — tips still work without income */ }
 
     if (income > 0) {
       const dti = totalRepayments / income;
