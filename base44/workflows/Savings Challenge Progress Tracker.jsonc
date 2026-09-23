@@ -1,0 +1,37 @@
+{
+  "name": "Savings Challenge Progress Tracker",
+  "description": "Fires when a savings pocket is updated (deposit made). Updates the user's active challenge streaks and milestones, and awards badges on completion.",
+  "trigger": {
+    "condition": "${ (.trigger.changed_fields | index(\"current_balance\") != null) }",
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "update"
+      ],
+      "entity_name": "SavingsPocket"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "savings_challenge_progress_tracker",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "updateChallengeProgress",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "updateChallengeProgress"
+  }
+}

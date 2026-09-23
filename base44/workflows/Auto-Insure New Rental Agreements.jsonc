@@ -1,0 +1,37 @@
+{
+  "name": "Auto-Insure New Rental Agreements",
+  "description": "Triggers the rental insurance underwriting engine whenever a new RentalAgreement is created. Automatically checks if device is insured and allocates the most cost-effective policy if not.",
+  "trigger": {
+    "condition": "${ (.trigger.data.status != \"Draft\") }",
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create"
+      ],
+      "entity_name": "RentalAgreement"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "auto_insure_new_rental_agreements",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "rentalInsuranceEngine",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "rentalInsuranceEngine"
+  }
+}

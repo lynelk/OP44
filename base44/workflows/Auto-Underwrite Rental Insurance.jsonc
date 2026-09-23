@@ -1,0 +1,38 @@
+{
+  "name": "Auto-Underwrite Rental Insurance",
+  "description": "Triggers the rental insurance engine whenever a RentalAgreement is created or its status changes to Active/Approved, automatically selecting and allocating the best insurance product.",
+  "trigger": {
+    "condition": "${ ((.trigger.data.status == \"Active\") or (.trigger.data.status == \"Approved\")) }",
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create",
+        "update"
+      ],
+      "entity_name": "RentalAgreement"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "auto_underwrite_rental_insurance",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "rentalInsuranceEngine",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "rentalInsuranceEngine"
+  }
+}

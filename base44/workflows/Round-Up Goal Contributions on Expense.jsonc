@@ -1,0 +1,39 @@
+{
+  "name": "Round-Up Goal Contributions on Expense",
+  "description": "Triggers round-up contributions to linked Savings Goals whenever a new expense is recorded",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "create"
+      ],
+      "entity_name": "Expense"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "round_up_goal_contributions_on_expense",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "savingsGoalManager",
+            "args": {
+              "action": "process_round_up"
+            }
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "savingsGoalManager"
+  }
+}
